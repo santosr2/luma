@@ -1,0 +1,47 @@
+@# Kubernetes Deployment Template - Luma Style
+@# Much cleaner than Helm/Go templates!
+@# Directives can be indented to match your file structure
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $app.name
+  namespace: ${namespace | default("default")}
+  labels:
+    app: $app.name
+    version: $app.version
+spec:
+  replicas: ${replicas | default(1)}
+  selector:
+    matchLabels:
+      app: $app.name
+  template:
+    metadata:
+      labels:
+        app: $app.name
+        version: $app.version
+    spec:
+      containers:
+      @for container in containers
+        - name: $container.name
+          image: ${container.image}:${container.tag | default("latest")}
+          @if container.ports
+          ports:
+            @for port in container.ports
+            - containerPort: $port
+            @end
+          @end
+          @if container.env
+          env:
+            @for e in container.env
+            - name: $e.name
+              value: "$e.value"
+            @end
+          @end
+          @if container.resources
+          resources:
+            limits:
+              cpu: ${container.resources.cpu | default("100m")}
+              memory: ${container.resources.memory | default("128Mi")}
+          @end
+      @end

@@ -1,0 +1,28 @@
+@# Simple Luma Template Example
+
+Hello, $name!
+
+Your profile:
+- Name: $user.name
+- Email: ${user.email | default("not provided")}
+
+@if user.is_admin
+  You have admin privileges.
+@else
+  You are a regular user.
+@end
+
+Your items:
+@for item in items
+  ${loop.index}. $item
+@else
+  No items found.
+@end
+
+Filters demo:
+- Uppercase: ${name | upper}
+- Default: ${missing | default("fallback value")}
+- Length: ${items | length} items
+
+@# Escaped dollar sign: $$100
+Price: $$100
