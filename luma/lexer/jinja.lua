@@ -1,13 +1,13 @@
---- Native syntax lexer for Luma
--- Handles $var, ${expr}, and @directive syntax
--- @module luma.lexer.native
+--- Jinja2 compatibility lexer for Luma
+-- Handles {{ expr }}, {% stmt %}, and {# comment #} syntax
+-- @module luma.lexer.jinja
 
 local tokens = require("luma.lexer.tokens")
 local errors = require("luma.utils.errors")
 
 local T = tokens.types
 
-local native = {}
+local jinja = {}
 
 --- Character classification helpers
 local function is_alpha(c)
@@ -26,11 +26,11 @@ local function is_whitespace(c)
     return c == " " or c == "\t" or c == "\r"
 end
 
---- Create a new native lexer
+--- Create a new Jinja lexer
 -- @param source string The template source code
 -- @param source_name string|nil Name for error messages
 -- @return table Lexer instance
-function native.new(source, source_name)
+function jinja.new(source, source_name)
     local self = {
         source = source,
         source_name = source_name or "template",
@@ -39,17 +39,17 @@ function native.new(source, source_name)
         column = 1,
         length = #source,
         -- Mode tracking
-        in_expression = false,    -- Inside ${...}
-        in_directive = false,     -- Inside @directive
-        at_line_start = true,     -- At start of line (for directive detection)
-        brace_depth = 0,          -- Nesting depth for ${...}
+        in_var = false,        -- Inside {{ ... }}
+        in_stmt = false,       -- Inside {% ... %}
+        stmt_keyword = nil,    -- The keyword of the current statement
+        trim_next = false,     -- Whether to trim whitespace on next text
     }
-    setmetatable(self, { __index = native })
+    setmetatable(self, { __index = jinja })
     return self
 end
 
 --- Get current character without advancing
-function native:peek(offset)
+function jinja:peek(offset)
     offset = offset or 0
     local pos = self.pos + offset
     if pos > self.length then
@@ -59,7 +59,7 @@ function native:peek(offset)
 end
 
 --- Advance position and return current character
-function native:advance()
+function jinja:advance()
     if self.pos > self.length then
         return nil
     end
@@ -68,23 +68,19 @@ function native:advance()
     if c == "\n" then
         self.line = self.line + 1
         self.column = 1
-        self.at_line_start = true
     else
         self.column = self.column + 1
-        if not is_whitespace(c) then
-            self.at_line_start = false
-        end
     end
     return c
 end
 
 --- Check if we've reached the end
-function native:is_eof()
+function jinja:is_eof()
     return self.pos > self.length
 end
 
 --- Match a string at current position
-function native:match(str)
+function jinja:match(str)
     local len = #str
     if self.pos + len - 1 > self.length then
         return false
@@ -92,11 +88,13 @@ function native:match(str)
     return self.source:sub(self.pos, self.pos + len - 1) == str
 end
 
---- Skip whitespace (not newlines)
-function native:skip_whitespace()
+--- Skip whitespace (not newlines unless in expression)
+function jinja:skip_whitespace(include_newlines)
     while not self:is_eof() do
         local c = self:peek()
         if is_whitespace(c) then
+            self:advance()
+        elseif include_newlines and c == "\n" then
             self:advance()
         else
             break
@@ -105,7 +103,7 @@ function native:skip_whitespace()
 end
 
 --- Read an identifier
-function native:read_identifier()
+function jinja:read_identifier()
     local start = self.pos
     while not self:is_eof() and is_alnum(self:peek()) do
         self:advance()
@@ -114,7 +112,7 @@ function native:read_identifier()
 end
 
 --- Read a number literal
-function native:read_number()
+function jinja:read_number()
     local start = self.pos
     local has_dot = false
 
@@ -135,7 +133,7 @@ function native:read_number()
 end
 
 --- Read a string literal
-function native:read_string(quote)
+function jinja:read_string(quote)
     local start_line = self.line
     local start_col = self.column
     local parts = {}
@@ -181,37 +179,14 @@ function native:read_string(quote)
     errors.raise(errors.lexer("Unterminated string", start_line, start_col, self.source_name))
 end
 
---- Read a simple interpolation path (e.g., $foo.bar.baz)
-function native:read_simple_path()
-    local parts = {}
-
-    -- First identifier
-    local ident = self:read_identifier()
-    table.insert(parts, ident)
-
-    -- Read any .member accesses
-    while self:peek() == "." do
-        local next_char = self:peek(1)
-        if next_char and is_alpha(next_char) then
-            self:advance()  -- skip .
-            local member = self:read_identifier()
-            table.insert(parts, member)
-        else
-            break
-        end
-    end
-
-    return table.concat(parts, ".")
-end
-
 --- Create a token with current position
-function native:make_token(token_type, value, start_line, start_col)
+function jinja:make_token(token_type, value, start_line, start_col)
     return tokens.new(token_type, value, start_line or self.line, start_col or self.column)
 end
 
---- Scan an expression token (inside ${...} or directive)
-function native:scan_expression_token()
-    self:skip_whitespace()
+--- Scan an expression token (inside {{ }} or {% %})
+function jinja:scan_expression_token()
+    self:skip_whitespace(true)
 
     if self:is_eof() then
         return self:make_token(T.EOF)
@@ -221,31 +196,40 @@ function native:scan_expression_token()
     local start_line = self.line
     local start_col = self.column
 
-    -- End of expression
-    if c == "}" and self.in_expression then
-        self.brace_depth = self.brace_depth - 1
-        if self.brace_depth == 0 then
+    -- Check for end of variable block: }} or -}}
+    if self.in_var then
+        if self:match("-}}") then
             self:advance()
-            self.in_expression = false
+            self:advance()
+            self:advance()
+            self.in_var = false
+            self.trim_next = true
             return self:make_token(T.INTERP_END, nil, start_line, start_col)
-        else
+        elseif self:match("}}") then
             self:advance()
-            return self:make_token(T.RBRACE, nil, start_line, start_col)
+            self:advance()
+            self.in_var = false
+            return self:make_token(T.INTERP_END, nil, start_line, start_col)
         end
     end
 
-    -- Nested brace
-    if c == "{" then
-        self:advance()
-        self.brace_depth = self.brace_depth + 1
-        return self:make_token(T.LBRACE, nil, start_line, start_col)
-    end
-
-    -- Newline ends directive
-    if c == "\n" and self.in_directive then
-        self:advance()
-        self.in_directive = false
-        return self:make_token(T.NEWLINE, nil, start_line, start_col)
+    -- Check for end of statement block: %} or -%}
+    if self.in_stmt then
+        if self:match("-%}") then
+            self:advance()
+            self:advance()
+            self:advance()
+            self.in_stmt = false
+            self.trim_next = true
+            -- Return NEWLINE to end directive mode
+            return self:make_token(T.NEWLINE, nil, start_line, start_col)
+        elseif self:match("%}") then
+            self:advance()
+            self:advance()
+            self.in_stmt = false
+            -- Return NEWLINE to end directive mode
+            return self:make_token(T.NEWLINE, nil, start_line, start_col)
+        end
     end
 
     -- Identifiers and keywords
@@ -262,7 +246,7 @@ function native:scan_expression_token()
                 local saved_pos = self.pos
                 local saved_line = self.line
                 local saved_col = self.column
-                self:skip_whitespace()
+                self:skip_whitespace(true)
                 if is_alpha(self:peek() or "") then
                     local next_ident = self:read_identifier()
                     if next_ident == "in" then
@@ -333,6 +317,8 @@ function native:scan_expression_token()
     if c == "]" then return self:make_token(T.RBRACKET, nil, start_line, start_col) end
     if c == "(" then return self:make_token(T.LPAREN, nil, start_line, start_col) end
     if c == ")" then return self:make_token(T.RPAREN, nil, start_line, start_col) end
+    if c == "{" then return self:make_token(T.LBRACE, nil, start_line, start_col) end
+    if c == "}" then return self:make_token(T.RBRACE, nil, start_line, start_col) end
     if c == "<" then return self:make_token(T.LT, nil, start_line, start_col) end
     if c == ">" then return self:make_token(T.GT, nil, start_line, start_col) end
     if c == "+" then return self:make_token(T.PLUS, nil, start_line, start_col) end
@@ -346,119 +332,156 @@ function native:scan_expression_token()
     errors.raise(errors.lexer("Unexpected character in expression: " .. c, start_line, start_col, self.source_name))
 end
 
---- Scan a directive at line start
-function native:scan_directive()
+--- Scan a statement block {% ... %}
+function jinja:scan_statement()
     local start_line = self.line
     local start_col = self.column
 
-    -- Skip @
+    -- Skip {%
+    self:advance()
     self:advance()
 
-    -- Check for comment @#
-    if self:peek() == "#" then
-        -- Read to end of line
-        local comment_start = self.pos + 1
-        while not self:is_eof() and self:peek() ~= "\n" do
-            self:advance()
-        end
-        local comment = self.source:sub(comment_start, self.pos - 1)
-        return self:make_token(T.DIR_COMMENT, comment, start_line, start_col)
+    -- Check for whitespace control: {%-
+    local trim_prev = false
+    if self:peek() == "-" then
+        trim_prev = true
+        self:advance()
     end
 
-    -- Read directive keyword
+    self:skip_whitespace(true)
+
+    -- Read statement keyword
     local keyword = self:read_identifier()
+
+    -- Map Jinja keywords to our directive tokens
     local dir_type = tokens.directives[keyword]
 
     if not dir_type then
-        errors.raise(errors.lexer("Unknown directive: @" .. keyword, start_line, start_col, self.source_name))
+        errors.raise(errors.lexer("Unknown statement: " .. keyword, start_line, start_col, self.source_name))
     end
 
-    -- For directives that don't need expressions, return immediately
-    if dir_type == T.DIR_ELSE or dir_type == T.DIR_END or
-       dir_type == T.DIR_RAW or dir_type == T.DIR_ENDRAW or
-       dir_type == T.DIR_BREAK or dir_type == T.DIR_CONTINUE then
-        return self:make_token(dir_type, keyword, start_line, start_col)
+    -- For end-type statements, we need to scan past the %}
+    if dir_type == T.DIR_END or dir_type == T.DIR_ENDRAW or dir_type == T.DIR_ENDBLOCK then
+        self:skip_whitespace(true)
+        if self:match("-%}") then
+            self:advance()
+            self:advance()
+            self:advance()
+            self.trim_next = true
+        elseif self:match("%}") then
+            self:advance()
+            self:advance()
+        else
+            errors.raise(errors.lexer("Expected '%}' to close statement", self.line, self.column, self.source_name))
+        end
+        return self:make_token(dir_type, keyword, start_line, start_col), trim_prev
     end
 
-    -- Other directives enter directive mode for expression parsing
-    self.in_directive = true
-    return self:make_token(dir_type, keyword, start_line, start_col)
+    -- For else-type statements
+    if dir_type == T.DIR_ELSE then
+        self:skip_whitespace(true)
+        if self:match("-%}") then
+            self:advance()
+            self:advance()
+            self:advance()
+            self.trim_next = true
+        elseif self:match("%}") then
+            self:advance()
+            self:advance()
+        else
+            errors.raise(errors.lexer("Expected '%}' to close statement", self.line, self.column, self.source_name))
+        end
+        return self:make_token(dir_type, keyword, start_line, start_col), trim_prev
+    end
+
+    -- For break/continue
+    if dir_type == T.DIR_BREAK or dir_type == T.DIR_CONTINUE then
+        self:skip_whitespace(true)
+        if self:match("-%}") then
+            self:advance()
+            self:advance()
+            self:advance()
+            self.trim_next = true
+        elseif self:match("%}") then
+            self:advance()
+            self:advance()
+        else
+            errors.raise(errors.lexer("Expected '%}' to close statement", self.line, self.column, self.source_name))
+        end
+        return self:make_token(dir_type, keyword, start_line, start_col), trim_prev
+    end
+
+    -- Other statements enter statement mode for expression parsing
+    self.in_stmt = true
+    self.stmt_keyword = keyword
+    return self:make_token(dir_type, keyword, start_line, start_col), trim_prev
 end
 
---- Scan text content until we hit a special character
-function native:scan_text()
+--- Scan a comment block {# ... #}
+function jinja:scan_comment()
+    local start_line = self.line
+    local start_col = self.column
+
+    -- Skip {#
+    self:advance()
+    self:advance()
+
+    local trim_prev = false
+    if self:peek() == "-" then
+        trim_prev = true
+        self:advance()
+    end
+
+    local parts = {}
+    while not self:is_eof() do
+        if self:match("-#}") then
+            self:advance()
+            self:advance()
+            self:advance()
+            self.trim_next = true
+            break
+        elseif self:match("#}") then
+            self:advance()
+            self:advance()
+            break
+        else
+            table.insert(parts, self:peek())
+            self:advance()
+        end
+    end
+
+    return self:make_token(T.DIR_COMMENT, table.concat(parts), start_line, start_col), trim_prev
+end
+
+--- Scan text content until we hit a special block
+function jinja:scan_text()
     local start_line = self.line
     local start_col = self.column
     local parts = {}
-    -- Track leading whitespace on current line for potential directive
-    local line_whitespace = {}
-    local on_line_start = self.at_line_start
 
     while not self:is_eof() do
         local c = self:peek()
 
-        -- Check for $ (interpolation)
-        if c == "$" then
+        -- Check for Jinja blocks
+        if c == "{" then
             local next_c = self:peek(1)
-            if next_c == "$" then
-                -- Escaped $$ -> literal $
-                self:advance()
-                self:advance()
-                -- Whitespace before this is real content now
-                for _, ws in ipairs(line_whitespace) do
-                    table.insert(parts, ws)
-                end
-                line_whitespace = {}
-                on_line_start = false
-                table.insert(parts, "$")
-            elseif next_c == "{" or (next_c and is_alpha(next_c)) then
-                -- Start of interpolation - keep the line whitespace as content
-                for _, ws in ipairs(line_whitespace) do
-                    table.insert(parts, ws)
-                end
+            if next_c == "{" or next_c == "%" or next_c == "#" then
                 break
-            else
-                -- Lone $ is just text
-                for _, ws in ipairs(line_whitespace) do
-                    table.insert(parts, ws)
-                end
-                line_whitespace = {}
-                on_line_start = false
-                table.insert(parts, c)
-                self:advance()
             end
-        -- Check for @ at line start (directive)
-        elseif c == "@" and self.at_line_start then
-            -- Don't include the leading whitespace - it belongs to the directive line
-            -- The whitespace will be discarded as the directive takes over
-            break
-        -- Newline handling
-        elseif c == "\n" then
-            -- Include any accumulated whitespace before newline
-            for _, ws in ipairs(line_whitespace) do
-                table.insert(parts, ws)
-            end
-            line_whitespace = {}
-            table.insert(parts, c)
-            self:advance()
-            on_line_start = true
-        -- Whitespace at line start - accumulate it
-        elseif is_whitespace(c) and on_line_start then
-            table.insert(line_whitespace, c)
-            self:advance()
-        else
-            -- Regular content - flush any accumulated whitespace
-            for _, ws in ipairs(line_whitespace) do
-                table.insert(parts, ws)
-            end
-            line_whitespace = {}
-            on_line_start = false
-            table.insert(parts, c)
-            self:advance()
         end
+
+        table.insert(parts, c)
+        self:advance()
     end
 
     local text = table.concat(parts)
+
+    -- Handle whitespace trimming from previous block
+    if self.trim_next then
+        self.trim_next = false
+        text = text:gsub("^%s+", "")
+    end
+
     if #text > 0 then
         return self:make_token(T.TEXT, text, start_line, start_col)
     end
@@ -466,9 +489,9 @@ function native:scan_text()
 end
 
 --- Get the next token
-function native:next_token()
+function jinja:next_token()
     -- If in expression mode, scan expression tokens
-    if self.in_expression or self.in_directive then
+    if self.in_var or self.in_stmt then
         return self:scan_expression_token()
     end
 
@@ -481,30 +504,28 @@ function native:next_token()
     local start_line = self.line
     local start_col = self.column
 
-    -- Check for directive at line start
-    if c == "@" and self.at_line_start then
-        return self:scan_directive()
-    end
-
-    -- Check for interpolation
-    if c == "$" then
+    -- Check for Jinja blocks
+    if c == "{" then
         local next_c = self:peek(1)
 
-        if next_c == "$" then
-            -- Escaped $$ - handled in scan_text
-            return self:scan_text()
-        elseif next_c == "{" then
-            -- Expression interpolation ${...}
-            self:advance()  -- skip $
-            self:advance()  -- skip {
-            self.in_expression = true
-            self.brace_depth = 1
+        if next_c == "{" then
+            -- Variable block {{ ... }}
+            self:advance()
+            self:advance()
+            -- Check for whitespace control: {{-
+            if self:peek() == "-" then
+                self:advance()
+            end
+            self.in_var = true
             return self:make_token(T.INTERP_START, nil, start_line, start_col)
-        elseif next_c and is_alpha(next_c) then
-            -- Simple interpolation $var or $foo.bar
-            self:advance()  -- skip $
-            local path = self:read_simple_path()
-            return self:make_token(T.INTERP_SIMPLE, path, start_line, start_col)
+        elseif next_c == "%" then
+            -- Statement block {% ... %}
+            local token, trim_prev = self:scan_statement()
+            return token
+        elseif next_c == "#" then
+            -- Comment block {# ... #}
+            local token, trim_prev = self:scan_comment()
+            return token
         end
     end
 
@@ -520,7 +541,7 @@ end
 
 --- Tokenize the entire source
 -- @return table Array of tokens
-function native:tokenize()
+function jinja:tokenize()
     local result = {}
 
     while true do
@@ -534,4 +555,4 @@ function native:tokenize()
     return result
 end
 
-return native
+return jinja

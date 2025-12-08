@@ -4,6 +4,7 @@
 
 local tokens = require("luma.lexer.tokens")
 local native = require("luma.lexer.native")
+local jinja = require("luma.lexer.jinja")
 
 local lexer = {}
 
@@ -45,11 +46,7 @@ function lexer.new(source, options)
 
     -- Create appropriate lexer
     if syntax == lexer.SYNTAX_JINJA then
-        -- TODO: Implement Jinja compat lexer
-        -- For now, fall back to native
-        -- local compat = require("luma.lexer.compat")
-        -- return compat.new(source, source_name)
-        error("Jinja compatibility mode not yet implemented")
+        return jinja.new(source, source_name)
     end
 
     return native.new(source, source_name)

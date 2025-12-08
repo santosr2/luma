@@ -35,10 +35,19 @@ ast.types = {
     BINARY_OP = "BINARY_OP",            -- expr op expr
     UNARY_OP = "UNARY_OP",              -- op expr
     TABLE = "TABLE",                    -- {key: value} or [a, b, c]
+    TEST = "TEST",                      -- expr is test / expr is not test
 
     -- Special
     RAW = "RAW",                        -- Raw text block (no processing)
     COMMENT = "COMMENT",                -- Comment (not rendered)
+
+    -- Loop control
+    BREAK = "BREAK",                    -- Break out of loop
+    CONTINUE = "CONTINUE",              -- Continue to next iteration
+
+    -- Template inheritance
+    EXTENDS = "EXTENDS",                -- @extends "base.html"
+    BLOCK = "BLOCK",                    -- @block name ... @end
 }
 
 local N = ast.types
@@ -104,16 +113,23 @@ function ast.if_node(condition, then_body, else_body, line, column)
 end
 
 --- Create a for loop node
--- @param var_name string Loop variable name
+-- @param var_names string|table Loop variable name(s) - string or array for tuple unpacking
 -- @param iterable table Expression for iterable
 -- @param body table Array of body nodes
 -- @param else_body table|nil Array of nodes for empty iteration
 -- @param line number|nil Line number
 -- @param column number|nil Column number
 -- @return table For node
-function ast.for_node(var_name, iterable, body, else_body, line, column)
+function ast.for_node(var_names, iterable, body, else_body, line, column)
     local node = make_node(N.FOR, line, column)
-    node.var_name = var_name
+    -- Support both single variable name and array of names for tuple unpacking
+    if type(var_names) == "string" then
+        node.var_names = { var_names }
+        node.var_name = var_names  -- Keep for backwards compatibility
+    else
+        node.var_names = var_names
+        node.var_name = var_names[1]  -- Keep for backwards compatibility
+    end
     node.iterable = iterable
     node.body = body or {}
     node.else_body = else_body  -- Optional @else for empty iteration
@@ -318,6 +334,63 @@ function ast.table_literal(entries, is_array, line, column)
     local node = make_node(N.TABLE, line, column)
     node.entries = entries or {}
     node.is_array = is_array or false
+    return node
+end
+
+--- Create a test expression node (is / is not)
+-- @param expression table Expression to test
+-- @param test_name string Name of the test (e.g., "defined", "string")
+-- @param args table|nil Test arguments (for tests like divisibleby(n))
+-- @param negated boolean True if "is not" was used
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table Test node
+function ast.test(expression, test_name, args, negated, line, column)
+    local node = make_node(N.TEST, line, column)
+    node.expression = expression
+    node.test_name = test_name
+    node.args = args or {}
+    node.negated = negated or false
+    return node
+end
+
+--- Create a break node
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table Break node
+function ast.break_node(line, column)
+    return make_node(N.BREAK, line, column)
+end
+
+--- Create a continue node
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table Continue node
+function ast.continue_node(line, column)
+    return make_node(N.CONTINUE, line, column)
+end
+
+--- Create an extends node
+-- @param path string|table Template path to extend
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table Extends node
+function ast.extends(path, line, column)
+    local node = make_node(N.EXTENDS, line, column)
+    node.path = path
+    return node
+end
+
+--- Create a block node
+-- @param name string Block name
+-- @param body table Array of body nodes
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table Block node
+function ast.block(name, body, line, column)
+    local node = make_node(N.BLOCK, line, column)
+    node.name = name
+    node.body = body or {}
     return node
 end
 
