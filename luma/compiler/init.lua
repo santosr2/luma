@@ -6,8 +6,10 @@ local parser = require("luma.parser")
 local codegen = require("luma.compiler.codegen")
 local compat = require("luma.utils.compat")
 local errors = require("luma.utils.errors")
+local ast_module = require("luma.parser.ast")
 
 local compiler = {}
+local N = ast_module.types
 
 -- Re-export submodules
 compiler.codegen = codegen
@@ -37,18 +39,98 @@ end
 -- @param filters table|nil Filter functions
 -- @param runtime table|nil Runtime utilities
 -- @param macros table|nil Pre-defined macros
+-- @param tests table|nil Test functions for 'is' expressions
 -- @return string Rendered output
-function CompiledTemplate:render(context, filters, runtime, macros)
+function CompiledTemplate:render(context, filters, runtime, macros, tests)
     context = context or {}
     filters = filters or {}
     runtime = runtime or require("luma.runtime")
     macros = macros or {}
+    tests = tests or runtime.default_tests()
 
-    local ok, result = pcall(self._fn, context, filters, runtime, macros)
+    local ok, result = pcall(self._fn, context, filters, runtime, macros, tests)
     if not ok then
         errors.raise(errors.runtime(tostring(result)))
     end
     return result
+end
+
+--- Extract blocks from an AST body
+-- @param body table Array of AST nodes
+-- @return table Map of block name to block node
+local function extract_blocks(body)
+    local blocks = {}
+    for _, node in ipairs(body) do
+        if node.type == N.BLOCK then
+            blocks[node.name] = node
+        end
+    end
+    return blocks
+end
+
+--- Find extends directive in AST
+-- @param template_ast table Template AST
+-- @return table|nil Extends node or nil
+local function find_extends(template_ast)
+    for _, node in ipairs(template_ast.body) do
+        if node.type == N.EXTENDS then
+            return node
+        end
+    end
+    return nil
+end
+
+--- Replace blocks in body with child blocks
+-- @param body table Array of AST nodes
+-- @param child_blocks table Map of block name to child block node
+-- @return table Modified body
+local function replace_blocks(body, child_blocks)
+    local result = {}
+    for _, node in ipairs(body) do
+        if node.type == N.BLOCK and child_blocks[node.name] then
+            -- Replace with child block
+            table.insert(result, child_blocks[node.name])
+        else
+            table.insert(result, node)
+        end
+    end
+    return result
+end
+
+--- Resolve template inheritance
+-- @param template_ast table Template AST
+-- @param options table Compilation options
+-- @return table Resolved AST (with inheritance applied)
+function compiler.resolve_inheritance(template_ast, options)
+    local extends_node = find_extends(template_ast)
+
+    if not extends_node then
+        -- No inheritance - return as-is
+        return template_ast
+    end
+
+    -- Load the parent template
+    local runtime = require("luma.runtime")
+    local parent_path = extends_node.path
+    local parent_source, err = runtime.load_source(parent_path)
+
+    if not parent_source then
+        errors.raise(errors.compile("Failed to load parent template '" .. tostring(parent_path) .. "': " .. tostring(err)))
+    end
+
+    -- Parse the parent template
+    local parent_ast = parser.parse(parent_source, options)
+
+    -- Recursively resolve parent inheritance
+    parent_ast = compiler.resolve_inheritance(parent_ast, options)
+
+    -- Extract blocks from child template
+    local child_blocks = extract_blocks(template_ast.body)
+
+    -- Replace blocks in parent with child blocks
+    parent_ast.body = replace_blocks(parent_ast.body, child_blocks)
+
+    return parent_ast
 end
 
 --- Compile a template from source string
@@ -61,6 +143,9 @@ function compiler.compile(source, options)
 
     -- Parse source to AST
     local template_ast = parser.parse(source, options)
+
+    -- Resolve template inheritance
+    template_ast = compiler.resolve_inheritance(template_ast, options)
 
     -- Generate Lua code
     local lua_code = codegen.generate(template_ast, options)

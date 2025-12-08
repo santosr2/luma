@@ -136,6 +136,13 @@ function codegen.gen_expression(node, ctx)
         local right = codegen.gen_expression(node.right, ctx)
         local op = node.operator
 
+        -- Handle membership operators
+        if op == "in" then
+            return "(__runtime.contains(" .. right .. ", " .. left .. "))"
+        elseif op == "not_in" then
+            return "(not __runtime.contains(" .. right .. ", " .. left .. "))"
+        end
+
         -- Map operators
         if op == "!=" then
             op = "~="
@@ -161,6 +168,20 @@ function codegen.gen_expression(node, ctx)
             end
         end
         return "{" .. table.concat(entries, ", ") .. "}"
+    end
+
+    if t == N.TEST then
+        local expr = codegen.gen_expression(node.expression, ctx)
+        local test_name = node.test_name
+        local args_code = { expr }
+        for _, arg in ipairs(node.args) do
+            table.insert(args_code, codegen.gen_expression(arg, ctx))
+        end
+        local test_call = "__tests[\"" .. test_name .. "\"](" .. table.concat(args_code, ", ") .. ")"
+        if node.negated then
+            return "(not " .. test_call .. ")"
+        end
+        return "(" .. test_call .. ")"
     end
 
     errors.raise(errors.compile("Unknown expression type: " .. tostring(t), node.line, node.column))
@@ -240,6 +261,35 @@ function codegen.gen_node(node, ctx)
         return
     end
 
+    if t == N.BREAK then
+        -- Break out of the current loop
+        if ctx.current_loop_var then
+            emit(ctx, ctx.current_loop_var .. "_break = true")
+            emit(ctx, "break")  -- Break out of repeat block
+        end
+        return
+    end
+
+    if t == N.CONTINUE then
+        -- Continue to next iteration (break out of repeat block)
+        emit(ctx, "break")  -- Break out of repeat block, but not the for loop
+        return
+    end
+
+    if t == N.BLOCK then
+        -- Block content - simply render its body (inheritance is resolved before codegen)
+        for _, child in ipairs(node.body) do
+            codegen.gen_node(child, ctx)
+        end
+        return
+    end
+
+    if t == N.EXTENDS then
+        -- Extends is handled at compile time, not at runtime
+        -- Should not appear in codegen (inheritance resolution removes it)
+        return
+    end
+
     -- Unknown node type - skip
 end
 
@@ -275,20 +325,65 @@ function codegen.gen_if(node, ctx)
     emit(ctx, "end")
 end
 
+--- Check if a body contains break or continue nodes
+local function has_loop_control(body)
+    for _, node in ipairs(body) do
+        if node.type == N.BREAK or node.type == N.CONTINUE then
+            return true
+        end
+        -- Check nested blocks
+        if node.body and has_loop_control(node.body) then
+            return true
+        end
+        if node.then_body and has_loop_control(node.then_body) then
+            return true
+        end
+        if node.else_body then
+            if type(node.else_body) == "table" and node.else_body.type then
+                -- It's a single node (elif)
+                if node.else_body.type == N.BREAK or node.else_body.type == N.CONTINUE then
+                    return true
+                end
+            elseif type(node.else_body) == "table" then
+                if has_loop_control(node.else_body) then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
 --- Generate code for for loop
 function codegen.gen_for(node, ctx)
     local iterable = codegen.gen_expression(node.iterable, ctx)
-    local var_name = node.var_name
+    local var_names = node.var_names or { node.var_name }  -- Support both old and new format
     local loop_var = gen_var(ctx, "loop")
+    local uses_loop_control = has_loop_control(node.body)
+
+    -- Push loop context for break/continue tracking
+    local old_loop_var = ctx.current_loop_var
+    ctx.current_loop_var = loop_var
 
     -- Create loop metadata
     emit(ctx, "do")
     indent(ctx)
+    emit(ctx, "local " .. loop_var .. "_parent = __ctx[\"loop\"]")  -- Save parent loop
     emit(ctx, "local " .. loop_var .. "_items = " .. iterable .. " or {}")
     emit(ctx, "local " .. loop_var .. "_len = #" .. loop_var .. "_items")
 
-    -- Handle empty case
-    emit(ctx, "if " .. loop_var .. "_len == 0 then")
+    if uses_loop_control then
+        emit(ctx, "local " .. loop_var .. "_break = false")
+    end
+
+    -- Handle empty case - for tuple unpacking, use next() to check if table is empty
+    local empty_check
+    if #var_names > 1 then
+        empty_check = "next(" .. loop_var .. "_items) == nil"
+    else
+        empty_check = loop_var .. "_len == 0"
+    end
+    emit(ctx, "if " .. empty_check .. " then")
     indent(ctx)
     if node.else_body then
         for _, child in ipairs(node.else_body) do
@@ -299,35 +394,66 @@ function codegen.gen_for(node, ctx)
     emit(ctx, "else")
     indent(ctx)
 
-    emit(ctx, "for " .. loop_var .. "_i, " .. loop_var .. "_v in ipairs(" .. loop_var .. "_items) do")
-    indent(ctx)
+    -- Handle tuple unpacking vs single variable
+    if #var_names > 1 then
+        -- Tuple unpacking: for key, value in pairs(items)
+        -- Count items for pairs (since #table doesn't work for dicts)
+        emit(ctx, "local " .. loop_var .. "_count = 0")
+        emit(ctx, "for _ in pairs(" .. loop_var .. "_items) do " .. loop_var .. "_count = " .. loop_var .. "_count + 1 end")
+        emit(ctx, "local " .. loop_var .. "_idx = 0")
+        emit(ctx, "for " .. loop_var .. "_k, " .. loop_var .. "_v in pairs(" .. loop_var .. "_items) do")
+        indent(ctx)
+        if uses_loop_control then
+            emit(ctx, "if " .. loop_var .. "_break then break end")
+        end
+        emit(ctx, loop_var .. "_idx = " .. loop_var .. "_idx + 1")
+        emit(ctx, "__ctx[\"" .. var_names[1] .. "\"] = " .. loop_var .. "_k")
+        if var_names[2] then
+            emit(ctx, "__ctx[\"" .. var_names[2] .. "\"] = " .. loop_var .. "_v")
+        end
+        -- For tuple unpacking, we use the counted length
+        emit(ctx, "__ctx[\"loop\"] = __runtime.context.loop_meta(" .. loop_var .. "_idx, " .. loop_var .. "_count, nil, " .. loop_var .. "_parent)")
+    else
+        -- Single variable: for i, v in ipairs(items)
+        emit(ctx, "for " .. loop_var .. "_i, " .. loop_var .. "_v in ipairs(" .. loop_var .. "_items) do")
+        indent(ctx)
+        if uses_loop_control then
+            emit(ctx, "if " .. loop_var .. "_break then break end")
+        end
+        emit(ctx, "__ctx[\"" .. var_names[1] .. "\"] = " .. loop_var .. "_v")
+        -- Enhanced loop metadata with items and parent
+        emit(ctx, "__ctx[\"loop\"] = __runtime.context.loop_meta(" .. loop_var .. "_i, " .. loop_var .. "_len, " .. loop_var .. "_items, " .. loop_var .. "_parent)")
+    end
 
-    -- Set loop variable in context
-    emit(ctx, "__ctx[\"" .. var_name .. "\"] = " .. loop_var .. "_v")
-
-    -- Set loop metadata
-    emit(ctx, "__ctx[\"loop\"] = {")
-    indent(ctx)
-    emit(ctx, "index = " .. loop_var .. "_i,")
-    emit(ctx, "index0 = " .. loop_var .. "_i - 1,")
-    emit(ctx, "first = " .. loop_var .. "_i == 1,")
-    emit(ctx, "last = " .. loop_var .. "_i == " .. loop_var .. "_len,")
-    emit(ctx, "length = " .. loop_var .. "_len,")
-    dedent(ctx)
-    emit(ctx, "}")
+    -- Loop body - wrap in repeat...until true to allow break for continue simulation
+    if uses_loop_control then
+        emit(ctx, "repeat")
+        indent(ctx)
+    end
 
     -- Loop body
     for _, child in ipairs(node.body) do
         codegen.gen_node(child, ctx)
     end
 
+    if uses_loop_control then
+        dedent(ctx)
+        emit(ctx, "until true")
+    end
+
     dedent(ctx)
     emit(ctx, "end")
+
+    -- Restore parent loop
+    emit(ctx, "__ctx[\"loop\"] = " .. loop_var .. "_parent")
 
     dedent(ctx)
     emit(ctx, "end")
     dedent(ctx)
     emit(ctx, "end")
+
+    -- Restore old loop context
+    ctx.current_loop_var = old_loop_var
 end
 
 --- Generate code for macro definition
@@ -410,20 +536,20 @@ function codegen.generate(template_ast, options)
     -- Function header - receives globals as upvalues from the loader
     emit_raw(ctx, "local tostring, ipairs, pairs, setmetatable, type = tostring, ipairs, pairs, setmetatable, type")
     emit_raw(ctx, "local table, string, math = table, string, math")
-    emit_raw(ctx, "return function(__ctx, __filters, __runtime, __macros)")
+    emit_raw(ctx, "return function(__ctx, __filters, __runtime, __macros, __tests)")
     indent(ctx)
 
     emit(ctx, "__ctx = __ctx or {}")
     emit(ctx, "__filters = __filters or {}")
     emit(ctx, "__macros = __macros or {}")
+    emit(ctx, "__tests = __tests or {}")
     emit(ctx, "local __out = {}")
     emit(ctx, "")
 
-    -- Escape function
+    -- Escape function - handles safe wrapper tables
     emit(ctx, "local function __esc(v)")
     indent(ctx)
     emit(ctx, "if v == nil then return \"\" end")
-    emit(ctx, "v = tostring(v)")
     emit(ctx, "return __runtime.escape(v)")
     dedent(ctx)
     emit(ctx, "end")

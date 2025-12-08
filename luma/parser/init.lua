@@ -118,6 +118,14 @@ function parser.parse_node(stream)
         return parser.parse_import(stream)
     end
 
+    if token.type == T.DIR_EXTENDS then
+        return parser.parse_extends(stream)
+    end
+
+    if token.type == T.DIR_BLOCK then
+        return parser.parse_block(stream)
+    end
+
     if token.type == T.DIR_RAW then
         return parser.parse_raw(stream)
     end
@@ -125,6 +133,16 @@ function parser.parse_node(stream)
     if token.type == T.DIR_COMMENT then
         stream:advance()
         return ast.comment(token.value, token.line, token.column)
+    end
+
+    if token.type == T.DIR_BREAK then
+        stream:advance()
+        return ast.break_node(token.line, token.column)
+    end
+
+    if token.type == T.DIR_CONTINUE then
+        stream:advance()
+        return ast.continue_node(token.line, token.column)
     end
 
     -- Newlines in directive mode
@@ -191,12 +209,19 @@ end
 function parser.parse_for(stream)
     local start = stream:advance()  -- skip DIR_FOR
 
-    -- Parse variable name
+    -- Parse variable name(s) - support tuple unpacking: @for key, value in dict
+    local var_names = {}
     local var_token = stream:expect(T.IDENT, "Expected variable name after @for")
-    local var_name = var_token.value
+    table.insert(var_names, var_token.value)
+
+    -- Check for additional comma-separated variable names
+    while stream:match(T.COMMA) do
+        var_token = stream:expect(T.IDENT, "Expected variable name after ','")
+        table.insert(var_names, var_token.value)
+    end
 
     -- Expect 'in'
-    stream:expect(T.IN, "Expected 'in' after variable name in @for")
+    stream:expect(T.IN, "Expected 'in' after variable name(s) in @for")
 
     -- Parse iterable expression
     local iterable = expressions.parse(stream)
@@ -223,7 +248,7 @@ function parser.parse_for(stream)
         stream:match(T.NEWLINE)
     end
 
-    return ast.for_node(var_name, iterable, body, else_body, start.line, start.column)
+    return ast.for_node(var_names, iterable, body, else_body, start.line, start.column)
 end
 
 --- Parse @let directive
@@ -394,6 +419,51 @@ function parser.parse_raw(stream)
     end
 
     return ast.raw(table.concat(content_parts), start.line, start.column)
+end
+
+--- Parse @extends directive
+-- @param stream table Token stream
+-- @return table Extends AST node
+function parser.parse_extends(stream)
+    local start = stream:advance()  -- skip DIR_EXTENDS
+
+    -- Parse path (string or expression)
+    local path
+    if stream:check(T.STRING) then
+        local str = stream:advance()
+        path = str.value
+    else
+        path = expressions.parse(stream)
+    end
+
+    -- Skip newline
+    stream:match(T.NEWLINE)
+
+    return ast.extends(path, start.line, start.column)
+end
+
+--- Parse @block directive
+-- @param stream table Token stream
+-- @return table Block AST node
+function parser.parse_block(stream)
+    local start = stream:advance()  -- skip DIR_BLOCK
+
+    -- Parse block name
+    local name_token = stream:expect(T.IDENT, "Expected block name after @block")
+
+    -- Skip newline
+    stream:match(T.NEWLINE)
+
+    -- Parse body until @end or @endblock
+    local body = parser.parse_body(stream, { T.DIR_END, T.DIR_ENDBLOCK })
+
+    -- Expect @end or @endblock
+    if stream:check(T.DIR_END) or stream:check(T.DIR_ENDBLOCK) then
+        stream:advance()
+        stream:match(T.NEWLINE)
+    end
+
+    return ast.block(name_token.value, body, start.line, start.column)
 end
 
 return parser

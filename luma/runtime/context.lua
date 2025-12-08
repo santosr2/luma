@@ -116,9 +116,11 @@ end
 --- Create loop metadata
 -- @param index number Current index (1-based)
 -- @param length number Total length
+-- @param items table|nil The items array (for previtem/nextitem)
+-- @param parent_loop table|nil Parent loop metadata (for depth)
 -- @return table Loop metadata
-function context.loop_meta(index, length)
-    return {
+function context.loop_meta(index, length, items, parent_loop)
+    local meta = {
         index = index,
         index0 = index - 1,
         first = index == 1,
@@ -126,7 +128,24 @@ function context.loop_meta(index, length)
         length = length,
         revindex = length - index + 1,
         revindex0 = length - index,
+        depth = parent_loop and (parent_loop.depth + 1) or 1,
+        depth0 = parent_loop and parent_loop.depth or 0,
     }
+
+    -- Add previtem and nextitem if items array is provided
+    if items then
+        meta.previtem = index > 1 and items[index - 1] or nil
+        meta.nextitem = index < length and items[index + 1] or nil
+    end
+
+    -- Add cycle function
+    meta.cycle = function(...)
+        local args = {...}
+        if #args == 0 then return nil end
+        return args[((index - 1) % #args) + 1]
+    end
+
+    return meta
 end
 
 --- Create an iterator with loop metadata

@@ -35,6 +35,11 @@ tokens.types = {
     DIR_RAW = "DIR_RAW",                -- @raw
     DIR_ENDRAW = "DIR_ENDRAW",          -- @endraw
     DIR_COMMENT = "DIR_COMMENT",        -- @# comment
+    DIR_BREAK = "DIR_BREAK",            -- @break
+    DIR_CONTINUE = "DIR_CONTINUE",      -- @continue
+    DIR_EXTENDS = "DIR_EXTENDS",        -- @extends "base.html"
+    DIR_BLOCK = "DIR_BLOCK",            -- @block name
+    DIR_ENDBLOCK = "DIR_ENDBLOCK",      -- @endblock (alias for @end)
 
     -- Expression tokens (used inside ${} and directives)
     IDENT = "IDENT",                    -- identifier
@@ -83,7 +88,8 @@ tokens.types = {
     ASSIGN = "ASSIGN",                  -- =
 
     -- Keywords (used in expressions and directives)
-    IN = "IN",                          -- in (for loops)
+    IN = "IN",                          -- in (for loops, membership)
+    NOT_IN = "NOT_IN",                  -- not in (membership)
     IS = "IS",                          -- is (tests)
     AS = "AS",                          -- as (aliasing)
 
@@ -123,6 +129,11 @@ tokens.directives = {
     ["endmacro"] = tokens.types.DIR_END, -- Jinja compat
     ["raw"] = tokens.types.DIR_RAW,
     ["endraw"] = tokens.types.DIR_ENDRAW,
+    ["break"] = tokens.types.DIR_BREAK,
+    ["continue"] = tokens.types.DIR_CONTINUE,
+    ["extends"] = tokens.types.DIR_EXTENDS,
+    ["block"] = tokens.types.DIR_BLOCK,
+    ["endblock"] = tokens.types.DIR_ENDBLOCK,
 }
 
 --- Create a new token

@@ -38,6 +38,8 @@ local BINARY_OPS = {
     [T.GE] = ">=",
     [T.AND] = "and",
     [T.OR] = "or",
+    [T.IN] = "in",
+    [T.NOT_IN] = "not_in",
 }
 
 --- Get precedence for a token type
@@ -48,7 +50,8 @@ local function get_precedence(token_type)
         return PRECEDENCE.AND
     elseif token_type == T.EQ or token_type == T.NE or
            token_type == T.LT or token_type == T.LE or
-           token_type == T.GT or token_type == T.GE then
+           token_type == T.GT or token_type == T.GE or
+           token_type == T.IN or token_type == T.NOT_IN then
         return PRECEDENCE.COMPARISON
     elseif token_type == T.PLUS or token_type == T.MINUS then
         return PRECEDENCE.ADDITIVE
@@ -333,6 +336,15 @@ function expressions.parse_binary(stream, min_prec)
             break
         end
 
+        -- Check for 'is' test expression
+        if token.type == T.IS then
+            left = expressions.parse_test(stream, left)
+            token = stream:peek()
+            if not token then
+                break
+            end
+        end
+
         local prec = get_precedence(token.type)
         if prec == 0 or prec < min_prec then
             break
@@ -358,6 +370,48 @@ function expressions.parse_binary(stream, min_prec)
     end
 
     return left
+end
+
+--- Parse a test expression (is / is not)
+-- @param stream table Token stream
+-- @param expr table Expression being tested
+-- @return table AST test node
+function expressions.parse_test(stream, expr)
+    local is_token = stream:advance()  -- consume 'is'
+    local negated = false
+
+    -- Check for 'not' (is not)
+    if stream:check(T.NOT) then
+        stream:advance()
+        negated = true
+    end
+
+    -- Parse test name - can be IDENT or BOOLEAN (true/false) or NIL
+    local test_name_token = stream:peek()
+    local test_name
+    if test_name_token.type == T.IDENT then
+        stream:advance()
+        test_name = test_name_token.value
+    elseif test_name_token.type == T.BOOLEAN then
+        stream:advance()
+        test_name = test_name_token.value and "true" or "false"
+    elseif test_name_token.type == T.NIL then
+        stream:advance()
+        test_name = "nil"
+    else
+        errors.raise(errors.parse("Expected test name after 'is'", test_name_token.line, test_name_token.column))
+    end
+
+    local args = {}
+
+    -- Optional arguments in parentheses
+    if stream:check(T.LPAREN) then
+        stream:advance()
+        args = expressions.parse_args(stream)
+        stream:expect(T.RPAREN, "Expected ')' after test arguments")
+    end
+
+    return ast.test(expr, test_name, args, negated, is_token.line, is_token.column)
 end
 
 --- Parse a full expression
