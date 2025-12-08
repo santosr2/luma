@@ -221,7 +221,8 @@ function codegen.gen_node(node, ctx)
 
     if t == N.INTERPOLATION then
         local expr = codegen.gen_expression(node.expression, ctx)
-        emit(ctx, "__out[#__out + 1] = __esc(" .. expr .. ")")
+        local col = node.column or 1
+        emit(ctx, "__out[#__out + 1] = __esc(" .. expr .. ", " .. col .. ")")
         return
     end
 
@@ -546,11 +547,11 @@ function codegen.generate(template_ast, options)
     emit(ctx, "local __out = {}")
     emit(ctx, "")
 
-    -- Escape function - handles safe wrapper tables
-    emit(ctx, "local function __esc(v)")
+    -- Escape function - handles safe wrapper tables and indentation
+    emit(ctx, "local function __esc(v, col)")
     indent(ctx)
     emit(ctx, "if v == nil then return \"\" end")
-    emit(ctx, "return __runtime.escape(v)")
+    emit(ctx, "return __runtime.escape(v, col)")
     dedent(ctx)
     emit(ctx, "end")
     emit(ctx, "")

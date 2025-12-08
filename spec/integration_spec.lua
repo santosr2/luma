@@ -280,6 +280,25 @@ spec:
             assert.matches("image: nginx", result)
             assert.matches("name: api", result)
         end)
+
+        it("indents multiline content to match placeholder column", function()
+            local template = [[
+config:
+    data: ${content}
+done]]
+            local result = luma.render(template, { content = "line1\nline2\nline3" })
+            -- Each subsequent line should be indented to column 11 (where ${content} starts)
+            assert.matches("data: line1", result)
+            assert.matches("\n          line2", result)  -- 10 spaces
+            assert.matches("\n          line3", result)  -- 10 spaces
+        end)
+
+        it("does not indent single-line content", function()
+            local template = [[
+    value: ${content}]]
+            local result = luma.render(template, { content = "simple" })
+            assert.equals("    value: simple", result)
+        end)
     end)
 
     describe("variables", function()

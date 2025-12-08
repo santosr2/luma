@@ -21,19 +21,27 @@ local HTML_ESCAPES = {
     ["/"] = "&#x2F;",
 }
 
---- Escape HTML special characters
+--- Escape HTML special characters and preserve indentation
 -- @param str string String to escape
--- @return string Escaped string
-function runtime.escape(str)
+-- @param col number|nil Column position for indentation (1-indexed)
+-- @return string Escaped string with preserved indentation
+function runtime.escape(str, col)
     if str == nil then
         return ""
     end
     -- Check if value is marked as safe (already escaped or should not be escaped)
     if type(str) == "table" and str.__luma_safe then
-        return tostring(str.value or "")
+        str = tostring(str.value or "")
+    else
+        str = tostring(str)
+        str = str:gsub("[&<>\"'/]", HTML_ESCAPES)
     end
-    str = tostring(str)
-    return (str:gsub("[&<>\"'/]", HTML_ESCAPES))
+    -- Apply indentation to multiline content if column is provided
+    if col and col > 1 and str:find("\n") then
+        local indent_str = string.rep(" ", col - 1)
+        str = str:gsub("\n", "\n" .. indent_str)
+    end
+    return str
 end
 
 --- Mark a string as safe (no escaping)
