@@ -174,6 +174,16 @@ local result = luma.render("${msg | exclaim}", { msg = "Hello" })
 
 ## Example: Kubernetes Deployment
 
+> [!NOTE]
+> Luma preserves indentation based on where the placeholder or directive appears,
+> making it ideal for whitespace-sensitive formats like YAML.
+
+> [!TIP]
+> While directives don't *require* indentation, we **strongly recommend** indenting
+> them to match your document structure for better readability.
+
+#### ✅ Recommended (indented directives)
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -185,9 +195,25 @@ spec:
   template:
     spec:
       containers:
-@for container in containers
+      @for container in containers
         - name: $container.name
           image: ${container.image}:${container.tag | default("latest")}
+          @if container.ports
+          ports:
+            @for port in container.ports
+            - containerPort: $port
+            @end
+          @end
+      @end
+```
+
+#### ⚠️ Works, but harder to read
+
+```yaml
+spec:
+  containers:
+@for container in containers
+        - name: $container.name
 @if container.ports
           ports:
 @for port in container.ports
@@ -197,7 +223,7 @@ spec:
 @end
 ```
 
-Compare this to equivalent Helm/Go templates - much cleaner!
+Compare either to equivalent Helm/Go templates — Luma is much cleaner!
 
 ## Running Tests
 
