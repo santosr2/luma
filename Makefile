@@ -16,11 +16,15 @@ help:
 
 install:
 	@echo "Installing dependencies..."
-	luarocks install busted
-	luarocks install luacheck
-	luarocks install luacov
-	luarocks install luacov-coveralls
+	luarocks install --local busted
+	luarocks install --local luacheck
+	luarocks install --local luacov
+	luarocks install --local luacov-coveralls
 	@echo "✓ Dependencies installed"
+	@echo ""
+	@echo "Note: Make sure your PATH includes ~/.luarocks/bin"
+	@echo "Add to your shell profile:"
+	@echo "  eval \$$(luarocks path --bin)"
 
 dev: install
 	@echo "Setting up development environment..."

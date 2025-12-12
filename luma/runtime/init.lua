@@ -80,7 +80,8 @@ function runtime.escape(str, col)
         str = tostring(str.value or "")
     else
         str = tostring(str)
-        str = str:gsub("[&<>\"'/]", HTML_ESCAPES)
+        -- Note: Forward slashes don't need escaping in HTML (only in JS contexts)
+        str = str:gsub("[&<>\"']", HTML_ESCAPES)
     end
     -- Apply indentation to multiline content if column is provided
     if col and col > 1 and str:find("\n") then
