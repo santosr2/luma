@@ -80,7 +80,7 @@ local function find_extends(template_ast)
     return nil
 end
 
---- Replace blocks in body with child blocks
+--- Replace blocks in body with child blocks, storing parent blocks for super()
 -- @param body table Array of AST nodes
 -- @param child_blocks table Map of block name to child block node
 -- @return table Modified body
@@ -88,8 +88,10 @@ local function replace_blocks(body, child_blocks)
     local result = {}
     for _, node in ipairs(body) do
         if node.type == N.BLOCK and child_blocks[node.name] then
-            -- Replace with child block
-            table.insert(result, child_blocks[node.name])
+            -- Store parent block in child block for super() access
+            local child_block = child_blocks[node.name]
+            child_block.parent_block = node
+            table.insert(result, child_block)
         else
             table.insert(result, node)
         end
