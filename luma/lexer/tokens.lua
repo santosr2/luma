@@ -96,6 +96,7 @@ tokens.types = {
     NOT_IN = "NOT_IN",                  -- not in (membership)
     IS = "IS",                          -- is (tests)
     AS = "AS",                          -- as (aliasing)
+    SCOPED = "SCOPED",                  -- scoped (block modifier)
 
     -- Special
     EOF = "EOF",                        -- End of input
@@ -112,6 +113,7 @@ tokens.keywords = {
     ["in"] = tokens.types.IN,
     ["is"] = tokens.types.IS,
     ["as"] = tokens.types.AS,
+    ["scoped"] = tokens.types.SCOPED,
 }
 
 --- Directive keywords mapping (after @)
