@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $name
+  namespace: $ns
+  labels:
+    app: $name
+    version: $version
+spec:
+  replicas: $replicas
+  selector:
+    matchLabels:
+      app: $name
+  template:
+    metadata:
+      labels:
+        app: $name
+        version: $version
+    spec:
+      containers:
+      - name: $name
+        image: ${registry}/${name}:${version}
+        ports:
+        @for port in ports
+        - containerPort: $port.number
+          name: $port.name
+        @end
+        env:
+        @for var in env
+        - name: $var.name
+          value: "${var.value}"
+        @end
+        resources:
+          requests:
+            memory: "${resources.requests.memory}"
+            cpu: "${resources.requests.cpu}"
+          limits:
+            memory: "${resources.limits.memory}"
+            cpu: "${resources.limits.cpu}"
+

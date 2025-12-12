@@ -1,0 +1,43 @@
+apiVersion: v2
+name: $chart_name
+description: $description
+type: application
+version: $version
+appVersion: "$app_version"
+
+@if dependencies
+dependencies:
+@for dep in dependencies
+  - name: $dep.name
+    version: $dep.version
+    repository: $dep.repository
+@if dep.condition
+    condition: $dep.condition
+@end
+@end
+@end
+
+maintainers:
+@for maintainer in maintainers
+  - name: $maintainer.name
+@if maintainer.email
+    email: $maintainer.email
+@end
+@if maintainer.url
+    url: $maintainer.url
+@end
+@end
+
+keywords:
+@for keyword in keywords
+  - $keyword
+@end
+
+home: $home_url
+sources:
+@for source in sources
+  - $source
+@end
+
+icon: $icon_url
+

@@ -1,0 +1,59 @@
+---
+# Ansible Playbook: $playbook_name
+# Generated with Luma
+
+- name: $playbook_name
+  hosts: $target_hosts
+  become: $become
+@if become_user
+  become_user: $become_user
+@end
+  gather_facts: $gather_facts
+
+@if variables
+  vars:
+@for key, val in variables
+    $key: $val
+@end
+@end
+
+  tasks:
+@for task in tasks
+    - name: $task.name
+@if task.when
+      when: $task.when
+@end
+@if task.tags
+      tags:
+@for tag in task.tags
+        - $tag
+@end
+@end
+      $task.module:
+@for key, val in task.params
+        $key: $val
+@end
+@if task.register
+      register: $task.register
+@end
+@if task.notify
+      notify:
+@for handler in task.notify
+        - $handler
+@end
+@end
+
+@end
+
+@if handlers
+  handlers:
+@for handler in handlers
+    - name: $handler.name
+      $handler.module:
+@for key, val in handler.params
+        $key: $val
+@end
+
+@end
+@end
+
