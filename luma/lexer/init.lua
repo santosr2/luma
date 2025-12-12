@@ -7,6 +7,7 @@ local native = require("luma.lexer.native")
 local jinja = require("luma.lexer.jinja")
 local warnings = require("luma.utils.warnings")
 local inline_detector = require("luma.lexer.inline_detector")
+local trim_processor = require("luma.lexer.trim_processor")
 
 local lexer = {}
 
@@ -70,8 +71,11 @@ function lexer.tokenize(source, options)
     local lex = lexer.new(source, options)
     local token_list = lex:tokenize()
     
-    -- Apply inline detection for native Luma syntax
+    -- Apply post-processing for native Luma syntax
     if options.syntax ~= lexer.SYNTAX_JINJA then
+        -- Apply trim processing (dash trimming)
+        token_list = trim_processor.process(token_list)
+        -- Apply inline detection
         token_list = inline_detector.detect_inline(token_list)
     end
     
