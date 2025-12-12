@@ -80,6 +80,10 @@ function codegen.gen_expression(node, ctx)
     end
 
     if t == N.IDENTIFIER then
+        -- Special handling for super() function in template inheritance
+        if node.name == "super" then
+            return "(__super or function() return '' end)"
+        end
         return "__ctx[\"" .. node.name .. "\"]"
     end
 
@@ -279,8 +283,32 @@ function codegen.gen_node(node, ctx)
 
     if t == N.BLOCK then
         -- Block content - simply render its body (inheritance is resolved before codegen)
+        -- If block has a parent (for super() support), make it available
+        if node.parent_block then
+            -- Save current block stack
+            emit(ctx, "local __prev_super = __super")
+            emit(ctx, "__super = function()")
+            indent(ctx)
+            emit(ctx, "local __out = {}")
+            
+            -- Render parent block content
+            for _, child in ipairs(node.parent_block.body) do
+                codegen.gen_node(child, ctx)
+            end
+            
+            emit(ctx, "return table.concat(__out)")
+            dedent(ctx)
+            emit(ctx, "end")
+        end
+        
+        -- Render child block content
         for _, child in ipairs(node.body) do
             codegen.gen_node(child, ctx)
+        end
+        
+        -- Restore previous block stack
+        if node.parent_block then
+            emit(ctx, "__super = __prev_super")
         end
         return
     end
@@ -545,6 +573,7 @@ function codegen.generate(template_ast, options)
     emit(ctx, "__macros = __macros or {}")
     emit(ctx, "__tests = __tests or {}")
     emit(ctx, "local __out = {}")
+    emit(ctx, "local __super = nil  -- Parent block content for super() calls")
     emit(ctx, "")
 
     -- Escape function - handles safe wrapper tables and indentation
