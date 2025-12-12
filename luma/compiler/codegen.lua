@@ -84,6 +84,10 @@ function codegen.gen_expression(node, ctx)
         if node.name == "super" then
             return "(__super or function() return '' end)"
         end
+        -- Special handling for namespace() builtin
+        if node.name == "namespace" then
+            return "__runtime.namespace"
+        end
         return "__ctx[\"" .. node.name .. "\"]"
     end
 
