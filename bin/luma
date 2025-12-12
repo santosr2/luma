@@ -1,0 +1,73 @@
+#!/usr/bin/env luajit
+-- Luma CLI Tool
+-- Main entry point for all Luma commands
+
+local function print_help()
+    print([[
+Luma - Lua-powered templating engine
+
+Usage: luma <command> [options]
+
+Commands:
+  render <template>        Render a template file
+  compile <template>       Compile template and show generated code
+  migrate <template>       Migrate Jinja2 template to Luma syntax
+  validate <template>      Validate template syntax
+  benchmark <template>     Benchmark template performance
+  version                  Show version information
+  help                     Show this help message
+
+Examples:
+  luma render template.luma --data '{"name":"World"}'
+  luma render template.luma --data-file data.json
+  luma compile template.luma --output template.lua
+  luma migrate old.jinja > new.luma
+  luma validate template.luma
+  luma benchmark template.luma --iterations 1000
+
+Options:
+  -h, --help              Show help
+  -v, --version           Show version
+  --verbose               Verbose output
+  --syntax <mode>         Syntax mode: auto, jinja, luma (default: auto)
+
+Documentation: https://github.com/username/luma
+]])
+end
+
+local function print_version()
+    local version = require("luma.version")
+    print("Luma version " .. version.VERSION)
+    print("LuaJIT " .. jit.version)
+end
+
+-- Parse command line arguments
+local command = arg[1]
+
+if not command or command == "help" or command == "--help" or command == "-h" then
+    print_help()
+    os.exit(0)
+end
+
+if command == "version" or command == "--version" or command == "-v" then
+    print_version()
+    os.exit(0)
+end
+
+-- Load appropriate command module
+local command_file = "cli/commands/" .. command .. ".lua"
+local ok, cmd_module = pcall(require, "cli.commands." .. command)
+
+if not ok then
+    print("Error: Unknown command '" .. command .. "'")
+    print("Run 'luma help' for usage information")
+    os.exit(1)
+end
+
+-- Execute command
+local status, err = pcall(cmd_module.execute, arg)
+if not status then
+    print("Error: " .. tostring(err))
+    os.exit(1)
+end
+
