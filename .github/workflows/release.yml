@@ -34,7 +34,7 @@ jobs:
         run: busted --verbose spec/
       
       - name: Run linter
-        run: luacheck luma/ cli/ --std=lua51+busted
+        run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted
 
   build:
     name: Build Release Assets
@@ -113,9 +113,10 @@ jobs:
       - name: Create source tarball
         run: |
           tar czf luma-${{ steps.version.outputs.version }}.tar.gz \
-            luma/ cli/ spec/ examples/ \
-            README.md LICENSE CHANGELOG.md \
-            --exclude='*.swp' --exclude='.git*'
+            luma/ cli/ spec/ examples/ benchmarks/ docs/ bindings/ bin/ \
+            README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md \
+            --exclude='*.swp' --exclude='.git*' --exclude='__pycache__' \
+            --exclude='.venv' --exclude='*.pyc'
       
       - name: Generate changelog
         id: changelog
