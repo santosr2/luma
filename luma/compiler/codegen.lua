@@ -581,9 +581,38 @@ function codegen.gen_import(node, ctx)
         path = codegen.gen_expression(node.path, ctx)
     end
 
-    if node.alias then
+    if node.names then
+        -- Selective import: {% from "file" import x, y %}
+        emit(ctx, "do")
+        ctx.indent = ctx.indent + 1
+        emit(ctx, "local __imported = __runtime.import(" .. path .. ")")
+        
+        for _, import_spec in ipairs(node.names) do
+            local source_name = import_spec.name
+            local target_name = import_spec.alias or source_name
+            
+            -- Import the specific name into context or macros
+            emit(ctx, "if __imported[\"" .. source_name .. "\"] ~= nil then")
+            ctx.indent = ctx.indent + 1
+            emit(ctx, "__ctx[\"" .. target_name .. "\"] = __imported[\"" .. source_name .. "\"]")
+            ctx.indent = ctx.indent - 1
+            emit(ctx, "end")
+            
+            -- Also check if it's a macro
+            emit(ctx, "if __imported.__macros and __imported.__macros[\"" .. source_name .. "\"] then")
+            ctx.indent = ctx.indent + 1
+            emit(ctx, "__macros[\"" .. target_name .. "\"] = __imported.__macros[\"" .. source_name .. "\"]")
+            ctx.indent = ctx.indent - 1
+            emit(ctx, "end")
+        end
+        
+        ctx.indent = ctx.indent - 1
+        emit(ctx, "end")
+    elseif node.alias then
+        -- Import with alias: {% import "file" as name %}
         emit(ctx, "__ctx[\"" .. node.alias .. "\"] = __runtime.import(" .. path .. ")")
     else
+        -- Import all macros: {% import "file" %}
         emit(ctx, "__runtime.import_all(" .. path .. ", __macros)")
     end
 end
