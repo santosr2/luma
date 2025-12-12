@@ -21,7 +21,6 @@ Your items:
 
 Filters demo:
 - Uppercase: ${name | upper}
-- Default: ${missing | default("fallback value")}
 - Length: ${items | length} items
 
 @# Escaped dollar sign: $$100
