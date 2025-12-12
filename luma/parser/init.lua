@@ -138,6 +138,10 @@ function parser.parse_node(stream)
         return parser.parse_autoescape(stream)
     end
 
+    if token.type == T.DIR_WITH then
+        return parser.parse_with(stream)
+    end
+
     if token.type == T.DIR_COMMENT then
         stream:advance()
         return ast.comment(token.value, token.line, token.column)
@@ -607,6 +611,51 @@ function parser.parse_autoescape(stream)
     end
 
     return ast.autoescape(enabled, body, start.line, start.column)
+end
+
+--- Parse @with block
+-- Syntax: {% with foo = expr %} or {% with foo = expr, bar = expr2 %}
+-- @param stream table Token stream
+-- @return table With AST node
+function parser.parse_with(stream)
+    local start = stream:advance()  -- skip DIR_WITH
+    
+    local variables = {}
+    
+    -- Check if there are any variable assignments
+    local token = stream:peek()
+    if token and token.type == T.IDENT then
+        -- Parse variable assignments: name = expr, name2 = expr2, ...
+        while true do
+            local name_token = stream:expect(T.IDENT, "Expected variable name in with statement")
+            stream:expect(T.ASSIGN, "Expected '=' after variable name in with")
+            local value = expressions.parse(stream)
+            
+            table.insert(variables, {
+                name = name_token.value,
+                value = value
+            })
+            
+            -- Check for comma (more assignments) or end
+            if not stream:match(T.COMMA) then
+                break
+            end
+        end
+    end
+    
+    -- Skip newline
+    stream:match(T.NEWLINE)
+    
+    -- Parse body until @endwith
+    local body = parser.parse_body(stream, { T.DIR_ENDWITH })
+    
+    -- Expect @endwith
+    if stream:check(T.DIR_ENDWITH) then
+        stream:advance()
+        stream:match(T.NEWLINE)
+    end
+    
+    return ast.with_block(variables, body, start.line, start.column)
 end
 
 --- Parse @extends directive

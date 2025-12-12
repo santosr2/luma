@@ -40,6 +40,7 @@ ast.types = {
     -- Special
     RAW = "RAW",                        -- Raw text block (no processing)
     AUTOESCAPE = "AUTOESCAPE",          -- Autoescape block
+    WITH = "WITH",                      -- With block (scoped variables)
     COMMENT = "COMMENT",                -- Comment (not rendered)
 
     -- Loop control
@@ -417,6 +418,19 @@ end
 function ast.autoescape(enabled, body, line, column)
     local node = make_node(N.AUTOESCAPE, line, column)
     node.enabled = enabled
+    node.body = body or {}
+    return node
+end
+
+--- Create a with block node
+-- @param variables table Array of {name, value} pairs
+-- @param body table Array of body nodes
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table With node
+function ast.with_block(variables, body, line, column)
+    local node = make_node(N.WITH, line, column)
+    node.variables = variables or {}
     node.body = body or {}
     return node
 end
