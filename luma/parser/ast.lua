@@ -183,13 +183,15 @@ end
 --- Create an include node
 -- @param path table|string Path expression or string
 -- @param with_context boolean|nil Whether to include with current context
+-- @param ignore_missing boolean|nil Whether to ignore missing templates
 -- @param line number|nil Line number
 -- @param column number|nil Column number
 -- @return table Include node
-function ast.include(path, with_context, line, column)
+function ast.include(path, with_context, ignore_missing, line, column)
     local node = make_node(N.INCLUDE, line, column)
     node.path = path
     node.with_context = with_context ~= false  -- default true
+    node.ignore_missing = ignore_missing or false  -- default false
     return node
 end
 

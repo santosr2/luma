@@ -426,6 +426,10 @@ function parser.parse_call(stream)
 end
 
 --- Parse @include directive
+-- Syntax: {% include "file.html" %}
+--         {% include "file.html" with context %}
+--         {% include "file.html" without context %}
+--         {% include "file.html" ignore missing %}
 -- @param stream table Token stream
 -- @return table Include AST node
 function parser.parse_include(stream)
@@ -440,10 +444,52 @@ function parser.parse_include(stream)
         path = expressions.parse(stream)
     end
 
+    local with_context = true  -- default
+    local ignore_missing = false  -- default
+
+    -- Parse optional modifiers
+    while true do
+        local token = stream:peek()
+        
+        if token and token.type == T.WITH then
+            stream:advance()
+            -- Expect 'context'
+            if stream:check(T.CONTEXT) then
+                stream:advance()
+                with_context = true
+            else
+                errors.raise(errors.parse("Expected 'context' after 'with' in include", 
+                    token.line, token.column))
+            end
+        elseif token and token.type == T.WITHOUT then
+            stream:advance()
+            -- Expect 'context'
+            if stream:check(T.CONTEXT) then
+                stream:advance()
+                with_context = false
+            else
+                errors.raise(errors.parse("Expected 'context' after 'without' in include", 
+                    token.line, token.column))
+            end
+        elseif token and token.type == T.IGNORE then
+            stream:advance()
+            -- Expect 'missing'
+            if stream:check(T.MISSING) then
+                stream:advance()
+                ignore_missing = true
+            else
+                errors.raise(errors.parse("Expected 'missing' after 'ignore' in include", 
+                    token.line, token.column))
+            end
+        else
+            break  -- No more modifiers
+        end
+    end
+
     -- Skip newline
     stream:match(T.NEWLINE)
 
-    return ast.include(path, true, start.line, start.column)
+    return ast.include(path, with_context, ignore_missing, start.line, start.column)
 end
 
 --- Parse @import directive
