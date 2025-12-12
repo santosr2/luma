@@ -194,6 +194,16 @@ function runtime.load_source(name)
         end
     end
 
+    -- If name is an absolute path, try it directly first
+    if name:sub(1, 1) == "/" or name:match("^[A-Za-z]:") then
+        local file = io.open(name, "r")
+        if file then
+            local source = file:read("*a")
+            file:close()
+            return source
+        end
+    end
+
     -- Try each path
     for _, path in ipairs(loader_paths) do
         local filepath = path .. "/" .. name
