@@ -110,9 +110,22 @@ function codegen.gen_expression(node, ctx)
     if t == N.FILTER then
         local expr = codegen.gen_expression(node.expression, ctx)
         local args = { expr }
+        
+        -- Add positional arguments
         for _, arg in ipairs(node.args) do
             table.insert(args, codegen.gen_expression(arg, ctx))
         end
+        
+        -- If there are named arguments, add them as a table
+        if node.named_args then
+            local named_parts = {}
+            for name, value_node in pairs(node.named_args) do
+                local value_code = codegen.gen_expression(value_node, ctx)
+                table.insert(named_parts, "[\"" .. name .. "\"]=" .. value_code)
+            end
+            table.insert(args, "{" .. table.concat(named_parts, ",") .. "}")
+        end
+        
         return "__filters[\"" .. node.filter_name .. "\"](" .. table.concat(args, ", ") .. ")"
     end
 

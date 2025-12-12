@@ -271,15 +271,17 @@ end
 --- Create a filter node (expr | filter)
 -- @param expression table Input expression
 -- @param filter_name string Filter name
--- @param args table|nil Filter arguments
--- @param line number|nil Line number
+-- @param args table|nil Filter positional arguments
+-- @param named_args table|nil Filter named arguments (name -> expression)
+-- @param line number|nil Line number  
 -- @param column number|nil Column number
 -- @return table Filter node
-function ast.filter(expression, filter_name, args, line, column)
+function ast.filter(expression, filter_name, args, named_args, line, column)
     local node = make_node(N.FILTER, line, column)
     node.expression = expression
     node.filter_name = filter_name
     node.args = args or {}
+    node.named_args = named_args
     return node
 end
 
