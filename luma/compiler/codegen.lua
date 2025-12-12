@@ -345,6 +345,18 @@ function codegen.gen_node(node, ctx)
 
     if t == N.BLOCK then
         -- Block content - simply render its body (inheritance is resolved before codegen)
+        
+        -- If block is scoped, create isolated context
+        if node.scoped then
+            emit(ctx, "do")
+            ctx.indent = ctx.indent + 1
+            emit(ctx, "-- Scoped block: create isolated context")
+            emit(ctx, "local __scoped_ctx = {}")
+            emit(ctx, "setmetatable(__scoped_ctx, {__index = __ctx})")
+            emit(ctx, "local __saved_ctx = __ctx")
+            emit(ctx, "__ctx = __scoped_ctx")
+        end
+        
         -- If block has a parent (for super() support), make it available
         if node.parent_block then
             -- Save current block stack
@@ -371,6 +383,13 @@ function codegen.gen_node(node, ctx)
         -- Restore previous block stack
         if node.parent_block then
             emit(ctx, "__super = __prev_super")
+        end
+        
+        -- Restore context if block was scoped
+        if node.scoped then
+            emit(ctx, "__ctx = __saved_ctx")
+            ctx.indent = ctx.indent - 1
+            emit(ctx, "end")
         end
         return
     end

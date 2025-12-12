@@ -598,6 +598,7 @@ function parser.parse_extends(stream)
 end
 
 --- Parse @block directive
+-- Supports scoped blocks: {% block name scoped %}
 -- @param stream table Token stream
 -- @return table Block AST node
 function parser.parse_block(stream)
@@ -605,6 +606,13 @@ function parser.parse_block(stream)
 
     -- Parse block name
     local name_token = stream:expect(T.IDENT, "Expected block name after @block")
+
+    -- Check for 'scoped' modifier
+    local scoped = false
+    if stream:check(T.SCOPED) then
+        stream:advance()
+        scoped = true
+    end
 
     -- Skip newline
     stream:match(T.NEWLINE)
@@ -618,7 +626,9 @@ function parser.parse_block(stream)
         stream:match(T.NEWLINE)
     end
 
-    return ast.block(name_token.value, body, start.line, start.column)
+    local block_node = ast.block(name_token.value, body, start.line, start.column)
+    block_node.scoped = scoped
+    return block_node
 end
 
 return parser
