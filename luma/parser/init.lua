@@ -269,25 +269,50 @@ function parser.parse_for(stream)
     return node
 end
 
---- Parse @let directive
+--- Parse @let/@set directive
+-- Supports both assignment and block syntax:
+--   @let x = value
+--   @set x %}...{% endset   (Jinja2 compat)
 -- @param stream table Token stream
 -- @return table Let AST node
 function parser.parse_let(stream)
     local start = stream:advance()  -- skip DIR_LET
 
     -- Parse variable name
-    local name_token = stream:expect(T.IDENT, "Expected variable name after @let")
+    local name_token = stream:expect(T.IDENT, "Expected variable name after @let/@set")
 
-    -- Expect '='
-    stream:expect(T.ASSIGN, "Expected '=' after variable name in @let")
-
-    -- Parse value expression
-    local value = expressions.parse(stream)
-
-    -- Skip newline
-    stream:match(T.NEWLINE)
-
-    return ast.let(name_token.value, value, start.line, start.column)
+    -- Check if this is block syntax (no '=' token) or assignment syntax
+    if stream:check(T.ASSIGN) then
+        -- Assignment syntax: @let x = value
+        stream:advance()  -- skip '='
+        
+        -- Parse value expression
+        local value = expressions.parse(stream)
+        
+        -- Skip newline
+        stream:match(T.NEWLINE)
+        
+        return ast.let(name_token.value, value, start.line, start.column)
+    else
+        -- Block syntax: @set x %}...{% endset
+        -- Skip newline after variable name
+        stream:match(T.NEWLINE)
+        
+        -- Parse body until @endset
+        local body = parser.parse_body(stream, { T.DIR_ENDSET })
+        
+        -- Expect @endset
+        if stream:check(T.DIR_ENDSET) then
+            stream:advance()
+            stream:match(T.NEWLINE)
+        end
+        
+        -- Create a special let node that captures rendered content
+        -- We'll mark it with a flag to indicate it's a block
+        local let_node = ast.let(name_token.value, body, start.line, start.column)
+        let_node.is_block = true
+        return let_node
+    end
 end
 
 --- Parse @macro directive
