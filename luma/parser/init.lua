@@ -298,12 +298,23 @@ end
 function parser.parse_let(stream)
     local start = stream:advance()  -- skip DIR_LET
 
-    -- Parse variable name
+    -- Parse variable name or member access (e.g., ns.found)
     local name_token = stream:expect(T.IDENT, "Expected variable name after @let/@set")
+    local target = name_token.value
+    local is_member_assignment = false
+    local member_path = {target}
+    
+    -- Check for member access: ns.found, obj.x.y, etc.
+    while stream:check(T.DOT) do
+        stream:advance()  -- skip DOT
+        local member = stream:expect(T.IDENT, "Expected member name after '.'")
+        table.insert(member_path, member.value)
+        is_member_assignment = true
+    end
 
     -- Check if this is block syntax (no '=' token) or assignment syntax
     if stream:check(T.ASSIGN) then
-        -- Assignment syntax: @let x = value
+        -- Assignment syntax: @let x = value or @let ns.found = value
         stream:advance()  -- skip '='
         
         -- Parse value expression
@@ -312,7 +323,15 @@ function parser.parse_let(stream)
         -- Skip newline
         stream:match(T.NEWLINE)
         
-        return ast.let(name_token.value, value, start.line, start.column)
+        if is_member_assignment then
+            -- Create a special let node for member assignment
+            local let_node = ast.let(target, value, start.line, start.column)
+            let_node.is_member_assignment = true
+            let_node.member_path = member_path
+            return let_node
+        else
+            return ast.let(target, value, start.line, start.column)
+        end
     else
         -- Block syntax: @set x %}...{% endset
         -- Skip newline after variable name

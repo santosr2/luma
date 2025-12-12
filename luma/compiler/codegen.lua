@@ -105,9 +105,22 @@ function codegen.gen_expression(node, ctx)
     if t == N.FUNCTION_CALL then
         local callee = codegen.gen_expression(node.callee, ctx)
         local args = {}
+        
+        -- Add positional arguments
         for _, arg in ipairs(node.args) do
             table.insert(args, codegen.gen_expression(arg, ctx))
         end
+        
+        -- Add named arguments as a table (if present)
+        if node.named_args and next(node.named_args) then
+            local named_parts = {}
+            for name, value_node in pairs(node.named_args) do
+                local value_code = codegen.gen_expression(value_node, ctx)
+                table.insert(named_parts, "[\"" .. name .. "\"]=" .. value_code)
+            end
+            table.insert(args, "{" .. table.concat(named_parts, ",") .. "}")
+        end
+        
         return callee .. "(" .. table.concat(args, ", ") .. ")"
     end
 
@@ -377,6 +390,28 @@ function codegen.gen_node(node, ctx)
             -- Capture the output and assign to variable
             emit(ctx, "__ctx[\"" .. node.name .. "\"] = table.concat(__out)")
             emit(ctx, "__out = __old_out")
+            ctx.indent = ctx.indent - 1
+            emit(ctx, "end")
+        elseif node.is_member_assignment then
+            -- Member assignment syntax: @let ns.found = value
+            local value = codegen.gen_expression(node.value, ctx)
+            
+            -- Build the member access chain
+            local path = node.member_path
+            local obj = "__ctx[\"" .. path[1] .. "\"]"
+            for i = 2, #path do
+                obj = "(" .. obj .. " and " .. obj .. "[\"" .. path[i] .. "\"])"
+            end
+            
+            -- For assignment, we need to set the last member
+            local parent = "__ctx[\"" .. path[1] .. "\"]"
+            for i = 2, #path - 1 do
+                parent = parent .. "[\"" .. path[i] .. "\"]"
+            end
+            
+            emit(ctx, "if " .. parent .. " then")
+            ctx.indent = ctx.indent + 1
+            emit(ctx, parent .. "[\"" .. path[#path] .. "\"] = " .. value)
             ctx.indent = ctx.indent - 1
             emit(ctx, "end")
         else

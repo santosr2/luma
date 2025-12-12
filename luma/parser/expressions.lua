@@ -225,9 +225,9 @@ function expressions.parse_postfix(stream, expr)
         -- Function call: expr(args)
         elseif token.type == T.LPAREN then
             stream:advance()
-            local args = expressions.parse_args(stream)
+            local positional_args, named_args = expressions.parse_args(stream)
             stream:expect(T.RPAREN, "Expected ')' after arguments")
-            expr = ast.function_call(expr, args, token.line, token.column)
+            expr = ast.function_call(expr, positional_args, named_args, token.line, token.column)
 
         else
             break
