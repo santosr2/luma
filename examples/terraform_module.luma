@@ -1,0 +1,115 @@
+terraform {
+  required_version = ">= $terraform_version"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> $aws_provider_version"
+    }
+  }
+}
+
+resource "aws_ecs_cluster" "$cluster_name" {
+  name = "$cluster_name"
+
+  setting {
+    name  = "containerInsights"
+    value = "$enable_container_insights"
+  }
+
+  tags = {
+@for key, val in tags
+    $key = "$val"
+@end
+  }
+}
+
+resource "aws_ecs_task_definition" "$service_name" {
+  family                   = "$service_name"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "$cpu"
+  memory                   = "$memory"
+  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
+  task_role_arn            = aws_iam_role.ecs_task_role.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "$container_name"
+      image     = "$container_image"
+      essential = true
+
+      portMappings = [
+@for port in ports
+        {
+          containerPort = $port.container
+          hostPort      = $port.host
+          protocol      = "$port.protocol"
+        },
+@end
+      ]
+
+      environment = [
+@for env in environment
+        {
+          name  = "$env.name"
+          value = "$env.value"
+        },
+@end
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ecs/$service_name"
+          "awslogs-region"        = "$region"
+          "awslogs-stream-prefix" = "ecs"
+        }
+      }
+    }
+  ])
+
+  tags = {
+@for key, val in tags
+    $key = "$val"
+@end
+  }
+}
+
+resource "aws_ecs_service" "$service_name" {
+  name            = "$service_name"
+  cluster         = aws_ecs_cluster.$cluster_name.id
+  task_definition = aws_ecs_task_definition.$service_name.arn
+  desired_count   = $desired_count
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = [${subnet_ids | join(", ")}]
+    security_groups  = [${security_group_ids | join(", ")}]
+    assign_public_ip = $assign_public_ip
+  }
+
+@if load_balancer
+  load_balancer {
+    target_group_arn = $load_balancer.target_group_arn
+    container_name   = "$container_name"
+    container_port   = $load_balancer.container_port
+  }
+@end
+
+  tags = {
+@for key, val in tags
+    $key = "$val"
+@end
+  }
+}
+
+output "cluster_arn" {
+  description = "ARN of the ECS cluster"
+  value       = aws_ecs_cluster.$cluster_name.arn
+}
+
+output "service_name" {
+  description = "Name of the ECS service"
+  value       = aws_ecs_service.$service_name.name
+}
+
