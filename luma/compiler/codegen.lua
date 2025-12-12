@@ -598,13 +598,62 @@ function codegen.gen_macro_def(node, ctx)
 end
 
 --- Generate code for macro call
+-- Supports call with caller pattern: {% call(item) macro() %}...{% endcall %}
 function codegen.gen_macro_call(node, ctx)
     local args = {}
     for _, arg in ipairs(node.args) do
         table.insert(args, codegen.gen_expression(arg, ctx))
     end
 
-    emit(ctx, "__out[#__out + 1] = __macros[\"" .. node.name .. "\"](" .. table.concat(args, ", ") .. ")")
+    -- Check if this is a call-with-caller (has caller_body)
+    if node.caller_body then
+        -- Generate caller function
+        local params = node.caller_params or {}
+        
+        emit(ctx, "do")
+        ctx.indent = ctx.indent + 1
+        emit(ctx, "-- Call with caller pattern")
+        emit(ctx, "local __caller = function(" .. table.concat(params, ", ") .. ")")
+        indent(ctx)
+        emit(ctx, "local __caller_out = {}")
+        emit(ctx, "local __old_out = __out")
+        emit(ctx, "__out = __caller_out")
+        
+        -- Create local context with caller parameters
+        emit(ctx, "local __old_ctx = __ctx")
+        emit(ctx, "__ctx = setmetatable({}, {__index = __old_ctx})")
+        
+        for _, param in ipairs(params) do
+            emit(ctx, "__ctx[\"" .. param .. "\"] = " .. param)
+        end
+        
+        -- Render caller body
+        for _, child in ipairs(node.caller_body) do
+            codegen.gen_node(child, ctx)
+        end
+        
+        emit(ctx, "__ctx = __old_ctx")
+        emit(ctx, "__out = __old_out")
+        emit(ctx, "return table.concat(__caller_out)")
+        dedent(ctx)
+        emit(ctx, "end")
+        
+        -- Store caller in context so macro can access it
+        emit(ctx, "local __saved_caller = __ctx[\"caller\"]")
+        emit(ctx, "__ctx[\"caller\"] = __caller")
+        
+        -- Call the macro
+        emit(ctx, "__out[#__out + 1] = __macros[\"" .. node.name .. "\"](" .. table.concat(args, ", ") .. ")")
+        
+        -- Restore previous caller
+        emit(ctx, "__ctx[\"caller\"] = __saved_caller")
+        
+        ctx.indent = ctx.indent - 1
+        emit(ctx, "end")
+    else
+        -- Regular macro call
+        emit(ctx, "__out[#__out + 1] = __macros[\"" .. node.name .. "\"](" .. table.concat(args, ", ") .. ")")
+    end
 end
 
 --- Generate code for include
