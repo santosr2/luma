@@ -6,6 +6,7 @@ local tokens = require("luma.lexer.tokens")
 local native = require("luma.lexer.native")
 local jinja = require("luma.lexer.jinja")
 local warnings = require("luma.utils.warnings")
+local inline_detector = require("luma.lexer.inline_detector")
 
 local lexer = {}
 
@@ -65,8 +66,16 @@ end
 -- @param options table|nil Options table
 -- @return table Array of tokens
 function lexer.tokenize(source, options)
+    options = options or {}
     local lex = lexer.new(source, options)
-    return lex:tokenize()
+    local token_list = lex:tokenize()
+    
+    -- Apply inline detection for native Luma syntax
+    if options.syntax ~= lexer.SYNTAX_JINJA then
+        token_list = inline_detector.detect_inline(token_list)
+    end
+    
+    return token_list
 end
 
 --- Create a token stream wrapper for the parser

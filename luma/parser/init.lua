@@ -171,12 +171,15 @@ end
 -- @return table If AST node
 function parser.parse_if(stream)
     local start = stream:advance()  -- skip DIR_IF
+    local is_inline = start.inline
 
     -- Parse condition
     local condition = expressions.parse(stream)
 
-    -- Skip newline after condition
-    stream:match(T.NEWLINE)
+    -- Skip newline after condition (unless inline mode)
+    if not is_inline then
+        stream:match(T.NEWLINE)
+    end
 
     -- Parse then body until @elif, @else, or @end
     local then_body = parser.parse_body(stream, { T.DIR_ELIF, T.DIR_ELSE, T.DIR_END })
@@ -189,18 +192,24 @@ function parser.parse_if(stream)
         -- Parse as nested if
         else_body = parser.parse_if(stream)
     elseif current and current.type == T.DIR_ELSE then
-        stream:advance()  -- skip @else
-        stream:match(T.NEWLINE)
+        local else_token = stream:advance()  -- skip @else
+        if not else_token.inline then
+            stream:match(T.NEWLINE)
+        end
         else_body = parser.parse_body(stream, { T.DIR_END })
     end
 
     -- Expect @end
     if stream:check(T.DIR_END) then
-        stream:advance()
-        stream:match(T.NEWLINE)
+        local end_token = stream:advance()
+        if not end_token.inline then
+            stream:match(T.NEWLINE)
+        end
     end
 
-    return ast.if_node(condition, then_body, else_body, start.line, start.column)
+    local node = ast.if_node(condition, then_body, else_body, start.line, start.column)
+    node.inline = is_inline
+    return node
 end
 
 --- Parse @for directive
@@ -208,6 +217,7 @@ end
 -- @return table For AST node
 function parser.parse_for(stream)
     local start = stream:advance()  -- skip DIR_FOR
+    local is_inline = start.inline
 
     -- Parse variable name(s) - support tuple unpacking: @for key, value in dict
     local var_names = {}
@@ -226,8 +236,10 @@ function parser.parse_for(stream)
     -- Parse iterable expression
     local iterable = expressions.parse(stream)
 
-    -- Skip newline after expression
-    stream:match(T.NEWLINE)
+    -- Skip newline after expression (unless inline mode)
+    if not is_inline then
+        stream:match(T.NEWLINE)
+    end
 
     -- Parse body until @else or @end
     local body = parser.parse_body(stream, { T.DIR_ELSE, T.DIR_END })
@@ -237,18 +249,24 @@ function parser.parse_for(stream)
 
     -- Handle @else (for empty iteration)
     if current and current.type == T.DIR_ELSE then
-        stream:advance()
-        stream:match(T.NEWLINE)
+        local else_token = stream:advance()
+        if not else_token.inline then
+            stream:match(T.NEWLINE)
+        end
         else_body = parser.parse_body(stream, { T.DIR_END })
     end
 
     -- Expect @end
     if stream:check(T.DIR_END) then
-        stream:advance()
-        stream:match(T.NEWLINE)
+        local end_token = stream:advance()
+        if not end_token.inline then
+            stream:match(T.NEWLINE)
+        end
     end
 
-    return ast.for_node(var_names, iterable, body, else_body, start.line, start.column)
+    local node = ast.for_node(var_names, iterable, body, else_body, start.line, start.column)
+    node.inline = is_inline
+    return node
 end
 
 --- Parse @let directive
