@@ -142,6 +142,10 @@ function parser.parse_node(stream)
         return parser.parse_with(stream)
     end
 
+    if token.type == T.DIR_FILTER then
+        return parser.parse_filter_block(stream)
+    end
+
     if token.type == T.DIR_COMMENT then
         stream:advance()
         return ast.comment(token.value, token.line, token.column)
@@ -656,6 +660,41 @@ function parser.parse_with(stream)
     end
     
     return ast.with_block(variables, body, start.line, start.column)
+end
+
+--- Parse @filter block
+-- Syntax: {% filter upper %} or {% filter truncate(10) %}
+-- @param stream table Token stream
+-- @return table Filter block AST node
+function parser.parse_filter_block(stream)
+    local start = stream:advance()  -- skip DIR_FILTER
+    
+    -- Parse filter name
+    local filter_name = stream:expect(T.IDENT, "Expected filter name after @filter")
+    
+    -- Parse optional arguments
+    local positional_args = {}
+    local named_args = nil
+    
+    if stream:check(T.LPAREN) then
+        stream:advance()
+        positional_args, named_args = expressions.parse_args(stream)
+        stream:expect(T.RPAREN, "Expected ')' after filter arguments")
+    end
+    
+    -- Skip newline
+    stream:match(T.NEWLINE)
+    
+    -- Parse body until @endfilter
+    local body = parser.parse_body(stream, { T.DIR_ENDFILTER })
+    
+    -- Expect @endfilter
+    if stream:check(T.DIR_ENDFILTER) then
+        stream:advance()
+        stream:match(T.NEWLINE)
+    end
+    
+    return ast.filter_block(filter_name.value, positional_args, named_args, body, start.line, start.column)
 end
 
 --- Parse @extends directive
