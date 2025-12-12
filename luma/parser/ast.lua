@@ -39,6 +39,7 @@ ast.types = {
 
     -- Special
     RAW = "RAW",                        -- Raw text block (no processing)
+    AUTOESCAPE = "AUTOESCAPE",          -- Autoescape block
     COMMENT = "COMMENT",                -- Comment (not rendered)
 
     -- Loop control
@@ -404,6 +405,19 @@ end
 function ast.raw(content, line, column)
     local node = make_node(N.RAW, line, column)
     node.content = content
+    return node
+end
+
+--- Create an autoescape block node
+-- @param enabled boolean|string Autoescape mode (true, false, or format like "html")
+-- @param body table Array of body nodes
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table Autoescape node
+function ast.autoescape(enabled, body, line, column)
+    local node = make_node(N.AUTOESCAPE, line, column)
+    node.enabled = enabled
+    node.body = body or {}
     return node
 end
 

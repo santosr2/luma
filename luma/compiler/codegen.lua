@@ -231,6 +231,34 @@ function codegen.gen_node(node, ctx)
         return
     end
 
+    if t == N.AUTOESCAPE then
+        -- Save current autoescape state
+        emit(ctx, "do")
+        ctx.indent = ctx.indent + 1
+        emit(ctx, "local __old_autoescape = __autoescape")
+        
+        -- Set new autoescape mode
+        if type(node.enabled) == "boolean" then
+            emit(ctx, "__autoescape = " .. tostring(node.enabled))
+        elseif type(node.enabled) == "string" then
+            -- Format name (e.g., "html", "xml") - treat as enabled
+            emit(ctx, "__autoescape = true")
+        else
+            emit(ctx, "__autoescape = true")
+        end
+        
+        -- Render body with new autoescape setting
+        for _, child in ipairs(node.body) do
+            codegen.gen_node(child, ctx)
+        end
+        
+        -- Restore old autoescape state
+        emit(ctx, "__autoescape = __old_autoescape")
+        ctx.indent = ctx.indent - 1
+        emit(ctx, "end")
+        return
+    end
+
     if t == N.COMMENT then
         -- Comments are not rendered
         return
@@ -637,12 +665,14 @@ function codegen.generate(template_ast, options)
     emit(ctx, "__tests = __tests or {}")
     emit(ctx, "local __out = {}")
     emit(ctx, "local __super = nil  -- Parent block content for super() calls")
+    emit(ctx, "local __autoescape = true  -- Autoescape enabled by default")
     emit(ctx, "")
 
     -- Escape function - handles safe wrapper tables and indentation
     emit(ctx, "local function __esc(v, col)")
     indent(ctx)
     emit(ctx, "if v == nil then return \"\" end")
+    emit(ctx, "if not __autoescape then return tostring(v) end")
     emit(ctx, "return __runtime.escape(v, col)")
     dedent(ctx)
     emit(ctx, "end")
