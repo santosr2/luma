@@ -1,0 +1,146 @@
+# Pre-commit hooks configuration
+# See https://pre-commit.com for more information
+
+repos:
+  # Lua linting
+  - repo: https://github.com/luarocks/luacheck
+    rev: v1.1.2
+    hooks:
+      - id: luacheck
+        name: Luacheck (Lua linter)
+        entry: luacheck
+        language: system
+        files: \.lua$
+        args:
+          - --std=lua51+busted
+          - --globals=describe,it,before_each,after_each,setup,teardown
+          - --max-line-length=120
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim trailing whitespace
+        exclude: '\.md$'
+      
+      - id: end-of-file-fixer
+        name: Ensure files end with newline
+      
+      - id: check-yaml
+        name: Check YAML syntax
+      
+      - id: check-json
+        name: Check JSON syntax
+      
+      - id: check-toml
+        name: Check TOML syntax
+      
+      - id: check-added-large-files
+        name: Check for large files
+        args: ['--maxkb=500']
+      
+      - id: check-case-conflict
+        name: Check for case conflicts
+      
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+      
+      - id: detect-private-key
+        name: Detect private keys
+      
+      - id: mixed-line-ending
+        name: Fix mixed line endings
+        args: ['--fix=lf']
+      
+      - id: check-executables-have-shebangs
+        name: Check executables have shebangs
+      
+      - id: check-shebang-scripts-are-executable
+        name: Check scripts are executable
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.38.0
+    hooks:
+      - id: markdownlint
+        name: Markdown linter
+        args: ['--config', '.markdownlint.json', '--fix']
+        exclude: 'CHANGELOG.md'
+
+  # Security checks
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package.lock.json
+
+  # Spell checking
+  - repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+      - id: codespell
+        name: Check spelling
+        args:
+          - --ignore-words=.codespell-ignore
+          - --skip="*.min.js,*.min.css,package-lock.json"
+        exclude: '^(\.git|\.luarocks|lua_modules)/'
+
+  # Lua formatting (if available)
+  - repo: local
+    hooks:
+      - id: lua-format
+        name: Lua formatter (stylua)
+        entry: stylua
+        language: system
+        files: \.lua$
+        pass_filenames: true
+        require_serial: false
+        stages: [commit]
+        # This will fail gracefully if stylua is not installed
+
+  # Custom Luma-specific checks
+  - repo: local
+    hooks:
+      - id: check-version-consistency
+        name: Check version consistency
+        entry: bash -c 'grep -q "$(cat luma/version.lua | grep -oP "(?<=VERSION = \").*(?=\")")" README.md || (echo "Version mismatch between luma/version.lua and README.md" && exit 1)'
+        language: system
+        pass_filenames: false
+        stages: [commit]
+      
+      - id: run-tests
+        name: Run test suite
+        entry: busted
+        language: system
+        pass_filenames: false
+        stages: [push]
+        args: ['spec/']
+      
+      - id: check-no-debug
+        name: Check for debug statements
+        entry: bash -c 'git diff --cached --name-only --diff-filter=ACM | grep "\.lua$" | xargs grep -n "print(" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        verbose: true
+
+# Configuration
+default_language_version:
+  python: python3
+
+fail_fast: false
+
+# Files to exclude
+exclude: |
+  (?x)^(
+      \.git/|
+      \.luarocks/|
+      lua_modules/|
+      \.install/|
+      spec/fixtures/|
+      CHANGELOG\.md
+  )$
+

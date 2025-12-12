@@ -1,5 +1,11 @@
 # Luma
 
+[![CI Status](https://github.com/username/luma/workflows/CI/badge.svg)](https://github.com/username/luma/actions)
+[![Coverage](https://img.shields.io/coveralls/github/username/luma)](https://coveralls.io/github/username/luma)
+[![LuaRocks](https://img.shields.io/luarocks/v/username/luma)](https://luarocks.org/modules/username/luma)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Lua](https://img.shields.io/badge/lua-5.1%20%7C%205.2%20%7C%205.3%20%7C%205.4%20%7C%20JIT-blue)](https://www.lua.org)
+
 A language-agnostic, Lua-powered templating engine with clean, directive-based syntax.
 
 Luma is designed as a modern alternative to Jinja2-style templating with:
