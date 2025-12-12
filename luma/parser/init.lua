@@ -362,15 +362,31 @@ function parser.parse_macro(stream)
 end
 
 --- Parse @call directive
+-- Supports call with caller: {% call(item) macro() %}...{% endcall %}
 -- @param stream table Token stream
 -- @return table Macro call AST node
 function parser.parse_call(stream)
     local start = stream:advance()  -- skip DIR_CALL
 
+    -- Check for caller parameters: {% call(param1, param2) ... %}
+    local caller_params = nil
+    if stream:check(T.LPAREN) then
+        stream:advance()
+        caller_params = {}
+        while not stream:check(T.RPAREN) and not stream:is_eof() do
+            local param = stream:expect(T.IDENT, "Expected parameter name in call")
+            table.insert(caller_params, param.value)
+            if not stream:match(T.COMMA) then
+                break
+            end
+        end
+        stream:expect(T.RPAREN, "Expected ')' after call parameters")
+    end
+
     -- Parse macro name
     local name_token = stream:expect(T.IDENT, "Expected macro name after @call")
 
-    -- Parse arguments
+    -- Parse macro arguments
     local args = {}
     if stream:check(T.LPAREN) then
         stream:advance()
@@ -380,6 +396,23 @@ function parser.parse_call(stream)
 
     -- Skip newline
     stream:match(T.NEWLINE)
+
+    -- If there were caller parameters, this is a call-with-caller block
+    if caller_params then
+        -- Parse body until @endcall
+        local body = parser.parse_body(stream, { T.DIR_ENDCALL })
+        
+        -- Expect @endcall
+        if stream:check(T.DIR_ENDCALL) then
+            stream:advance()
+            stream:match(T.NEWLINE)
+        end
+        
+        local call_node = ast.macro_call(name_token.value, args, start.line, start.column)
+        call_node.caller_params = caller_params
+        call_node.caller_body = body
+        return call_node
+    end
 
     return ast.macro_call(name_token.value, args, start.line, start.column)
 end
