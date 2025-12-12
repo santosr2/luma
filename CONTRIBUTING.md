@@ -26,13 +26,14 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
 - Git
 - Busted (for testing)
 - Luacheck (for linting)
+- Mise (optional)
 
 ### Development Setup
 
 1. **Fork and clone the repository:**
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/luma.git
+git clone https://github.com/santosr2/luma.git
 cd luma
 ```
 
@@ -47,7 +48,7 @@ luarocks install luacov
 3. **Install pre-commit hooks:**
 
 ```bash
-pip install pre-commit
+pip install pre-commit # or use mise
 pre-commit install
 ```
 
@@ -339,7 +340,7 @@ git commit --no-verify
 
 ### High Priority
 
-- 🐛 **Bug Fixes:** See [Issues](https://github.com/USERNAME/luma/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
+- 🐛 **Bug Fixes:** See [Issues](https://github.com/santosr2/luma/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
 - 📚 **Documentation:** Improve guides, add examples
 - ✨ **Performance:** Optimize hot paths
 - 🧪 **Tests:** Increase coverage
@@ -360,9 +361,9 @@ git commit --no-verify
 ## Getting Help
 
 - 📖 **Documentation:** [README.md](README.md)
-- 💬 **Discussions:** [GitHub Discussions](https://github.com/USERNAME/luma/discussions)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/USERNAME/luma/issues)
-- 💡 **Ideas:** [Feature Requests](https://github.com/USERNAME/luma/issues/new?template=feature_request.md)
+- 💬 **Discussions:** [GitHub Discussions](https://github.com/santosr2/luma/discussions)
+- 🐛 **Issues:** [GitHub Issues](https://github.com/santosr2/luma/issues)
+- 💡 **Ideas:** [Feature Requests](https://github.com/santosr2/luma/issues/new?template=feature_request.md)
 
 ## Recognition
 

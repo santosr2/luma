@@ -42,5 +42,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Autoescape for security
 - Migration tool from Jinja2
 
-[Unreleased]: https://github.com/username/luma/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/username/luma/releases/tag/v1.0.0
+[Unreleased]: https://github.com/santosr2/luma/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/santosr2/luma/releases/tag/v1.0.0

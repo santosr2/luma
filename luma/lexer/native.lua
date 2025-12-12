@@ -253,6 +253,15 @@ function native:scan_expression_token()
         self.in_directive = false
         return self:make_token(T.NEWLINE, nil, start_line, start_col)
     end
+    
+    -- Semicolon ends directive (for inline mode)
+    -- Allows: "Status: @if active; Success @else; Failed @end"
+    if c == ";" and self.in_directive then
+        self:advance()  -- consume the semicolon
+        self.in_directive = false
+        -- Return a synthetic NEWLINE to end the directive
+        return self:make_token(T.NEWLINE, nil, start_line, start_col)
+    end
 
     -- Identifiers and keywords
     if is_alpha(c) then
@@ -445,11 +454,26 @@ function native:scan_text()
                 table.insert(parts, c)
                 self:advance()
             end
-        -- Check for @ at line start (directive)
-        elseif c == "@" and self.at_line_start then
-            -- Don't include the leading whitespace - it belongs to the directive line
-            -- The whitespace will be discarded as the directive takes over
-            break
+        -- Check for @ (directive) - at line start OR after space (inline mode)
+        elseif c == "@" then
+            if self.at_line_start then
+                -- Block mode: directive at line start
+                -- Don't include the leading whitespace - it belongs to the directive line
+                break
+            elseif #parts > 0 and (parts[#parts] == " " or parts[#parts] == "\t") then
+                -- Inline mode: @ preceded by space
+                -- Keep the text including the space, let next_token handle the @
+                break
+            else
+                -- Literal @ (not preceded by space or at line start)
+                for _, ws in ipairs(line_whitespace) do
+                    table.insert(parts, ws)
+                end
+                line_whitespace = {}
+                on_line_start = false
+                table.insert(parts, c)
+                self:advance()
+            end
         -- Newline handling
         elseif c == "\n" then
             -- Include any accumulated whitespace before newline
@@ -511,9 +535,21 @@ function native:next_token()
         end
     end
 
-    -- Check for directive at line start
-    if c == "@" and self.at_line_start then
-        return self:scan_directive()
+    -- Check for directive at line start OR preceded by space (inline mode)
+    if c == "@" then
+        if self.at_line_start then
+            -- Block mode: directive at line start
+            return self:scan_directive()
+        else
+            -- Inline mode: check if preceded by space
+            local prev_pos = self.pos - 1
+            if prev_pos > 0 and (self.source:sub(prev_pos, prev_pos) == " " or 
+                                  self.source:sub(prev_pos, prev_pos) == "\t") then
+                -- Preceded by space - this is an inline directive
+                return self:scan_directive()
+            end
+            -- Otherwise, @ is literal text (handled by scan_text)
+        end
     end
 
     -- Check for dash trimming before interpolation: -$

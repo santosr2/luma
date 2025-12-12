@@ -42,10 +42,10 @@ flask = ["flask>=2.0"]
 django = ["django>=3.2"]
 
 [project.urls]
-Homepage = "https://github.com/username/luma"
+Homepage = "https://github.com/santosr2/luma"
 Documentation = "https://luma.readthedocs.io"
-Repository = "https://github.com/username/luma"
-"Bug Tracker" = "https://github.com/username/luma/issues"
+Repository = "https://github.com/santosr2/luma"
+"Bug Tracker" = "https://github.com/santosr2/luma/issues"
 
 [tool.setuptools]
 packages = ["luma"]

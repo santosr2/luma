@@ -31,7 +31,7 @@ Options:
   --verbose               Verbose output
   --syntax <mode>         Syntax mode: auto, jinja, luma (default: auto)
 
-Documentation: https://github.com/username/luma
+Documentation: https://github.com/santosr2/luma
 ]])
 end
 
