@@ -562,9 +562,9 @@ function parser.parse_from(stream)
         path = expressions.parse(stream)
     end
 
-    -- Expect 'import' keyword
+    -- Expect 'import' keyword (as an identifier, not a directive)
     local import_token = stream:peek()
-    if not import_token or import_token.type ~= T.DIR_IMPORT then
+    if not import_token or import_token.type ~= T.IDENT or import_token.value ~= "import" then
         errors.raise(errors.parse("Expected 'import' after file path in 'from' directive", 
             import_token.line, import_token.column))
     end
