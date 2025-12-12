@@ -100,6 +100,15 @@ function runtime.safe(str)
     }
 end
 
+--- Create a namespace object for mutable variables
+-- Useful for modifying variables inside loops (where normal assignment creates new local)
+-- @param initial table|nil Initial values
+-- @return table Namespace object
+function runtime.namespace(initial)
+    local ns = initial or {}
+    return ns
+end
+
 --- Check if a value is marked as safe
 -- @param value any Value to check
 -- @return boolean True if marked as safe
