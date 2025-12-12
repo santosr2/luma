@@ -35,7 +35,7 @@ jobs:
           luarocks install luacov-coveralls
       
       - name: Run Luacheck
-        run: luacheck luma/ cli/ --std=lua51+busted --globals=describe,it,before_each,after_each,setup,teardown
+        run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted --globals=describe,it,before_each,after_each,setup,teardown
       
       - name: Run tests with coverage
         run: busted --coverage --verbose spec/
@@ -73,7 +73,7 @@ jobs:
       
       - name: Run Luacheck (strict)
         run: |
-          luacheck luma/ cli/ \
+          luacheck luma/ cli/ benchmarks/ \
             --std=lua51+busted \
             --globals=describe,it,before_each,after_each,setup,teardown \
             --max-line-length=120 \
@@ -128,16 +128,16 @@ jobs:
       - name: Analyze code complexity
         run: |
           echo "=== Lines of Code ==="
-          cloc luma/ cli/ --by-file
+          cloc luma/ cli/ benchmarks/ examples/ --by-file
           
           echo ""
           echo "=== Cyclomatic Complexity ==="
-          luacheck luma/ cli/ --formatter plain --no-color | grep -E "complexity|function" || true
+          luacheck luma/ cli/ benchmarks/ --formatter plain --no-color | grep -E "complexity|function" || true
       
       - name: Check file sizes
         run: |
           echo "=== Large Files (>500 lines) ==="
-          find luma/ cli/ -name "*.lua" -type f -exec wc -l {} + | awk '$1 > 500 {print $2 " - " $1 " lines"}' || echo "No large files found"
+          find luma/ cli/ benchmarks/ -name "*.lua" -type f -exec wc -l {} + | awk '$1 > 500 {print $2 " - " $1 " lines"}' || echo "No large files found"
 
   documentation:
     name: Documentation Check
@@ -186,20 +186,127 @@ jobs:
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
-          luaVersion: "5.4"
+          luaVersion: "luajit"
       
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
       
-      - name: Validate examples
+      - name: Validate example templates
         run: |
-          echo "Checking example files..."
+          echo "=== Validating Example Templates ==="
           for file in examples/*.luma; do
             if [ -f "$file" ]; then
-              echo "✓ Found: $file"
+              echo "Checking syntax: $file"
+              luajit -e "
+                package.path = package.path .. ';./?.lua;./?/init.lua'
+                local luma = require('luma')
+                local f = io.open('$file', 'r')
+                local source = f:read('*a')
+                f:close()
+                local ok, err = pcall(function()
+                  luma.compile(source)
+                end)
+                if not ok then
+                  print('  ERROR: ' .. err)
+                  os.exit(1)
+                else
+                  print('  ✓ Valid: $file')
+                end
+              " || exit 1
             fi
           done
+      
+      - name: Run example scripts
+        run: |
+          echo "=== Running Example Scripts ==="
+          for script in examples/run_*.lua; do
+            if [ -f "$script" ]; then
+              echo "Running: $script"
+              luajit "$script" > /dev/null && echo "  ✓ Success" || echo "  ✗ Failed"
+            fi
+          done
+
+  python-bindings:
+    name: Python Bindings
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "luajit"
+      
+      - name: Install dependencies
+        run: |
+          pip install pytest lupa
+      
+      - name: Run Python binding tests
+        run: |
+          cd bindings/python
+          python -m pytest tests/ -v
+      
+      - name: Test installation
+        run: |
+          cd bindings/python
+          pip install .
+          python -c "from luma import Template; print(Template('Hello, \$name!').render(name='CI'))"
+
+  benchmarks:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "luajit"
+      
+      - name: Run performance benchmarks
+        run: |
+          echo "=== Performance Benchmarks ==="
+          luajit benchmarks/run.lua
           
-          # TODO: Add example execution validation
-          # lua -e "local luma = require('luma'); luma.render(...)"
+          echo ""
+          echo "=== Memory Profiling ==="
+          luajit benchmarks/memory_profile.lua
+          
+          echo ""
+          echo "=== JIT Profiling ==="
+          luajit benchmarks/jit_profile.lua
+          
+          echo ""
+          echo "=== Stress Testing ==="
+          luajit benchmarks/stress_test.lua
+      
+      - name: Check performance thresholds
+        run: |
+          echo "Checking performance meets minimum thresholds..."
+          luajit -e "
+            package.path = package.path .. ';./?.lua;./?/init.lua'
+            local benchmarks = require('benchmarks.benchmark')
+            local results = benchmarks.run_all()
+            
+            -- Check compiled reuse is fast enough (>100K ops/sec)
+            local compiled_reuse = results[9]
+            if compiled_reuse.ops_per_sec < 100000 then
+              print('ERROR: Compiled reuse too slow: ' .. compiled_reuse.ops_per_sec .. ' ops/sec')
+              os.exit(1)
+            end
+            
+            print('✓ Performance thresholds met')
+          "
 
