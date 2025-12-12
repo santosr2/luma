@@ -259,6 +259,34 @@ function codegen.gen_node(node, ctx)
         return
     end
 
+    if t == N.WITH then
+        -- Create scoped context with provided variables
+        emit(ctx, "do")
+        ctx.indent = ctx.indent + 1
+        emit(ctx, "-- With block: scoped variables")
+        emit(ctx, "local __with_ctx = {}")
+        emit(ctx, "setmetatable(__with_ctx, {__index = __ctx})")
+        emit(ctx, "local __saved_ctx = __ctx")
+        emit(ctx, "__ctx = __with_ctx")
+        
+        -- Set the variables in the scoped context
+        for _, var in ipairs(node.variables) do
+            local value = codegen.gen_expression(var.value, ctx)
+            emit(ctx, "__ctx[\"" .. var.name .. "\"] = " .. value)
+        end
+        
+        -- Render body with scoped context
+        for _, child in ipairs(node.body) do
+            codegen.gen_node(child, ctx)
+        end
+        
+        -- Restore previous context
+        emit(ctx, "__ctx = __saved_ctx")
+        ctx.indent = ctx.indent - 1
+        emit(ctx, "end")
+        return
+    end
+
     if t == N.COMMENT then
         -- Comments are not rendered
         return
