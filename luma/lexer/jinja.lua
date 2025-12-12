@@ -513,18 +513,28 @@ function jinja:next_token()
             self:advance()
             self:advance()
             -- Check for whitespace control: {{-
+            local trim_prev = false
             if self:peek() == "-" then
+                trim_prev = true
                 self:advance()
             end
             self.in_var = true
-            return self:make_token(T.INTERP_START, nil, start_line, start_col)
+            local token = self:make_token(T.INTERP_START, nil, start_line, start_col)
+            token.trim_prev = trim_prev
+            return token
         elseif next_c == "%" then
             -- Statement block {% ... %}
             local token, trim_prev = self:scan_statement()
+            if trim_prev then
+                token.trim_prev = true
+            end
             return token
         elseif next_c == "#" then
             -- Comment block {# ... #}
             local token, trim_prev = self:scan_comment()
+            if trim_prev then
+                token.trim_prev = true
+            end
             return token
         end
     end
@@ -546,6 +556,18 @@ function jinja:tokenize()
 
     while true do
         local token = self:next_token()
+        
+        -- Handle trim_prev: trim trailing whitespace from previous TEXT token
+        if token.trim_prev and #result > 0 then
+            for i = #result, 1, -1 do
+                if result[i].type == T.TEXT then
+                    -- Trim trailing whitespace from the last TEXT token
+                    result[i].value = result[i].value:gsub("%s+$", "")
+                    break
+                end
+            end
+        end
+        
         table.insert(result, token)
         if token.type == T.EOF then
             break
