@@ -773,8 +773,28 @@ end
 function parser.parse_do(stream)
     local start = stream:advance()  -- skip DIR_DO
     
-    -- Parse the expression
+    -- Parse the expression (could be an assignment or regular expression)
+    -- Check if it's an assignment by parsing the full expression first
     local expr = expressions.parse(stream)
+    
+    -- Check if this is actually an assignment (e.g., ns.count = 10)
+    -- If the expression is a member access or index, and next token is '=',
+    -- then we need to parse this as an assignment
+    -- But expressions.parse already consumed the LHS, so we need to check for '='
+    local is_assignment = false
+    if stream:check(T.ASSIGN) then
+        stream:advance()  -- skip '='
+        local value = expressions.parse(stream)
+        is_assignment = true
+        
+        -- Create an assignment node
+        local do_node = ast.do_statement(expr, start.line, start.column)
+        do_node.is_assignment = true
+        do_node.value = value
+        
+        stream:match(T.NEWLINE)
+        return do_node
+    end
     
     -- Skip newline
     stream:match(T.NEWLINE)
