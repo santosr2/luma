@@ -225,9 +225,15 @@ function native:scan_expression_token()
     if c == "}" and self.in_expression then
         self.brace_depth = self.brace_depth - 1
         if self.brace_depth == 0 then
-            self:advance()
+            self:advance()  -- skip }
             self.in_expression = false
-            return self:make_token(T.INTERP_END, nil, start_line, start_col)
+            local token = self:make_token(T.INTERP_END, nil, start_line, start_col)
+            -- Check for trailing dash: }-
+            if self:peek() == "-" then
+                self:advance()  -- skip -
+                token.trim_next = true
+            end
+            return token
         else
             self:advance()
             return self:make_token(T.RBRACE, nil, start_line, start_col)
@@ -397,6 +403,15 @@ function native:scan_text()
     while not self:is_eof() do
         local c = self:peek()
 
+        -- Check for - followed by $ or @ (dash trimming)
+        if c == "-" then
+            local next_c = self:peek(1)
+            if next_c == "$" or (next_c == "@" and self.at_line_start) then
+                -- This is a dash trim marker, don't include it in text
+                break
+            end
+        end
+        
         -- Check for $ (interpolation)
         if c == "$" then
             local next_c = self:peek(1)
@@ -481,9 +496,54 @@ function native:next_token()
     local start_line = self.line
     local start_col = self.column
 
+    -- Check for dash trimming before directive: -@
+    if c == "-" and self:peek(1) == "@" and self.at_line_start then
+        local next_next = self:peek(2)
+        -- Make sure it's -@ followed by directive keyword
+        if next_next and is_alpha(next_next) then
+            self:advance()  -- skip -
+            local token = self:scan_directive()
+            token.trim_prev = true
+            return token
+        end
+    end
+
     -- Check for directive at line start
     if c == "@" and self.at_line_start then
         return self:scan_directive()
+    end
+
+    -- Check for dash trimming before interpolation: -$
+    if c == "-" and self:peek(1) == "$" then
+        self:advance()  -- skip -
+        c = self:peek()  -- now at $
+        local next_c = self:peek(1)
+        
+        if next_c == "$" then
+            -- Escaped $$ - handled in scan_text
+            return self:scan_text()
+        elseif next_c == "{" then
+            -- Expression interpolation -${...}
+            self:advance()  -- skip $
+            self:advance()  -- skip {
+            self.in_expression = true
+            self.brace_depth = 1
+            local token = self:make_token(T.INTERP_START, nil, start_line, start_col)
+            token.trim_prev = true
+            return token
+        elseif next_c and is_alpha(next_c) then
+            -- Simple interpolation -$var or -$foo.bar
+            self:advance()  -- skip $
+            local path = self:read_simple_path()
+            local token = self:make_token(T.INTERP_SIMPLE, path, start_line, start_col)
+            token.trim_prev = true
+            -- Check for trailing dash: -$var-
+            if self:peek() == "-" then
+                self:advance()  -- skip -
+                token.trim_next = true
+            end
+            return token
+        end
     end
 
     -- Check for interpolation
@@ -504,7 +564,13 @@ function native:next_token()
             -- Simple interpolation $var or $foo.bar
             self:advance()  -- skip $
             local path = self:read_simple_path()
-            return self:make_token(T.INTERP_SIMPLE, path, start_line, start_col)
+            local token = self:make_token(T.INTERP_SIMPLE, path, start_line, start_col)
+            -- Check for trailing dash: $var-
+            if self:peek() == "-" then
+                self:advance()  -- skip -
+                token.trim_next = true
+            end
+            return token
         end
     end
 
