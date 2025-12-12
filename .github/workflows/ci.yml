@@ -1,0 +1,205 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Test on Lua ${{ matrix.lua-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        lua-version: ["5.1", "5.2", "5.3", "5.4", "luajit"]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: ${{ matrix.lua-version }}
+      
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Install dependencies
+        run: |
+          luarocks install busted
+          luarocks install luacheck
+          luarocks install luacov
+          luarocks install luacov-coveralls
+      
+      - name: Run Luacheck
+        run: luacheck luma/ cli/ --std=lua51+busted --globals=describe,it,before_each,after_each,setup,teardown
+      
+      - name: Run tests with coverage
+        run: busted --coverage --verbose spec/
+      
+      - name: Generate coverage report
+        if: matrix.lua-version == '5.4'
+        run: luacov
+      
+      - name: Upload coverage to Coveralls
+        if: matrix.lua-version == '5.4'
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: luacov.report.out
+        continue-on-error: true
+
+  lint:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+      
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Install Luacheck
+        run: luarocks install luacheck
+      
+      - name: Run Luacheck (strict)
+        run: |
+          luacheck luma/ cli/ \
+            --std=lua51+busted \
+            --globals=describe,it,before_each,after_each,setup,teardown \
+            --max-line-length=120 \
+            --max-code-line-length=120 \
+            --max-comment-line-length=120
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+        continue-on-error: true
+      
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true
+
+  complexity:
+    name: Complexity Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+      
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Install analysis tools
+        run: |
+          luarocks install luacheck
+          sudo apt-get update
+          sudo apt-get install -y cloc
+      
+      - name: Analyze code complexity
+        run: |
+          echo "=== Lines of Code ==="
+          cloc luma/ cli/ --by-file
+          
+          echo ""
+          echo "=== Cyclomatic Complexity ==="
+          luacheck luma/ cli/ --formatter plain --no-color | grep -E "complexity|function" || true
+      
+      - name: Check file sizes
+        run: |
+          echo "=== Large Files (>500 lines) ==="
+          find luma/ cli/ -name "*.lua" -type f -exec wc -l {} + | awk '$1 > 500 {print $2 " - " $1 " lines"}' || echo "No large files found"
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+      
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Install LDoc
+        run: luarocks install ldoc
+      
+      - name: Generate documentation
+        run: |
+          ldoc -c .ldoc luma/ || echo "LDoc not configured yet"
+        continue-on-error: true
+      
+      - name: Check README
+        run: |
+          if [ ! -f README.md ]; then
+            echo "ERROR: README.md not found"
+            exit 1
+          fi
+          
+          # Check for required sections
+          grep -q "Installation" README.md || echo "WARNING: No Installation section"
+          grep -q "Usage" README.md || echo "WARNING: No Usage section"
+          grep -q "License" README.md || echo "WARNING: No License section"
+
+  examples:
+    name: Example Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+      
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Validate examples
+        run: |
+          echo "Checking example files..."
+          for file in examples/*.luma; do
+            if [ -f "$file" ]; then
+              echo "✓ Found: $file"
+            fi
+          done
+          
+          # TODO: Add example execution validation
+          # lua -e "local luma = require('luma'); luma.render(...)"
+

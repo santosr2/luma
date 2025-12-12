@@ -1,0 +1,199 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Pre-release Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+      
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Install dependencies
+        run: |
+          luarocks install busted
+          luarocks install luacheck
+      
+      - name: Run tests
+        run: busted --verbose spec/
+      
+      - name: Run linter
+        run: luacheck luma/ cli/ --std=lua51+busted
+
+  build:
+    name: Build Release Assets
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+      
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+      - name: Create rockspec
+        run: |
+          cat > luma-${{ steps.version.outputs.version }}-1.rockspec << 'EOF'
+          package = "luma"
+          version = "${{ steps.version.outputs.version }}-1"
+          source = {
+            url = "git://github.com/${{ github.repository }}",
+            tag = "${{ steps.version.outputs.tag }}"
+          }
+          description = {
+            summary = "Lua-powered templating engine with Jinja2 compatibility",
+            detailed = [[
+              Luma is a powerful templating engine with clean, directive-based syntax
+              and 100% Jinja2 feature parity. It offers smart whitespace handling,
+              template inheritance, macros, filters, and more.
+            ]],
+            homepage = "https://github.com/${{ github.repository }}",
+            license = "MIT"
+          }
+          dependencies = {
+            "lua >= 5.1, < 5.5"
+          }
+          build = {
+            type = "builtin",
+            modules = {
+              ["luma"] = "luma/init.lua",
+              ["luma.compiler"] = "luma/compiler/init.lua",
+              ["luma.compiler.codegen"] = "luma/compiler/codegen.lua",
+              ["luma.lexer"] = "luma/lexer/init.lua",
+              ["luma.lexer.jinja"] = "luma/lexer/jinja.lua",
+              ["luma.lexer.native"] = "luma/lexer/native.lua",
+              ["luma.lexer.tokens"] = "luma/lexer/tokens.lua",
+              ["luma.lexer.inline_detector"] = "luma/lexer/inline_detector.lua",
+              ["luma.lexer.trim_processor"] = "luma/lexer/trim_processor.lua",
+              ["luma.parser"] = "luma/parser/init.lua",
+              ["luma.parser.ast"] = "luma/parser/ast.lua",
+              ["luma.parser.expressions"] = "luma/parser/expressions.lua",
+              ["luma.runtime"] = "luma/runtime/init.lua",
+              ["luma.runtime.context"] = "luma/runtime/context.lua",
+              ["luma.runtime.sandbox"] = "luma/runtime/sandbox.lua",
+              ["luma.filters"] = "luma/filters/init.lua",
+              ["luma.utils"] = "luma/utils/init.lua",
+              ["luma.utils.compat"] = "luma/utils/compat.lua",
+              ["luma.utils.errors"] = "luma/utils/errors.lua",
+              ["luma.utils.warnings"] = "luma/utils/warnings.lua",
+              ["luma.version"] = "luma/version.lua"
+            }
+          }
+          EOF
+      
+      - name: Create source tarball
+        run: |
+          tar czf luma-${{ steps.version.outputs.version }}.tar.gz \
+            luma/ cli/ spec/ examples/ \
+            README.md LICENSE CHANGELOG.md \
+            --exclude='*.swp' --exclude='.git*'
+      
+      - name: Generate changelog
+        id: changelog
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            # Extract current version section
+            sed -n "/## \[${{ steps.version.outputs.version }}\]/,/## \[/p" CHANGELOG.md | head -n -1 > release_notes.md
+          else
+            echo "Release ${{ steps.version.outputs.version }}" > release_notes.md
+          fi
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: release_notes.md
+          files: |
+            luma-${{ steps.version.outputs.version }}.tar.gz
+            luma-${{ steps.version.outputs.version }}-1.rockspec
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, 'alpha') || contains(steps.version.outputs.version, 'beta') || contains(steps.version.outputs.version, 'rc') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  luarocks:
+    name: Publish to LuaRocks
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.ref, 'alpha') && !contains(github.ref, 'beta') && !contains(github.ref, 'rc') }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+      
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+      
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Upload to LuaRocks
+        env:
+          LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
+        run: |
+          if [ -n "$LUAROCKS_API_KEY" ]; then
+            luarocks upload luma-${{ steps.version.outputs.version }}-1.rockspec --api-key="$LUAROCKS_API_KEY"
+          else
+            echo "LUAROCKS_API_KEY not set, skipping upload"
+          fi
+        continue-on-error: true
+
+  announce:
+    name: Post-release Announcement
+    needs: [build, luarocks]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: Create announcement
+        run: |
+          echo "🎉 Luma ${{ steps.version.outputs.version }} has been released!"
+          echo ""
+          echo "Release notes: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+          echo ""
+          echo "Install: luarocks install luma"
+
