@@ -737,7 +737,30 @@ function codegen.gen_include(node, ctx)
         path = codegen.gen_expression(node.path, ctx)
     end
 
-    emit(ctx, "__out[#__out + 1] = __runtime.include(" .. path .. ", __ctx)")
+    -- Build context argument based on with_context flag
+    local context_arg
+    if node.with_context then
+        context_arg = "__ctx"
+    else
+        context_arg = "{}"  -- empty context
+    end
+    
+    -- Handle ignore_missing flag
+    if node.ignore_missing then
+        emit(ctx, "do")
+        ctx.indent = ctx.indent + 1
+        emit(ctx, "local ok, result = pcall(__runtime.include, " .. path .. ", " .. context_arg .. ")")
+        emit(ctx, "if ok then")
+        ctx.indent = ctx.indent + 1
+        emit(ctx, "__out[#__out + 1] = result")
+        ctx.indent = ctx.indent - 1
+        emit(ctx, "end")
+        emit(ctx, "-- Silently ignore if template is missing")
+        ctx.indent = ctx.indent - 1
+        emit(ctx, "end")
+    else
+        emit(ctx, "__out[#__out + 1] = __runtime.include(" .. path .. ", " .. context_arg .. ")")
+    end
 end
 
 --- Generate code for import
