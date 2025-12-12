@@ -267,10 +267,11 @@ end
 -- @param line number|nil Line number
 -- @param column number|nil Column number
 -- @return table Function call node
-function ast.function_call(callee, args, line, column)
+function ast.function_call(callee, args, named_args, line, column)
     local node = make_node(N.FUNCTION_CALL, line, column)
     node.callee = callee
     node.args = args or {}
+    node.named_args = named_args
     return node
 end
 
