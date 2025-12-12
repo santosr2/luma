@@ -134,6 +134,10 @@ function parser.parse_node(stream)
         return parser.parse_raw(stream)
     end
 
+    if token.type == T.DIR_AUTOESCAPE then
+        return parser.parse_autoescape(stream)
+    end
+
     if token.type == T.DIR_COMMENT then
         stream:advance()
         return ast.comment(token.value, token.line, token.column)
@@ -523,6 +527,53 @@ function parser.parse_raw(stream)
     end
 
     return ast.raw(table.concat(content_parts), start.line, start.column)
+end
+
+--- Parse @autoescape block
+-- Syntax: {% autoescape true|false|"html" %}...{% endautoescape %}
+-- @param stream table Token stream
+-- @return table Autoescape AST node
+function parser.parse_autoescape(stream)
+    local start = stream:advance()  -- skip DIR_AUTOESCAPE
+
+    -- Parse the autoescape mode (optional, defaults to true)
+    local enabled = true
+    local token = stream:peek()
+    
+    if token and token.type == T.BOOLEAN then
+        enabled = token.value
+        stream:advance()
+    elseif token and token.type == T.STRING then
+        -- Format like "html", "xml" - we treat as enabled
+        enabled = token.value
+        stream:advance()
+    elseif token and token.type == T.IDENT then
+        -- Could be "true", "false", or format name
+        local val = token.value:lower()
+        if val == "false" then
+            enabled = false
+        elseif val == "true" then
+            enabled = true
+        else
+            -- Format name like "html"
+            enabled = token.value
+        end
+        stream:advance()
+    end
+
+    -- Skip newline
+    stream:match(T.NEWLINE)
+
+    -- Parse body until @endautoescape
+    local body = parser.parse_body(stream, { T.DIR_ENDAUTOESCAPE })
+
+    -- Expect @endautoescape
+    if stream:check(T.DIR_ENDAUTOESCAPE) then
+        stream:advance()
+        stream:match(T.NEWLINE)
+    end
+
+    return ast.autoescape(enabled, body, start.line, start.column)
 end
 
 --- Parse @extends directive
