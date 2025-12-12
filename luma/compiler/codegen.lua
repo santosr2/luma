@@ -345,9 +345,38 @@ function codegen.gen_node(node, ctx)
     end
 
     if t == N.DO then
-        -- Execute expression for side effects, discard result
-        local expr = codegen.gen_expression(node.expression, ctx)
-        emit(ctx, "do local _ = " .. expr .. " end")
+        if node.is_assignment then
+            -- Handle assignment: target = value
+            -- node.expression is the target (e.g., ns.count or ns.data["key"])
+            -- node.value is the value expression
+            
+            -- Generate assignment-friendly code for the target
+            local target_expr = node.expression
+            local value = codegen.gen_expression(node.value, ctx)
+            
+            if target_expr.type == N.MEMBER_ACCESS then
+                -- For member access: obj.field
+                local obj = codegen.gen_expression(target_expr.object, ctx)
+                local field = target_expr.field
+                emit(ctx, "if " .. obj .. " then " .. obj .. "[\"" .. field .. "\"] = " .. value .. " end")
+            elseif target_expr.type == N.INDEX_ACCESS then
+                -- For index access: obj[key]
+                local obj = codegen.gen_expression(target_expr.object, ctx)
+                local index = codegen.gen_expression(target_expr.index, ctx)
+                emit(ctx, "if " .. obj .. " then " .. obj .. "[" .. index .. "] = " .. value .. " end")
+            elseif target_expr.type == N.IDENT then
+                -- For simple variable: x
+                emit(ctx, "__ctx[\"" .. target_expr.name .. "\"] = " .. value)
+            else
+                -- Fallback for other expression types
+                local target = codegen.gen_expression(target_expr, ctx)
+                emit(ctx, target .. " = " .. value)
+            end
+        else
+            -- Execute expression for side effects, discard result
+            local expr = codegen.gen_expression(node.expression, ctx)
+            emit(ctx, "do local _ = " .. expr .. " end")
+        end
         return
     end
 
