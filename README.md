@@ -1,8 +1,8 @@
 # Luma
 
-[![CI Status](https://github.com/username/luma/workflows/CI/badge.svg)](https://github.com/username/luma/actions)
-[![Coverage](https://img.shields.io/coveralls/github/username/luma)](https://coveralls.io/github/username/luma)
-[![LuaRocks](https://img.shields.io/luarocks/v/username/luma)](https://luarocks.org/modules/username/luma)
+[![CI Status](https://github.com/santosr2/luma/workflows/CI/badge.svg)](https://github.com/santosr2/luma/actions)
+[![Coverage](https://img.shields.io/coveralls/github/santosr2/luma)](https://coveralls.io/github/santosr2/luma)
+[![LuaRocks](https://img.shields.io/luarocks/v/santosr2/luma)](https://luarocks.org/modules/santosr2/luma)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Lua](https://img.shields.io/badge/lua-5.1%20%7C%205.2%20%7C%205.3%20%7C%205.4%20%7C%20JIT-blue)](https://www.lua.org)
 
@@ -21,7 +21,7 @@ Luma is designed as a modern alternative to Jinja2-style templating with:
 luarocks install luma
 
 # Or clone and use directly
-git clone https://github.com/yourusername/luma_templates
+git clone https://github.com/santosr2/luma_templates
 ```
 
 ## Quick Start
@@ -178,6 +178,29 @@ local result = luma.render("${msg | exclaim}", { msg = "Hello" })
 -- Output: "Hello!"
 ```
 
+### Inline Directives
+
+For single-line compact output, use semicolon (`;`) to mark the end of directive expressions:
+
+```lua
+-- Inline conditional
+local status = luma.render("Status: @if active; ✓ Online @else ✗ Offline @end", {active = true})
+-- Output: "Status: ✓ Online"
+
+-- Inline loop
+local list = luma.render("Items: @for i in nums; $i @end", {nums = {1,2,3}})
+-- Output: "Items: 1 2 3 "
+
+-- Space before @ distinguishes directives from literals
+local email = luma.render("Contact: user@example.com", {})  -- @ is literal
+local directive = luma.render("Result: @if x; yes @end", {x=true})  -- @ is directive
+```
+
+**Rules:**
+- Use `;` after directive expressions (e.g., `@if condition;`, `@for x in list;`)
+- Directives without expressions don't need `;` (e.g., `@else`, `@end`)
+- Require space before `@` for inline directives to avoid ambiguity with emails, etc.
+
 ## Whitespace & Indentation
 
 > [!IMPORTANT]
@@ -188,8 +211,8 @@ local result = luma.render("${msg | exclaim}", { msg = "Hello" })
 > [!TIP]
 > While directives don't *require* indentation, we **strongly recommend** indenting them to match your document structure for better readability.
 >
-> **Inline mode is automatic**: directives on the same line as text automatically become inline (no newlines added).
-> For edge cases, use dash trimming: `-$var` or `@-if`. See [docs/WHITESPACE.md](docs/WHITESPACE.md) for details.
+> **Inline directives**: Use semicolon (`;`) after expressions for single-line compact output: `@if x; yes @else no @end`
+> Space required before `@` for inline mode. See [docs/WHITESPACE.md](docs/WHITESPACE.md) for details.
 
 ## Example: Kubernetes Deployment
 
@@ -206,16 +229,16 @@ spec:
   template:
     spec:
       containers:
-@for container in containers
+      @for container in containers
         - name: $container.name
           image: ${container.image}:${container.tag | default("latest")}
-@if container.ports
+        @if container.ports
           ports:
-@for port in container.ports
+          @for port in container.ports
             - containerPort: $port
-@end
-@end
-@end
+          @end
+        @end
+      @end
 ```
 
 #### ⚠️ Works, but harder to read

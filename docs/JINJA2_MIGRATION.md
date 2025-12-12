@@ -378,7 +378,7 @@ spec:
 
 ## Getting Help
 
-- **Documentation:** https://github.com/yourusername/luma
+- **Documentation:** https://github.com/santosr2/luma
 - **Roadmap:** See `ROADMAP.md` for upcoming features
 - **Issues:** Report migration problems on GitHub
 

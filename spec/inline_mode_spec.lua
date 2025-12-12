@@ -5,15 +5,15 @@ local luma = require("luma")
 
 describe("Context-Aware Inline Mode", function()
     describe("inline conditional detection", function()
-        it("should auto-detect inline @if when text is on same line", function()
-            local template = "Status: @if active Success @else Failed @end"
+        it("should auto-detect inline @if when text is on same line with semicolon", function()
+            local template = "Status: @if active; Success @else Failed @end"
             local result = luma.render(template, { active = true })
             -- Should not add extra newlines
             assert.equals("Status: Success", result:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", ""))
         end)
 
         it("should auto-detect inline @if with variables", function()
-            local template = "Hello @if name $name @else Guest @end!"
+            local template = "Hello @if name; $name @else Guest @end!"
             local result = luma.render(template, { name = "Alice" })
             assert.match("Hello%s+Alice", result)
             assert.is_not.match("\n", result)
