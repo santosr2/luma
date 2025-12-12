@@ -238,25 +238,64 @@ function expressions.parse_postfix(stream, expr)
 end
 
 --- Parse function arguments
+-- Supports both positional and named arguments (Jinja2 style)
 -- @param stream table Token stream
--- @return table Array of argument expressions
+-- @return table Array of positional argument expressions
+-- @return table|nil Table of named arguments (name -> expression) or nil
 function expressions.parse_args(stream)
-    local args = {}
+    local positional_args = {}
+    local named_args = nil
 
     if stream:check(T.RPAREN) then
-        return args
+        return positional_args, named_args
     end
 
+    local seen_named = false
+
     while true do
-        local arg = expressions.parse(stream)
-        table.insert(args, arg)
+        -- Check if this is a named argument (name=value)
+        local is_named = false
+        local arg_name = nil
+        
+        if stream:check(T.IDENT) then
+            -- Look ahead to see if next token is '='
+            local saved_pos = stream.pos
+            local ident = stream:advance()
+            if stream:check(T.ASSIGN) then
+                -- This is a named argument
+                is_named = true
+                arg_name = ident.value
+                stream:advance()  -- skip '='
+                seen_named = true
+            else
+                -- Not a named arg, restore position
+                stream.pos = saved_pos
+            end
+        end
+
+        if is_named then
+            -- Parse named argument value
+            local value = expressions.parse(stream)
+            if not named_args then
+                named_args = {}
+            end
+            named_args[arg_name] = value
+        else
+            -- Parse positional argument
+            if seen_named then
+                errors.raise(errors.parse("Positional arguments must come before named arguments", 
+                    stream:peek().line, stream:peek().column))
+            end
+            local arg = expressions.parse(stream)
+            table.insert(positional_args, arg)
+        end
 
         if not stream:match(T.COMMA) then
             break
         end
     end
 
-    return args
+    return positional_args, named_args
 end
 
 --- Parse unary operators (not, -)
@@ -297,16 +336,17 @@ function expressions.parse_filters(stream, expr)
         if token.type == T.PIPE then
             stream:advance()
             local filter_name = stream:expect(T.IDENT, "Expected filter name after '|'")
-            local args = {}
+            local positional_args = {}
+            local named_args = nil
 
             -- Optional arguments
             if stream:check(T.LPAREN) then
                 stream:advance()
-                args = expressions.parse_args(stream)
+                positional_args, named_args = expressions.parse_args(stream)
                 stream:expect(T.RPAREN, "Expected ')' after filter arguments")
             end
 
-            expr = ast.filter(expr, filter_name.value, args, token.line, token.column)
+            expr = ast.filter(expr, filter_name.value, positional_args, named_args, token.line, token.column)
 
         -- Pipeline: expr |> filter()
         elseif token.type == T.PIPE_ARROW then
@@ -402,16 +442,18 @@ function expressions.parse_test(stream, expr)
         errors.raise(errors.parse("Expected test name after 'is'", test_name_token.line, test_name_token.column))
     end
 
-    local args = {}
+    local positional_args = {}
+    local named_args = nil
 
     -- Optional arguments in parentheses
     if stream:check(T.LPAREN) then
         stream:advance()
-        args = expressions.parse_args(stream)
+        positional_args, named_args = expressions.parse_args(stream)
         stream:expect(T.RPAREN, "Expected ')' after test arguments")
     end
 
-    return ast.test(expr, test_name, args, negated, is_token.line, is_token.column)
+    -- Tests typically don't use named arguments, but we pass them anyway for consistency
+    return ast.test(expr, test_name, positional_args, negated, is_token.line, is_token.column)
 end
 
 --- Parse a full expression

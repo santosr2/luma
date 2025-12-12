@@ -11,6 +11,52 @@ local runtime = {}
 runtime.sandbox = sandbox
 runtime.context = context
 
+--- Helper to extract named arguments from filter arguments
+-- Filters receive: (value, arg1, arg2, ..., [named_args_table])
+-- This helper extracts positional and named args
+-- @param args table All arguments passed to filter
+-- @param num_positional number Expected number of positional args (excluding input value)
+-- @return table Positional arguments (including input value at [1])
+-- @return table Named arguments table or empty table
+local function extract_filter_args(args, num_positional)
+    num_positional = num_positional or 0
+    local positional = {}
+    local named = {}
+    
+    -- Last arg might be named args table (check if it's a plain table with string keys)
+    local last_arg = args[#args]
+    local has_named = false
+    
+    if type(last_arg) == "table" and not getmetatable(last_arg) then
+        -- Check if it looks like a named args table (has string keys, no numeric keys)
+        local has_string_keys = false
+        local has_numeric_keys = false
+        
+        for k, v in pairs(last_arg) do
+            if type(k) == "string" then
+                has_string_keys = true
+            elseif type(k) == "number" then
+                has_numeric_keys = true
+            end
+        end
+        
+        if has_string_keys and not has_numeric_keys then
+            has_named = true
+            named = last_arg
+        end
+    end
+    
+    -- Extract positional args
+    local pos_count = has_named and (#args - 1) or #args
+    for i = 1, pos_count do
+        positional[i] = args[i]
+    end
+    
+    return positional, named
+end
+
+runtime._extract_filter_args = extract_filter_args
+
 --- HTML escape sequences
 local HTML_ESCAPES = {
     ["&"] = "&amp;",
@@ -407,10 +453,17 @@ function runtime.default_filters()
             end
             return result
         end,
-        wordwrap = function(s, width, break_long, wrapstring)
+        wordwrap = function(s, ...)
+            -- Support both positional and named arguments
+            -- Positional: wordwrap(s, width, break_long_words, wrapstring)
+            -- Named: wordwrap(s, {width=79, break_long_words=false, wrapstring='\n'})
             s = s and tostring(s) or ""
-            width = width or 79
-            wrapstring = wrapstring or "\n"
+            local pos, named = extract_filter_args({s, ...}, 3)
+            
+            local width = named.width or pos[2] or 79
+            local break_long = named.break_long_words or pos[3] or false
+            local wrapstring = named.wrapstring or pos[4] or "\n"
+            
             local result = {}
             local line = ""
             for word in s:gmatch("%S+") do
@@ -441,11 +494,23 @@ function runtime.default_filters()
             local right = pad - left
             return string.rep(" ", left) .. s .. string.rep(" ", right)
         end,
-        indent = function(s, width, first, blank)
+        indent = function(s, ...)
+            -- Support both positional and named arguments
+            -- Positional: indent(s, width, first, blank)
+            -- Named: indent(s, {width=4, first=true, blank=false})
             s = s and tostring(s) or ""
-            width = width or 4
-            first = first ~= false  -- default true
-            blank = blank or false
+            local pos, named = extract_filter_args({s, ...}, 3)
+            
+            local width = named.width or pos[2] or 4
+            local first = named.first
+            if first == nil then
+                first = pos[3]
+                if first == nil then
+                    first = true
+                end
+            end
+            local blank = named.blank or pos[4] or false
+            
             local prefix = string.rep(" ", width)
             local lines = {}
             local i = 1
@@ -467,10 +532,18 @@ function runtime.default_filters()
             -- Remove trailing newline we added
             return table.concat(lines, "\n")
         end,
-        truncate = function(s, length, killwords, end_str)
+        truncate = function(s, ...)
+            -- Support both positional and named arguments
+            -- Positional: truncate(s, length, killwords, end_str)
+            -- Named: truncate(s, {length=255, killwords=true, end='...'})
             s = s and tostring(s) or ""
-            length = length or 255
-            end_str = end_str or "..."
+            local args = {...}
+            local pos, named = extract_filter_args({s, ...}, 3)
+            
+            local length = named.length or pos[2] or 255
+            local killwords = named.killwords or pos[3] or false
+            local end_str = named['end'] or pos[4] or "..."
+            
             if #s <= length then return s end
             local truncated = s:sub(1, length - #end_str)
             if not killwords then
