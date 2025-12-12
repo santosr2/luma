@@ -307,6 +307,17 @@ function runtime.default_tests()
         ["true"] = function(v) return v == true end,
         ["false"] = function(v) return v == false end,
         sameas = function(v, other) return rawequal(v, other) end,
+        
+        -- Containment test (checks if v is in other)
+        -- Note: This is different from the 'in' operator which is left-to-right
+        -- The test 'x is in(container)' checks if x is in container
+        ["in"] = function(v, container) return runtime.contains(container, v) end,
+        
+        -- String escaping test
+        escaped = function(v)
+            -- Check if the value is marked as safe (escaped or should not be escaped)
+            return runtime.is_safe(v)
+        end,
 
         -- String tests
         lower = function(v)
