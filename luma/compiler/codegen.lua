@@ -287,6 +287,46 @@ function codegen.gen_node(node, ctx)
         return
     end
 
+    if t == N.FILTER_BLOCK then
+        -- Capture output, apply filter to it
+        emit(ctx, "do")
+        ctx.indent = ctx.indent + 1
+        emit(ctx, "-- Filter block: capture and filter content")
+        emit(ctx, "local __old_out = __out")
+        emit(ctx, "__out = {}")
+        
+        -- Render body
+        for _, child in ipairs(node.body) do
+            codegen.gen_node(child, ctx)
+        end
+        
+        -- Capture the output
+        emit(ctx, "local __filtered_content = table.concat(__out)")
+        emit(ctx, "__out = __old_out")
+        
+        -- Apply the filter
+        local filter_args = {"__filtered_content"}
+        for _, arg in ipairs(node.args) do
+            table.insert(filter_args, codegen.gen_expression(arg, ctx))
+        end
+        
+        -- Add named arguments if present
+        if node.named_args then
+            local named_parts = {}
+            for name, value_node in pairs(node.named_args) do
+                local value_code = codegen.gen_expression(value_node, ctx)
+                table.insert(named_parts, "[\"" .. name .. "\"]=" .. value_code)
+            end
+            table.insert(filter_args, "{" .. table.concat(named_parts, ",") .. "}")
+        end
+        
+        emit(ctx, "__out[#__out + 1] = __filters[\"" .. node.filter_name .. "\"](" .. table.concat(filter_args, ", ") .. ")")
+        
+        ctx.indent = ctx.indent - 1
+        emit(ctx, "end")
+        return
+    end
+
     if t == N.COMMENT then
         -- Comments are not rendered
         return

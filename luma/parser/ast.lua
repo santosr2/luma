@@ -41,6 +41,7 @@ ast.types = {
     RAW = "RAW",                        -- Raw text block (no processing)
     AUTOESCAPE = "AUTOESCAPE",          -- Autoescape block
     WITH = "WITH",                      -- With block (scoped variables)
+    FILTER_BLOCK = "FILTER_BLOCK",      -- Filter block (apply filter to content)
     COMMENT = "COMMENT",                -- Comment (not rendered)
 
     -- Loop control
@@ -431,6 +432,23 @@ end
 function ast.with_block(variables, body, line, column)
     local node = make_node(N.WITH, line, column)
     node.variables = variables or {}
+    node.body = body or {}
+    return node
+end
+
+--- Create a filter block node
+-- @param filter_name string Filter name
+-- @param args table Filter arguments
+-- @param named_args table|nil Named arguments
+-- @param body table Array of body nodes
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table Filter block node
+function ast.filter_block(filter_name, args, named_args, body, line, column)
+    local node = make_node(N.FILTER_BLOCK, line, column)
+    node.filter_name = filter_name
+    node.args = args or {}
+    node.named_args = named_args
     node.body = body or {}
     return node
 end
