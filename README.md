@@ -172,15 +172,20 @@ local result = luma.render("${msg | exclaim}", { msg = "Hello" })
 -- Output: "Hello!"
 ```
 
-## Example: Kubernetes Deployment
+## Whitespace & Indentation
 
-> [!NOTE]
-> Luma preserves indentation based on where the placeholder or directive appears,
-> making it ideal for whitespace-sensitive formats like YAML.
+> [!IMPORTANT]
+> **Luma automatically preserves indentation in ALL file types** - YAML, HTML, JSON, code, configs, markdown, etc.
+> 
+> Indentation is preserved based on where placeholders and directives appear. You rarely need to think about whitespace - Luma handles it intelligently by default.
 
 > [!TIP]
-> While directives don't *require* indentation, we **strongly recommend** indenting
-> them to match your document structure for better readability.
+> While directives don't *require* indentation, we **strongly recommend** indenting them to match your document structure for better readability.
+>
+> **Inline mode is automatic**: directives on the same line as text automatically become inline (no newlines added).
+> For edge cases, use dash trimming: `-$var` or `@-if`. See [docs/WHITESPACE.md](docs/WHITESPACE.md) for details.
+
+## Example: Kubernetes Deployment
 
 #### ✅ Recommended (indented directives)
 
@@ -195,16 +200,16 @@ spec:
   template:
     spec:
       containers:
-      @for container in containers
+@for container in containers
         - name: $container.name
           image: ${container.image}:${container.tag | default("latest")}
-          @if container.ports
+@if container.ports
           ports:
-            @for port in container.ports
+@for port in container.ports
             - containerPort: $port
-            @end
-          @end
-      @end
+@end
+@end
+@end
 ```
 
 #### ⚠️ Works, but harder to read
@@ -224,6 +229,65 @@ spec:
 ```
 
 Compare either to equivalent Helm/Go templates — Luma is much cleaner!
+
+---
+
+## More Examples: Universal Smart Indentation
+
+Luma's smart indentation works everywhere, not just YAML:
+
+### HTML Template
+
+```html
+<ul class="items">
+@for item in items
+  <li class="${item.class}">
+    <strong>$item.name</strong>
+    @if item.description
+    <p>$item.description</p>
+    @end
+  </li>
+@end
+</ul>
+```
+
+### JSON Configuration
+
+```json
+{
+  "services": {
+  @for service in services
+    "$service.name": {
+      "port": $service.port,
+      "enabled": @if service.enabled true@else false@end
+    }@if not loop.last,@end
+  @end
+  }
+}
+```
+
+### Python Code Generation
+
+```python
+class $class_name:
+    def __init__(self):
+    @for field in fields
+        self.$field.name = $field.default
+    @end
+    
+    @for method in methods
+    def $method.name(self):
+        """$method.docstring"""
+        pass
+    
+    @end
+```
+
+**All of these work perfectly without any whitespace control directives!**
+
+See [docs/WHITESPACE.md](docs/WHITESPACE.md) for comprehensive examples and advanced control options.
+
+---
 
 ## Running Tests
 

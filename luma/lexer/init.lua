@@ -5,6 +5,7 @@
 local tokens = require("luma.lexer.tokens")
 local native = require("luma.lexer.native")
 local jinja = require("luma.lexer.jinja")
+local warnings = require("luma.utils.warnings")
 
 local lexer = {}
 
@@ -38,10 +39,17 @@ function lexer.new(source, options)
 
     local syntax = options.syntax or lexer.SYNTAX_AUTO
     local source_name = options.source_name or options.name or "template"
+    local was_auto_detected = false
 
     -- Auto-detect syntax if needed
     if syntax == lexer.SYNTAX_AUTO then
         syntax = detect_syntax(source)
+        was_auto_detected = true
+    end
+
+    -- Show warning only if Jinja2 was auto-detected (not explicitly requested)
+    if syntax == lexer.SYNTAX_JINJA and was_auto_detected then
+        warnings.jinja_syntax(options)
     end
 
     -- Create appropriate lexer
