@@ -118,6 +118,10 @@ function parser.parse_node(stream)
         return parser.parse_import(stream)
     end
 
+    if token.type == T.DIR_FROM then
+        return parser.parse_from(stream)
+    end
+
     if token.type == T.DIR_EXTENDS then
         return parser.parse_extends(stream)
     end
@@ -426,6 +430,63 @@ function parser.parse_import(stream)
     stream:match(T.NEWLINE)
 
     return ast.import(path, names, alias, start.line, start.column)
+end
+
+--- Parse @from directive (selective import)
+-- Syntax: {% from "file" import macro1, macro2 %}
+-- @param stream table Token stream
+-- @return table Import AST node
+function parser.parse_from(stream)
+    local start = stream:advance()  -- skip DIR_FROM
+
+    -- Parse path
+    local path
+    if stream:check(T.STRING) then
+        local str = stream:advance()
+        path = str.value
+    else
+        path = expressions.parse(stream)
+    end
+
+    -- Expect 'import' keyword
+    local import_token = stream:peek()
+    if not import_token or import_token.type ~= T.DIR_IMPORT then
+        errors.raise(errors.parse("Expected 'import' after file path in 'from' directive", 
+            import_token.line, import_token.column))
+    end
+    stream:advance()  -- skip 'import'
+
+    -- Parse list of names to import
+    local names = {}
+    while true do
+        local name_token = stream:expect(T.IDENT, "Expected macro/variable name after 'import'")
+        
+        -- Check for optional 'as' alias
+        local import_name = name_token.value
+        local import_alias = nil
+        
+        if stream:check(T.AS) then
+            stream:advance()
+            local alias_token = stream:expect(T.IDENT, "Expected alias name after 'as'")
+            import_alias = alias_token.value
+        end
+        
+        table.insert(names, {
+            name = import_name,
+            alias = import_alias
+        })
+        
+        -- Check for comma (more names) or end
+        if not stream:match(T.COMMA) then
+            break
+        end
+    end
+
+    -- Skip newline
+    stream:match(T.NEWLINE)
+
+    -- For selective imports, we use alias=nil and pass names array
+    return ast.import(path, names, nil, start.line, start.column)
 end
 
 --- Parse @raw block
