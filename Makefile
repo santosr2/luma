@@ -1,18 +1,22 @@
-.PHONY: help test lint format clean install dev docs coverage release
+.PHONY: help test lint format clean install dev docs coverage release benchmark examples python-test
 
 help:
 	@echo "Luma - Development Commands"
 	@echo ""
 	@echo "Available targets:"
-	@echo "  make install    - Install dependencies"
-	@echo "  make dev        - Setup development environment"
-	@echo "  make test       - Run test suite"
-	@echo "  make lint       - Run linter"
-	@echo "  make format     - Format code"
-	@echo "  make coverage   - Generate coverage report"
-	@echo "  make docs       - Generate documentation"
-	@echo "  make clean      - Clean build artifacts"
-	@echo "  make release    - Create release"
+	@echo "  make install      - Install dependencies"
+	@echo "  make dev          - Setup development environment"
+	@echo "  make test         - Run test suite"
+	@echo "  make lint         - Run linter"
+	@echo "  make format       - Format code"
+	@echo "  make coverage     - Generate coverage report"
+	@echo "  make benchmark    - Run performance benchmarks"
+	@echo "  make examples     - Run and validate examples"
+	@echo "  make python-test  - Test Python bindings"
+	@echo "  make docs         - Generate documentation"
+	@echo "  make clean        - Clean build artifacts"
+	@echo "  make ci           - Run all CI checks locally"
+	@echo "  make release      - Create release"
 
 install:
 	@echo "Installing dependencies..."
@@ -44,7 +48,7 @@ test-coverage:
 
 lint:
 	@echo "Running Luacheck..."
-	luacheck luma/ cli/ spec/ \
+	luacheck luma/ cli/ benchmarks/ spec/ \
 		--std=lua51+busted \
 		--globals=describe,it,before_each,after_each,setup,teardown \
 		--max-line-length=120
@@ -94,7 +98,8 @@ clean:
 check: lint test
 	@echo "✓ All checks passed"
 
-ci: lint test-coverage
+ci: lint test-coverage benchmark examples
+	@echo "Running full CI suite..."
 	@echo "✓ CI checks complete"
 
 install-tools:
@@ -117,13 +122,49 @@ validate:
 	@echo "✓ Project structure valid"
 
 benchmark:
-	@echo "Running benchmarks..."
-	@lua -e "local luma = require('luma'); \
-		local start = os.clock(); \
-		for i=1,1000 do \
-			luma.render('Hello {{ name }}!', {name='World'}); \
-		end; \
-		print(string.format('1000 renders: %.3fs', os.clock() - start))"
+	@echo "Running performance benchmarks..."
+	@luajit benchmarks/run.lua
+	@echo ""
+	@echo "Running memory profiling..."
+	@luajit benchmarks/memory_profile.lua
+	@echo ""
+	@echo "✓ Benchmarks complete"
+
+benchmark-jit:
+	@echo "Running JIT profiling..."
+	@luajit benchmarks/jit_profile.lua
+
+benchmark-stress:
+	@echo "Running stress tests..."
+	@luajit benchmarks/stress_test.lua
+
+examples:
+	@echo "Validating and running examples..."
+	@for file in examples/*.luma; do \
+		echo "Validating: $$file"; \
+		luajit -e "package.path = package.path .. ';./?.lua;./?/init.lua'; \
+			local luma = require('luma'); \
+			local f = io.open('$$file', 'r'); \
+			local source = f:read('*a'); \
+			f:close(); \
+			luma.compile(source)" || exit 1; \
+	done
+	@echo ""
+	@for script in examples/run_*.lua; do \
+		echo "Running: $$script"; \
+		luajit "$$script" > /dev/null || exit 1; \
+	done
+	@echo "✓ All examples valid"
+
+python-test:
+	@echo "Testing Python bindings..."
+	@cd bindings/python && \
+		if [ -d .venv ]; then \
+			. .venv/bin/activate && python -m pytest tests/ -v; \
+		else \
+			echo "⚠ Python venv not found. Run: cd bindings/python && mise exec -- uv venv && mise exec -- uv pip install pytest lupa"; \
+			exit 1; \
+		fi
 
 release: clean check
 	@echo "Preparing release..."
