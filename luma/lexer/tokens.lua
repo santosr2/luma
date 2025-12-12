@@ -27,6 +27,7 @@ tokens.types = {
     DIR_ELSE = "DIR_ELSE",              -- @else
     DIR_FOR = "DIR_FOR",                -- @for item in items
     DIR_LET = "DIR_LET",                -- @let name = expr
+    DIR_ENDSET = "DIR_ENDSET",          -- @endset (closes set block)
     DIR_MACRO = "DIR_MACRO",            -- @macro name(args)
     DIR_CALL = "DIR_CALL",              -- @call macro(args)
     DIR_INCLUDE = "DIR_INCLUDE",        -- @include "file"
@@ -119,6 +120,7 @@ tokens.directives = {
     ["for"] = tokens.types.DIR_FOR,
     ["let"] = tokens.types.DIR_LET,
     ["set"] = tokens.types.DIR_LET,      -- alias (Jinja compat)
+    ["endset"] = tokens.types.DIR_ENDSET,
     ["macro"] = tokens.types.DIR_MACRO,
     ["call"] = tokens.types.DIR_CALL,
     ["include"] = tokens.types.DIR_INCLUDE,

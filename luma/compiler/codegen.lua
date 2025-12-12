@@ -254,8 +254,29 @@ function codegen.gen_node(node, ctx)
     end
 
     if t == N.LET then
-        local value = codegen.gen_expression(node.value, ctx)
-        emit(ctx, "__ctx[\"" .. node.name .. "\"] = " .. value)
+        if node.is_block then
+            -- Block syntax: @set x %}...{% endset
+            -- Capture the rendered output of the body
+            emit(ctx, "do")
+            ctx.indent = ctx.indent + 1
+            emit(ctx, "local __old_out = __out")
+            emit(ctx, "__out = {}")
+            
+            -- Render the body
+            for _, child in ipairs(node.value) do
+                codegen.gen_node(child, ctx)
+            end
+            
+            -- Capture the output and assign to variable
+            emit(ctx, "__ctx[\"" .. node.name .. "\"] = table.concat(__out)")
+            emit(ctx, "__out = __old_out")
+            ctx.indent = ctx.indent - 1
+            emit(ctx, "end")
+        else
+            -- Assignment syntax: @let x = value
+            local value = codegen.gen_expression(node.value, ctx)
+            emit(ctx, "__ctx[\"" .. node.name .. "\"] = " .. value)
+        end
         return
     end
 

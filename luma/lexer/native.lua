@@ -382,6 +382,7 @@ function native:scan_directive()
     -- For directives that don't need expressions, return immediately
     if dir_type == T.DIR_ELSE or dir_type == T.DIR_END or
        dir_type == T.DIR_RAW or dir_type == T.DIR_ENDRAW or
+       dir_type == T.DIR_ENDSET or
        dir_type == T.DIR_BREAK or dir_type == T.DIR_CONTINUE then
         return self:make_token(dir_type, keyword, start_line, start_col)
     end
