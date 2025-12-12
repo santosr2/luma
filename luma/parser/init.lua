@@ -146,6 +146,10 @@ function parser.parse_node(stream)
         return parser.parse_filter_block(stream)
     end
 
+    if token.type == T.DIR_DO then
+        return parser.parse_do(stream)
+    end
+
     if token.type == T.DIR_COMMENT then
         stream:advance()
         return ast.comment(token.value, token.line, token.column)
@@ -741,6 +745,22 @@ function parser.parse_filter_block(stream)
     end
     
     return ast.filter_block(filter_name.value, positional_args, named_args, body, start.line, start.column)
+end
+
+--- Parse @do statement
+-- Syntax: {% do expression %} - executes expression without output
+-- @param stream table Token stream
+-- @return table Do AST node
+function parser.parse_do(stream)
+    local start = stream:advance()  -- skip DIR_DO
+    
+    -- Parse the expression
+    local expr = expressions.parse(stream)
+    
+    -- Skip newline
+    stream:match(T.NEWLINE)
+    
+    return ast.do_statement(expr, start.line, start.column)
 end
 
 --- Parse @extends directive

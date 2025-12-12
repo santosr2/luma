@@ -331,6 +331,13 @@ function codegen.gen_node(node, ctx)
         return
     end
 
+    if t == N.DO then
+        -- Execute expression for side effects, discard result
+        local expr = codegen.gen_expression(node.expression, ctx)
+        emit(ctx, "do local _ = " .. expr .. " end")
+        return
+    end
+
     if t == N.COMMENT then
         -- Comments are not rendered
         return

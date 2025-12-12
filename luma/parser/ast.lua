@@ -42,6 +42,7 @@ ast.types = {
     AUTOESCAPE = "AUTOESCAPE",          -- Autoescape block
     WITH = "WITH",                      -- With block (scoped variables)
     FILTER_BLOCK = "FILTER_BLOCK",      -- Filter block (apply filter to content)
+    DO = "DO",                          -- Do statement (execute without output)
     COMMENT = "COMMENT",                -- Comment (not rendered)
 
     -- Loop control
@@ -452,6 +453,17 @@ function ast.filter_block(filter_name, args, named_args, body, line, column)
     node.args = args or {}
     node.named_args = named_args
     node.body = body or {}
+    return node
+end
+
+--- Create a do statement node
+-- @param expression table Expression to execute
+-- @param line number|nil Line number
+-- @param column number|nil Column number
+-- @return table Do node
+function ast.do_statement(expression, line, column)
+    local node = make_node(N.DO, line, column)
+    node.expression = expression
     return node
 end
 
