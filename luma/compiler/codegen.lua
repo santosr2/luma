@@ -103,7 +103,14 @@ function codegen.gen_expression(node, ctx)
     end
 
     if t == N.FUNCTION_CALL then
-        local callee = codegen.gen_expression(node.callee, ctx)
+        -- Check if this is a simple identifier that might be a macro
+        local is_macro_call = false
+        local macro_name = nil
+        if node.callee.type == N.IDENT then
+            is_macro_call = true
+            macro_name = node.callee.name
+        end
+        
         local args = {}
 
         -- Add positional arguments
@@ -120,8 +127,14 @@ function codegen.gen_expression(node, ctx)
             end
             table.insert(args, "{" .. table.concat(named_parts, ",") .. "}")
         end
-
-        return callee .. "(" .. table.concat(args, ", ") .. ")"
+        
+        -- If it's a simple identifier, try macros first, then context
+        if is_macro_call then
+            return "(__macros[\"" .. macro_name .. "\"] or __ctx[\"" .. macro_name .. "\"])(" .. table.concat(args, ", ") .. ")"
+        else
+            local callee = codegen.gen_expression(node.callee, ctx)
+            return callee .. "(" .. table.concat(args, ", ") .. ")"
+        end
     end
 
     if t == N.FILTER then
@@ -725,6 +738,7 @@ end
 function codegen.gen_macro_def(node, ctx)
     local macro_name = node.name
     local params = node.params
+    local defaults = node.defaults or {}
 
     emit(ctx, "__macros[\"" .. macro_name .. "\"] = function(" .. table.concat(params, ", ") .. ")")
     indent(ctx)
@@ -737,7 +751,13 @@ function codegen.gen_macro_def(node, ctx)
     emit(ctx, "__ctx = setmetatable({}, {__index = __old_ctx})")
 
     for _, param in ipairs(params) do
-        emit(ctx, "__ctx[\"" .. param .. "\"] = " .. param)
+        -- Apply default value if parameter is nil and a default exists
+        if defaults[param] then
+            local default_code = codegen.gen_expression(defaults[param], ctx)
+            emit(ctx, "__ctx[\"" .. param .. "\"] = " .. param .. " ~= nil and " .. param .. " or " .. default_code)
+        else
+            emit(ctx, "__ctx[\"" .. param .. "\"] = " .. param)
+        end
     end
 
     -- Macro body

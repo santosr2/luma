@@ -363,13 +363,22 @@ function parser.parse_macro(stream)
     -- Parse macro name
     local name_token = stream:expect(T.IDENT, "Expected macro name after @macro")
 
-    -- Parse parameters
+    -- Parse parameters (with optional default values)
     local params = {}
+    local defaults = {}
     if stream:check(T.LPAREN) then
         stream:advance()
         while not stream:check(T.RPAREN) and not stream:is_eof() do
             local param = stream:expect(T.IDENT, "Expected parameter name")
-            table.insert(params, param.value)
+            local param_name = param.value
+            
+            -- Check for default value: param=value
+            if stream:match(T.ASSIGN) then
+                local default_value = expressions.parse(stream)
+                defaults[param_name] = default_value
+            end
+            
+            table.insert(params, param_name)
             if not stream:match(T.COMMA) then
                 break
             end
@@ -389,7 +398,9 @@ function parser.parse_macro(stream)
         stream:match(T.NEWLINE)
     end
 
-    return ast.macro_def(name_token.value, params, body, start.line, start.column)
+    local macro_node = ast.macro_def(name_token.value, params, body, start.line, start.column)
+    macro_node.defaults = defaults
+    return macro_node
 end
 
 --- Parse @call directive
