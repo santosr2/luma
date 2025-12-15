@@ -164,6 +164,7 @@ function compiler.compile(source, options)
         type = type,
         select = select,
         unpack = unpack or table.unpack,
+        pcall = pcall,  -- For error handling in templates
         table = table,
         string = string,
         math = math,
@@ -208,6 +209,7 @@ function compiler.compile_ast(template_ast, options)
         type = type,
         select = select,
         unpack = unpack or table.unpack,
+        pcall = pcall,  -- For error handling in templates
         table = table,
         string = string,
         math = math,

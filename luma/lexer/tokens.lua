@@ -104,11 +104,8 @@ tokens.types = {
     IS = "IS",                          -- is (tests)
     AS = "AS",                          -- as (aliasing)
     SCOPED = "SCOPED",                  -- scoped (block modifier)
-    WITH = "WITH",                      -- with (include modifier)
-    WITHOUT = "WITHOUT",                -- without (include modifier)
-    CONTEXT = "CONTEXT",                -- context (include modifier)
-    IGNORE = "IGNORE",                  -- ignore (include modifier)
-    MISSING = "MISSING",                -- missing (include modifier)
+    -- Note: with, without, context, ignore, missing are NOT keywords
+    -- They are handled contextually in include directive parsing
 
     -- Special
     EOF = "EOF",                        -- End of input
@@ -126,11 +123,8 @@ tokens.keywords = {
     ["is"] = tokens.types.IS,
     ["as"] = tokens.types.AS,
     ["scoped"] = tokens.types.SCOPED,
-    ["with"] = tokens.types.WITH,
-    ["without"] = tokens.types.WITHOUT,
-    ["context"] = tokens.types.CONTEXT,
-    ["ignore"] = tokens.types.IGNORE,
-    ["missing"] = tokens.types.MISSING,
+    -- Note: with, without, context, ignore, missing are NOT in keywords table
+    -- They are parsed as IDENT and handled contextually
 }
 
 --- Directive keywords mapping (after @)

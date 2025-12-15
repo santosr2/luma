@@ -470,39 +470,47 @@ function parser.parse_include(stream)
     local with_context = true  -- default
     local ignore_missing = false  -- default
 
-    -- Parse optional modifiers
+    -- Parse optional modifiers (context-sensitive keywords)
     while true do
         local token = stream:peek()
         
-        if token and token.type == T.WITH then
-            stream:advance()
-            -- Expect 'context'
-            if stream:check(T.CONTEXT) then
+        -- These are now IDENT tokens, not keywords
+        if token and token.type == T.IDENT then
+            if token.value == "with" then
                 stream:advance()
-                with_context = true
-            else
-                errors.raise(errors.parse("Expected 'context' after 'with' in include", 
-                    token.line, token.column))
-            end
-        elseif token and token.type == T.WITHOUT then
-            stream:advance()
-            -- Expect 'context'
-            if stream:check(T.CONTEXT) then
+                -- Expect 'context'
+                local next_token = stream:peek()
+                if next_token and next_token.type == T.IDENT and next_token.value == "context" then
+                    stream:advance()
+                    with_context = true
+                else
+                    errors.raise(errors.parse("Expected 'context' after 'with' in include", 
+                        token.line, token.column))
+                end
+            elseif token.value == "without" then
                 stream:advance()
-                with_context = false
-            else
-                errors.raise(errors.parse("Expected 'context' after 'without' in include", 
-                    token.line, token.column))
-            end
-        elseif token and token.type == T.IGNORE then
-            stream:advance()
-            -- Expect 'missing'
-            if stream:check(T.MISSING) then
+                -- Expect 'context'
+                local next_token = stream:peek()
+                if next_token and next_token.type == T.IDENT and next_token.value == "context" then
+                    stream:advance()
+                    with_context = false
+                else
+                    errors.raise(errors.parse("Expected 'context' after 'without' in include", 
+                        token.line, token.column))
+                end
+            elseif token.value == "ignore" then
                 stream:advance()
-                ignore_missing = true
+                -- Expect 'missing'
+                local next_token = stream:peek()
+                if next_token and next_token.type == T.IDENT and next_token.value == "missing" then
+                    stream:advance()
+                    ignore_missing = true
+                else
+                    errors.raise(errors.parse("Expected 'missing' after 'ignore' in include", 
+                        token.line, token.column))
+                end
             else
-                errors.raise(errors.parse("Expected 'missing' after 'ignore' in include", 
-                    token.line, token.column))
+                break  -- Not a recognized modifier
             end
         else
             break  -- No more modifiers

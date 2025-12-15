@@ -889,7 +889,7 @@ function codegen.generate(template_ast, options)
 
     -- Function header - receives globals as upvalues from the loader
     emit_raw(ctx, "local tostring, ipairs, pairs, setmetatable, type = tostring, ipairs, pairs, setmetatable, type")
-    emit_raw(ctx, "local table, string, math = table, string, math")
+    emit_raw(ctx, "local table, string, math, pcall = table, string, math, pcall")
     emit_raw(ctx, "return function(__ctx, __filters, __runtime, __macros, __tests)")
     indent(ctx)
 

@@ -1,0 +1,4 @@
+# Luma - Cursor rules
+
+- Do not commit this file, CLAUDE.md and ROADMAP.md
+- Always create signed commits `--signoff`, do not try to generate it, let git do that
