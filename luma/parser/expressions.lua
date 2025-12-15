@@ -430,7 +430,26 @@ function expressions.parse_test(stream, expr)
     local is_token = stream:advance()  -- consume 'is'
     local negated = false
 
-    -- Check for 'not' (is not)
+    -- Check for 'not' (is not) or 'not in' (is not in)
+    if stream:check(T.NOT_IN) then
+        -- Special case: "is not in" - handle as negated "in" test
+        stream:advance()
+        negated = true
+        local test_name = "in"
+        
+        local positional_args = {}
+        local named_args = nil
+        
+        -- Arguments in parentheses
+        if stream:check(T.LPAREN) then
+            stream:advance()
+            positional_args, named_args = expressions.parse_args(stream)
+            stream:expect(T.RPAREN, "Expected ')' after test arguments")
+        end
+        
+        return ast.test(expr, test_name, positional_args, negated, is_token.line, is_token.column)
+    end
+    
     if stream:check(T.NOT) then
         stream:advance()
         negated = true
