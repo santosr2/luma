@@ -196,6 +196,13 @@ function jinja:scan_expression_token()
     local start_line = self.line
     local start_col = self.column
 
+    -- Check for end of Luma expression block: }
+    if self.in_expression and c == "}" then
+        self:advance()
+        self.in_expression = false
+        return self:make_token(T.INTERP_END, nil, start_line, start_col)
+    end
+    
     -- Check for end of variable block: }} or -}}
     if self.in_var then
         if self:match("-}}") then
@@ -335,6 +342,7 @@ function jinja:scan_expression_token()
     if c == "%" then return self:make_token(T.PERCENT, nil, start_line, start_col) end
     if c == "^" then return self:make_token(T.CARET, nil, start_line, start_col) end
     if c == "=" then return self:make_token(T.ASSIGN, nil, start_line, start_col) end
+    if c == "#" then return self:make_token(T.HASH, nil, start_line, start_col) end
 
     errors.raise(errors.lexer("Unexpected character in expression: " .. c, start_line, start_col, self.source_name))
 end
@@ -476,6 +484,19 @@ function jinja:scan_text()
                 break
             end
         end
+        
+        -- Check for Luma interpolation (for mixed syntax support)
+        if c == "$" then
+            local next_c = self:peek(1)
+            local next_next_c = self:peek(2)
+            -- Only treat as interpolation if followed by identifier or single {
+            -- Don't break on ${{ (literal $ + Jinja2 {{)
+            if next_c and next_c:match("[a-zA-Z_]") then
+                break
+            elseif next_c == "{" and next_next_c ~= "{" then
+                break
+            end
+        end
 
         table.insert(parts, c)
         self:advance()
@@ -498,7 +519,7 @@ end
 --- Get the next token
 function jinja:next_token()
     -- If in expression mode, scan expression tokens
-    if self.in_var or self.in_stmt then
+    if self.in_var or self.in_stmt or self.in_expression then
         return self:scan_expression_token()
     end
 
@@ -511,6 +532,28 @@ function jinja:next_token()
     local start_line = self.line
     local start_col = self.column
 
+    -- Check for Luma interpolation (mixed syntax support)
+    if c == "$" then
+        local next_c = self:peek(1)
+        local next_next_c = self:peek(2)
+        
+        -- Don't treat ${{ as interpolation (it's literal $ + Jinja2 {{)
+        if next_c == "{" and next_next_c == "{" then
+            -- Let it fall through to scan_text
+        elseif next_c and next_c:match("[a-zA-Z_]") then
+            -- Simple variable: $var
+            self:advance()  -- skip $
+            local var_name = self:read_identifier()
+            return self:make_token(T.INTERP_SIMPLE, var_name, start_line, start_col)
+        elseif next_c == "{" then
+            -- Complex expression: ${...}
+            self:advance()  -- skip $
+            self:advance()  -- skip {
+            self.in_expression = true
+            return self:make_token(T.INTERP_START, nil, start_line, start_col)
+        end
+    end
+    
     -- Check for Jinja blocks
     if c == "{" then
         local next_c = self:peek(1)
