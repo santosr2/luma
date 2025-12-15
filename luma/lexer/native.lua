@@ -43,6 +43,9 @@ function native.new(source, source_name)
         in_directive = false,     -- Inside @directive
         at_line_start = true,     -- At start of line (for directive detection)
         brace_depth = 0,          -- Nesting depth for ${...}
+        last_expr_token = nil,    -- Track last token in directive for continuation detection
+        directive_first_newline = false,  -- Track if we've seen the first newline in directive
+        directive_has_content = false,    -- Track if directive has any content beyond keyword
     }
     setmetatable(self, { __index = native })
     return self
@@ -206,7 +209,16 @@ end
 
 --- Create a token with current position
 function native:make_token(token_type, value, start_line, start_col)
-    return tokens.new(token_type, value, start_line or self.line, start_col or self.column)
+    local token = tokens.new(token_type, value, start_line or self.line, start_col or self.column)
+    -- Track last token in directive mode for continuation detection
+    if self.in_directive then
+        self.last_expr_token = token
+        -- Track if we've seen any content in directive (not just the keyword)
+        if token_type ~= T.NEWLINE and not token_type:match("^DIR_") then
+            self.directive_has_content = true
+        end
+    end
+    return token
 end
 
 --- Scan an expression token (inside ${...} or directive)
@@ -247,11 +259,57 @@ function native:scan_expression_token()
         return self:make_token(T.LBRACE, nil, start_line, start_col)
     end
 
-    -- Newline ends directive
+    -- Newline in directive: check if line continues (comma before newline)
     if c == "\n" and self.in_directive then
-        self:advance()
-        self.in_directive = false
-        return self:make_token(T.NEWLINE, nil, start_line, start_col)
+        -- Check if there's a comma before this newline (ignoring whitespace)
+        local check_pos = self.pos - 1
+        local has_comma = false
+        while check_pos >= 1 do
+            local prev_char = self.source:sub(check_pos, check_pos)
+            if prev_char == "," then
+                has_comma = true
+                break
+            elseif prev_char ~= " " and prev_char ~= "\t" and prev_char ~= "\r" then
+                -- Hit a non-whitespace, non-comma character
+                break
+            end
+            check_pos = check_pos - 1
+        end
+        
+        self:advance()  -- consume newline
+        
+        if has_comma then
+            -- Line continues - skip leading whitespace and continue scanning
+            self.directive_first_newline = true  -- We've seen content
+            self:skip_whitespace()
+            return self:scan_expression_token()
+        elseif not self.directive_first_newline then
+            -- First newline after directive keyword
+            self.directive_first_newline = true
+            -- Only continue if directive had content (e.g., empty @with should continue)
+            if not self.directive_has_content then
+                -- No content yet, check if next line has continuation
+                self:skip_whitespace()
+                local next_char = self:peek()
+                -- Continue only if next line starts with identifier (likely indented parameter)
+                if not self:is_eof() and is_alpha(next_char) then
+                    -- Likely a continuation line
+                    return self:scan_expression_token()
+                end
+            end
+            -- End directive
+            self.in_directive = false
+            self.directive_first_newline = false
+            self.directive_has_content = false
+            return self:make_token(T.NEWLINE, nil, start_line, start_col)
+        
+        else
+            -- No continuation, end directive
+            self.in_directive = false
+            self.directive_first_newline = false
+            self.directive_has_content = false
+            return self:make_token(T.NEWLINE, nil, start_line, start_col)
+        end
     end
     
     -- Semicolon ends directive (for inline mode)
@@ -407,6 +465,8 @@ function native:scan_directive()
 
     -- Other directives enter directive mode for expression parsing
     self.in_directive = true
+    self.directive_first_newline = false  -- Reset for new directive
+    self.directive_has_content = false    -- Reset content flag
     return self:make_token(dir_type, keyword, start_line, start_col)
 end
 
