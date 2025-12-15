@@ -627,7 +627,33 @@ end
 
 --- Generate code for for loop
 function codegen.gen_for(node, ctx)
-    local iterable = codegen.gen_expression(node.iterable, ctx)
+    -- Detect if iterable is ipairs() or pairs() call BEFORE generating the expression
+    -- If so, extract the argument for iteration
+    local iterable
+    local is_ipairs_call = false
+    local is_pairs_call = false
+    
+    if node.iterable and node.iterable.type == "FUNCTION_CALL" then
+        local callee = node.iterable.callee
+        if callee and callee.type == "IDENT" then
+            local fn_name = callee.name
+            if fn_name == "ipairs" and node.iterable.args and #node.iterable.args >= 1 then
+                is_ipairs_call = true
+                -- Extract the first argument (the table to iterate)
+                iterable = codegen.gen_expression(node.iterable.args[1], ctx)
+            elseif fn_name == "pairs" and node.iterable.args and #node.iterable.args >= 1 then
+                is_pairs_call = true
+                -- Extract the first argument (the table to iterate)
+                iterable = codegen.gen_expression(node.iterable.args[1], ctx)
+            end
+        end
+    end
+    
+    -- If not ipairs/pairs, generate the iterable expression normally
+    if not iterable then
+        iterable = codegen.gen_expression(node.iterable, ctx)
+    end
+    
     local var_names = node.var_names or { node.var_name }  -- Support both old and new format
     local loop_var = gen_var(ctx, "loop")
     local uses_loop_control = has_loop_control(node.body)
