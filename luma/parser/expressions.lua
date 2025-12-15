@@ -430,7 +430,7 @@ function expressions.parse_test(stream, expr)
         negated = true
     end
 
-    -- Parse test name - can be IDENT or BOOLEAN (true/false) or NIL
+    -- Parse test name - can be IDENT, BOOLEAN (true/false), NIL, or IN (for 'is in' test)
     local test_name_token = stream:peek()
     local test_name
     if test_name_token.type == T.IDENT then
@@ -442,6 +442,10 @@ function expressions.parse_test(stream, expr)
     elseif test_name_token.type == T.NIL then
         stream:advance()
         test_name = "nil"
+    elseif test_name_token.type == T.IN then
+        -- Special case: "is in" test (Jinja2 compatibility)
+        stream:advance()
+        test_name = "in"
     else
         errors.raise(errors.parse("Expected test name after 'is'", test_name_token.line, test_name_token.column))
     end
