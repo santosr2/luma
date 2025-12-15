@@ -192,11 +192,8 @@ function codegen.gen_expression(node, ctx)
 
     if t == N.TABLE then
         local entries = {}
-        local is_array = true  -- Assume array unless we see keys
-        
         for i, entry in ipairs(node.entries) do
             if entry.key then
-                is_array = false
                 local key = codegen.gen_expression(entry.key, ctx)
                 local value = codegen.gen_expression(entry.value, ctx)
                 table.insert(entries, "[" .. key .. "] = " .. value)
@@ -204,16 +201,7 @@ function codegen.gen_expression(node, ctx)
                 table.insert(entries, codegen.gen_expression(entry.value, ctx))
             end
         end
-        
-        local table_literal = "{" .. table.concat(entries, ", ") .. "}"
-        
-        -- Wrap arrays with runtime.list() to add Python-like methods
-        if is_array then
-            return "__runtime.list(" .. table_literal .. ")"
-        else
-            -- Wrap dicts with runtime.dict() to add Python-like methods
-            return "__runtime.dict(" .. table_literal .. ")"
-        end
+        return "{" .. table.concat(entries, ", ") .. "}"
     end
 
     if t == N.TEST then
@@ -458,6 +446,24 @@ function codegen.gen_node(node, ctx)
         else
             -- Assignment syntax: @let x = value
             local value = codegen.gen_expression(node.value, ctx)
+            
+            -- Wrap table literals with runtime.list/dict for Python-like methods
+            if node.value.type == N.TABLE then
+                -- Check if it's an array or dict
+                local is_array = true
+                for _, entry in ipairs(node.value.entries) do
+                    if entry.key then
+                        is_array = false
+                        break
+                    end
+                end
+                if is_array then
+                    value = "__runtime.list(" .. value .. ")"
+                else
+                    value = "__runtime.dict(" .. value .. ")"
+                end
+            end
+            
             emit(ctx, "__ctx[\"" .. node.name .. "\"] = " .. value)
         end
         return
