@@ -422,6 +422,18 @@ function native:scan_expression_token()
         return self:make_token(T.CONCAT, nil, start_line, start_col)
     end
 
+    -- Check for dash-trim pattern (-$ or -@) in directive mode before consuming
+    if c == "-" and self.in_directive then
+        local next_char = self:peek(1)
+        if next_char == "$" or next_char == "@" then
+            -- End directive before the dash-trim marker
+            self.in_directive = false
+            self.directive_first_newline = false
+            self.directive_has_content = false
+            return self:make_token(T.NEWLINE, nil, start_line, start_col)
+        end
+    end
+
     -- Single-character operators/punctuation
     self:advance()
 
