@@ -105,12 +105,12 @@ function codegen.gen_expression(node, ctx)
     if t == N.FUNCTION_CALL then
         local callee = codegen.gen_expression(node.callee, ctx)
         local args = {}
-        
+
         -- Add positional arguments
         for _, arg in ipairs(node.args) do
             table.insert(args, codegen.gen_expression(arg, ctx))
         end
-        
+
         -- Add named arguments as a table (if present)
         if node.named_args and next(node.named_args) then
             local named_parts = {}
@@ -120,19 +120,19 @@ function codegen.gen_expression(node, ctx)
             end
             table.insert(args, "{" .. table.concat(named_parts, ",") .. "}")
         end
-        
+
         return callee .. "(" .. table.concat(args, ", ") .. ")"
     end
 
     if t == N.FILTER then
         local expr = codegen.gen_expression(node.expression, ctx)
         local args = { expr }
-        
+
         -- Add positional arguments
         for _, arg in ipairs(node.args) do
             table.insert(args, codegen.gen_expression(arg, ctx))
         end
-        
+
         -- If there are named arguments, add them as a table
         if node.named_args then
             local named_parts = {}
@@ -142,7 +142,7 @@ function codegen.gen_expression(node, ctx)
             end
             table.insert(args, "{" .. table.concat(named_parts, ",") .. "}")
         end
-        
+
         return "__filters[\"" .. node.filter_name .. "\"](" .. table.concat(args, ", ") .. ")"
     end
 
@@ -253,7 +253,7 @@ function codegen.gen_node(node, ctx)
         emit(ctx, "do")
         ctx.indent = ctx.indent + 1
         emit(ctx, "local __old_autoescape = __autoescape")
-        
+
         -- Set new autoescape mode
         if type(node.enabled) == "boolean" then
             emit(ctx, "__autoescape = " .. tostring(node.enabled))
@@ -263,12 +263,12 @@ function codegen.gen_node(node, ctx)
         else
             emit(ctx, "__autoescape = true")
         end
-        
+
         -- Render body with new autoescape setting
         for _, child in ipairs(node.body) do
             codegen.gen_node(child, ctx)
         end
-        
+
         -- Restore old autoescape state
         emit(ctx, "__autoescape = __old_autoescape")
         ctx.indent = ctx.indent - 1
@@ -285,18 +285,18 @@ function codegen.gen_node(node, ctx)
         emit(ctx, "setmetatable(__with_ctx, {__index = __ctx})")
         emit(ctx, "local __saved_ctx = __ctx")
         emit(ctx, "__ctx = __with_ctx")
-        
+
         -- Set the variables in the scoped context
         for _, var in ipairs(node.variables) do
             local value = codegen.gen_expression(var.value, ctx)
             emit(ctx, "__ctx[\"" .. var.name .. "\"] = " .. value)
         end
-        
+
         -- Render body with scoped context
         for _, child in ipairs(node.body) do
             codegen.gen_node(child, ctx)
         end
-        
+
         -- Restore previous context
         emit(ctx, "__ctx = __saved_ctx")
         ctx.indent = ctx.indent - 1
@@ -311,22 +311,22 @@ function codegen.gen_node(node, ctx)
         emit(ctx, "-- Filter block: capture and filter content")
         emit(ctx, "local __old_out = __out")
         emit(ctx, "__out = {}")
-        
+
         -- Render body
         for _, child in ipairs(node.body) do
             codegen.gen_node(child, ctx)
         end
-        
+
         -- Capture the output
         emit(ctx, "local __filtered_content = table.concat(__out)")
         emit(ctx, "__out = __old_out")
-        
+
         -- Apply the filter
         local filter_args = {"__filtered_content"}
         for _, arg in ipairs(node.args) do
             table.insert(filter_args, codegen.gen_expression(arg, ctx))
         end
-        
+
         -- Add named arguments if present
         if node.named_args then
             local named_parts = {}
@@ -336,9 +336,9 @@ function codegen.gen_node(node, ctx)
             end
             table.insert(filter_args, "{" .. table.concat(named_parts, ",") .. "}")
         end
-        
+
         emit(ctx, "__out[#__out + 1] = __filters[\"" .. node.filter_name .. "\"](" .. table.concat(filter_args, ", ") .. ")")
-        
+
         ctx.indent = ctx.indent - 1
         emit(ctx, "end")
         return
@@ -349,11 +349,11 @@ function codegen.gen_node(node, ctx)
             -- Handle assignment: target = value
             -- node.expression is the target (e.g., ns.count or ns.data["key"])
             -- node.value is the value expression
-            
+
             -- Generate assignment-friendly code for the target
             local target_expr = node.expression
             local value = codegen.gen_expression(node.value, ctx)
-            
+
             if target_expr.type == N.MEMBER_ACCESS then
                 -- For member access: obj.field
                 local obj = codegen.gen_expression(target_expr.object, ctx)
@@ -410,12 +410,12 @@ function codegen.gen_node(node, ctx)
             ctx.indent = ctx.indent + 1
             emit(ctx, "local __old_out = __out")
             emit(ctx, "__out = {}")
-            
+
             -- Render the body
             for _, child in ipairs(node.value) do
                 codegen.gen_node(child, ctx)
             end
-            
+
             -- Capture the output and assign to variable
             emit(ctx, "__ctx[\"" .. node.name .. "\"] = table.concat(__out)")
             emit(ctx, "__out = __old_out")
@@ -424,20 +424,20 @@ function codegen.gen_node(node, ctx)
         elseif node.is_member_assignment then
             -- Member assignment syntax: @let ns.found = value
             local value = codegen.gen_expression(node.value, ctx)
-            
+
             -- Build the member access chain
             local path = node.member_path
             local obj = "__ctx[\"" .. path[1] .. "\"]"
             for i = 2, #path do
                 obj = "(" .. obj .. " and " .. obj .. "[\"" .. path[i] .. "\"])"
             end
-            
+
             -- For assignment, we need to set the last member
             local parent = "__ctx[\"" .. path[1] .. "\"]"
             for i = 2, #path - 1 do
                 parent = parent .. "[\"" .. path[i] .. "\"]"
             end
-            
+
             emit(ctx, "if " .. parent .. " then")
             ctx.indent = ctx.indent + 1
             emit(ctx, parent .. "[\"" .. path[#path] .. "\"] = " .. value)
@@ -488,7 +488,7 @@ function codegen.gen_node(node, ctx)
 
     if t == N.BLOCK then
         -- Block content - simply render its body (inheritance is resolved before codegen)
-        
+
         -- If block is scoped, create isolated context
         if node.scoped then
             emit(ctx, "do")
@@ -499,7 +499,7 @@ function codegen.gen_node(node, ctx)
             emit(ctx, "local __saved_ctx = __ctx")
             emit(ctx, "__ctx = __scoped_ctx")
         end
-        
+
         -- If block has a parent (for super() support), make it available
         if node.parent_block then
             -- Save current block stack
@@ -507,27 +507,27 @@ function codegen.gen_node(node, ctx)
             emit(ctx, "__super = function()")
             indent(ctx)
             emit(ctx, "local __out = {}")
-            
+
             -- Render parent block content
             for _, child in ipairs(node.parent_block.body) do
                 codegen.gen_node(child, ctx)
             end
-            
+
             emit(ctx, "return table.concat(__out)")
             dedent(ctx)
             emit(ctx, "end")
         end
-        
+
         -- Render child block content
         for _, child in ipairs(node.body) do
             codegen.gen_node(child, ctx)
         end
-        
+
         -- Restore previous block stack
         if node.parent_block then
             emit(ctx, "__super = __prev_super")
         end
-        
+
         -- Restore context if block was scoped
         if node.scoped then
             emit(ctx, "__ctx = __saved_ctx")
@@ -752,7 +752,7 @@ function codegen.gen_macro_call(node, ctx)
     if node.caller_body then
         -- Generate caller function
         local params = node.caller_params or {}
-        
+
         emit(ctx, "do")
         ctx.indent = ctx.indent + 1
         emit(ctx, "-- Call with caller pattern")
@@ -761,36 +761,36 @@ function codegen.gen_macro_call(node, ctx)
         emit(ctx, "local __caller_out = {}")
         emit(ctx, "local __old_out = __out")
         emit(ctx, "__out = __caller_out")
-        
+
         -- Create local context with caller parameters
         emit(ctx, "local __old_ctx = __ctx")
         emit(ctx, "__ctx = setmetatable({}, {__index = __old_ctx})")
-        
+
         for _, param in ipairs(params) do
             emit(ctx, "__ctx[\"" .. param .. "\"] = " .. param)
         end
-        
+
         -- Render caller body
         for _, child in ipairs(node.caller_body) do
             codegen.gen_node(child, ctx)
         end
-        
+
         emit(ctx, "__ctx = __old_ctx")
         emit(ctx, "__out = __old_out")
         emit(ctx, "return table.concat(__caller_out)")
         dedent(ctx)
         emit(ctx, "end")
-        
+
         -- Store caller in context so macro can access it
         emit(ctx, "local __saved_caller = __ctx[\"caller\"]")
         emit(ctx, "__ctx[\"caller\"] = __caller")
-        
+
         -- Call the macro
         emit(ctx, "__out[#__out + 1] = __macros[\"" .. node.name .. "\"](" .. table.concat(args, ", ") .. ")")
-        
+
         -- Restore previous caller
         emit(ctx, "__ctx[\"caller\"] = __saved_caller")
-        
+
         ctx.indent = ctx.indent - 1
         emit(ctx, "end")
     else
@@ -815,7 +815,7 @@ function codegen.gen_include(node, ctx)
     else
         context_arg = "{}"  -- empty context
     end
-    
+
     -- Handle ignore_missing flag
     if node.ignore_missing then
         emit(ctx, "do")
@@ -848,18 +848,18 @@ function codegen.gen_import(node, ctx)
         emit(ctx, "do")
         ctx.indent = ctx.indent + 1
         emit(ctx, "local __imported = __runtime.import(" .. path .. ")")
-        
+
         for _, import_spec in ipairs(node.names) do
             local source_name = import_spec.name
             local target_name = import_spec.alias or source_name
-            
+
             -- Import the specific name into context or macros
             emit(ctx, "if __imported[\"" .. source_name .. "\"] ~= nil then")
             ctx.indent = ctx.indent + 1
             emit(ctx, "__ctx[\"" .. target_name .. "\"] = __imported[\"" .. source_name .. "\"]")
             ctx.indent = ctx.indent - 1
             emit(ctx, "end")
-            
+
             -- Also check if it's a macro
             emit(ctx, "if __imported.__macros and __imported.__macros[\"" .. source_name .. "\"] then")
             ctx.indent = ctx.indent + 1
@@ -867,7 +867,7 @@ function codegen.gen_import(node, ctx)
             ctx.indent = ctx.indent - 1
             emit(ctx, "end")
         end
-        
+
         ctx.indent = ctx.indent - 1
         emit(ctx, "end")
     elseif node.alias then
@@ -884,7 +884,7 @@ end
 -- @param options table|nil Options
 -- @return string Generated Lua code
 function codegen.generate(template_ast, options)
-    options = options or {}
+    options = options or {}  -- luacheck: ignore options
     local ctx = create_context()
 
     -- Function header - receives globals as upvalues from the loader

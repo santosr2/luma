@@ -695,6 +695,9 @@ function parser.parse_with(stream)
     
     local variables = {}
     
+    -- Skip optional newline after @with (for multiline format)
+    stream:match(T.NEWLINE)
+    
     -- Check if there are any variable assignments
     local token = stream:peek()
     if token and token.type == T.IDENT then
@@ -713,6 +716,8 @@ function parser.parse_with(stream)
             if not stream:match(T.COMMA) then
                 break
             end
+            -- Skip optional newline after comma (for multiline format)
+            stream:match(T.NEWLINE)
         end
     end
     

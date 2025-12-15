@@ -306,6 +306,13 @@ function jinja:scan_expression_token()
         return self:make_token(T.GE, nil, start_line, start_col)
     end
 
+    -- Check for .. (concatenation) before . (member access)
+    if c == "." and self:peek(1) == "." then
+        self:advance()
+        self:advance()
+        return self:make_token(T.CONCAT, nil, start_line, start_col)
+    end
+
     -- Single-character operators/punctuation
     self:advance()
 

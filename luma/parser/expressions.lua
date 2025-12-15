@@ -14,12 +14,13 @@ local PRECEDENCE = {
     OR = 1,
     AND = 2,
     COMPARISON = 3,  -- ==, !=, <, >, <=, >=
-    ADDITIVE = 4,    -- +, -
-    MULTIPLICATIVE = 5,  -- *, /, %
-    POWER = 6,       -- ^
-    UNARY = 7,       -- not, -
-    CALL = 8,        -- (), [], .
-    FILTER = 9,      -- |, |>
+    CONCAT = 4,      -- ..
+    ADDITIVE = 5,    -- +, -
+    MULTIPLICATIVE = 6,  -- *, /, %
+    POWER = 7,       -- ^
+    UNARY = 8,       -- not, -
+    CALL = 9,        -- (), [], .
+    FILTER = 10,     -- |, |>
 }
 
 --- Binary operator mapping to AST operators
@@ -30,6 +31,7 @@ local BINARY_OPS = {
     [T.SLASH] = "/",
     [T.PERCENT] = "%",
     [T.CARET] = "^",
+    [T.CONCAT] = "..",
     [T.EQ] = "==",
     [T.NE] = "!=",
     [T.LT] = "<",
@@ -53,6 +55,8 @@ local function get_precedence(token_type)
            token_type == T.GT or token_type == T.GE or
            token_type == T.IN or token_type == T.NOT_IN then
         return PRECEDENCE.COMPARISON
+    elseif token_type == T.CONCAT then
+        return PRECEDENCE.CONCAT
     elseif token_type == T.PLUS or token_type == T.MINUS then
         return PRECEDENCE.ADDITIVE
     elseif token_type == T.STAR or token_type == T.SLASH or token_type == T.PERCENT then

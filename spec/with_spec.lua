@@ -271,10 +271,7 @@ Total: ${{ total }}
 
         it("should be useful for API response formatting", function()
             local template = [[
-@with 
-    status = response.success and "Success" or "Failed",
-    code = response.code,
-    message = response.message
+@with status = response.success and "Success" or "Failed", code = response.code, message = response.message
 Status: $status ($code)
 Message: $message
 @endwith]]
