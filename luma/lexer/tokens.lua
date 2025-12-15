@@ -123,7 +123,7 @@ tokens.keywords = {
     ["in"] = tokens.types.IN,
     ["is"] = tokens.types.IS,
     ["as"] = tokens.types.AS,
-    ["scoped"] = tokens.types.SCOPED,
+    -- ["scoped"] = tokens.types.SCOPED,  -- Context-sensitive in block directive
     -- Note: with, without, context, ignore, missing are NOT in keywords table
     -- They are parsed as IDENT and handled contextually
 }
