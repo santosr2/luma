@@ -369,7 +369,7 @@ function codegen.gen_node(node, ctx)
             if target_expr.type == N.MEMBER_ACCESS then
                 -- For member access: obj.field
                 local obj = codegen.gen_expression(target_expr.object, ctx)
-                local field = target_expr.field
+                local field = target_expr.member
                 emit(ctx, "if " .. obj .. " then " .. obj .. "[\"" .. field .. "\"] = " .. value .. " end")
             elseif target_expr.type == N.INDEX_ACCESS then
                 -- For index access: obj[key]
