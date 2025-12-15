@@ -748,6 +748,13 @@ function codegen.gen_macro_call(node, ctx)
         table.insert(args, codegen.gen_expression(arg, ctx))
     end
 
+    -- Special case: caller() is a context function, not a macro
+    if node.name == "caller" and not node.caller_body then
+        -- Just output the result of calling the caller function from context
+        emit(ctx, "__out[#__out + 1] = (__ctx[\"caller\"] and __ctx[\"caller\"](" .. table.concat(args, ", ") .. ") or \"\")")
+        return
+    end
+
     -- Check if this is a call-with-caller (has caller_body)
     if node.caller_body then
         -- Generate caller function

@@ -428,8 +428,21 @@ function parser.parse_call(stream)
     -- Skip newline
     stream:match(T.NEWLINE)
 
-    -- If there were caller parameters, this is a call-with-caller block
-    if caller_params then
+    -- Check if there's a body (call-with-caller pattern)
+    -- This can be with or without caller parameters
+    local next_token = stream:peek()
+    
+    -- If next token is @endcall, we have a call-with-caller block (even if empty body)
+    -- If it's something else, check if we might have a body
+    local has_body = false
+    if next_token and next_token.type == T.DIR_ENDCALL then
+        has_body = true
+    elseif next_token and next_token.type ~= T.EOF then
+        -- Try to parse body - if there's content before @endcall, it's a call-with-caller
+        has_body = true
+    end
+
+    if has_body then
         -- Parse body until @endcall
         local body = parser.parse_body(stream, { T.DIR_ENDCALL })
         
@@ -437,14 +450,16 @@ function parser.parse_call(stream)
         if stream:check(T.DIR_ENDCALL) then
             stream:advance()
             stream:match(T.NEWLINE)
+            
+            -- This is a call-with-caller block
+            local call_node = ast.macro_call(name_token.value, args, start.line, start.column)
+            call_node.caller_params = caller_params or {}  -- Empty list if no params
+            call_node.caller_body = body
+            return call_node
         end
-        
-        local call_node = ast.macro_call(name_token.value, args, start.line, start.column)
-        call_node.caller_params = caller_params
-        call_node.caller_body = body
-        return call_node
     end
 
+    -- Simple macro call without caller
     return ast.macro_call(name_token.value, args, start.line, start.column)
 end
 
