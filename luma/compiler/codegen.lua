@@ -635,7 +635,7 @@ function codegen.gen_for(node, ctx)
     
     if node.iterable and node.iterable.type == "FUNCTION_CALL" then
         local callee = node.iterable.callee
-        if callee and callee.type == "IDENT" then
+        if callee and (callee.type == "IDENT" or callee.type == "IDENTIFIER") then
             local fn_name = callee.name
             if fn_name == "ipairs" and node.iterable.args and #node.iterable.args >= 1 then
                 is_ipairs_call = true
