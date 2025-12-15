@@ -94,6 +94,7 @@ tokens.types = {
     PERCENT = "PERCENT",                -- %
     CARET = "CARET",                    -- ^
     CONCAT = "CONCAT",                  -- .. (string concatenation)
+    HASH = "HASH",                      -- # (length operator)
 
     -- Operators - Assignment
     ASSIGN = "ASSIGN",                  -- =

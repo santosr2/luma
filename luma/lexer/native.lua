@@ -321,6 +321,26 @@ function native:scan_expression_token()
         return self:make_token(T.NEWLINE, nil, start_line, start_col)
     end
 
+    -- @ character in directive mode means we've hit another directive
+    -- End the current directive and let the @ be scanned as text/directive next
+    if c == "@" and self.in_directive then
+        self.in_directive = false
+        self.directive_first_newline = false
+        self.directive_has_content = false
+        -- Return a synthetic NEWLINE to end the directive
+        return self:make_token(T.NEWLINE, nil, start_line, start_col)
+    end
+
+    -- $ character in directive mode likely means we've hit an interpolation
+    -- End the current directive and let the $ be scanned next
+    if c == "$" and self.in_directive then
+        self.in_directive = false
+        self.directive_first_newline = false
+        self.directive_has_content = false
+        -- Return a synthetic NEWLINE to end the directive
+        return self:make_token(T.NEWLINE, nil, start_line, start_col)
+    end
+
     -- Identifiers and keywords
     if is_alpha(c) then
         local ident = self:read_identifier()
@@ -413,6 +433,8 @@ function native:scan_expression_token()
     if c == "]" then return self:make_token(T.RBRACKET, nil, start_line, start_col) end
     if c == "(" then return self:make_token(T.LPAREN, nil, start_line, start_col) end
     if c == ")" then return self:make_token(T.RPAREN, nil, start_line, start_col) end
+    if c == "{" then return self:make_token(T.LBRACE, nil, start_line, start_col) end
+    if c == "}" then return self:make_token(T.RBRACE, nil, start_line, start_col) end
     if c == "<" then return self:make_token(T.LT, nil, start_line, start_col) end
     if c == ">" then return self:make_token(T.GT, nil, start_line, start_col) end
     if c == "+" then return self:make_token(T.PLUS, nil, start_line, start_col) end
@@ -422,6 +444,7 @@ function native:scan_expression_token()
     if c == "%" then return self:make_token(T.PERCENT, nil, start_line, start_col) end
     if c == "^" then return self:make_token(T.CARET, nil, start_line, start_col) end
     if c == "=" then return self:make_token(T.ASSIGN, nil, start_line, start_col) end
+    if c == "#" then return self:make_token(T.HASH, nil, start_line, start_col) end
 
     errors.raise(errors.lexer("Unexpected character in expression: " .. c, start_line, start_col, self.source_name))
 end

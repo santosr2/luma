@@ -302,7 +302,7 @@ function expressions.parse_args(stream)
     return positional_args, named_args
 end
 
---- Parse unary operators (not, -)
+--- Parse unary operators (not, -, #)
 -- @param stream table Token stream
 -- @return table AST node
 function expressions.parse_unary(stream)
@@ -318,6 +318,12 @@ function expressions.parse_unary(stream)
         stream:advance()
         local operand = expressions.parse_unary(stream)
         return ast.unary_op("-", operand, token.line, token.column)
+    end
+
+    if token and token.type == T.HASH then
+        stream:advance()
+        local operand = expressions.parse_unary(stream)
+        return ast.unary_op("#", operand, token.line, token.column)
     end
 
     local expr = expressions.parse_primary(stream)
