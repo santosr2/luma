@@ -161,13 +161,13 @@ function expressions.parse_table(stream)
         local key
         local value
 
-        -- Check for key: value or just value
+        -- Check for key: value or key = value or just value
         if stream:check(T.IDENT) or stream:check(T.STRING) then
             local maybe_key = stream:advance()
 
-            if stream:check(T.COLON) then
-                -- key: value
-                stream:advance()  -- skip :
+            if stream:check(T.COLON) or stream:check(T.ASSIGN) then
+                -- key: value or key = value (Jinja2 style)
+                stream:advance()  -- skip : or =
                 if maybe_key.type == T.IDENT then
                     key = ast.literal(maybe_key.value, "string", maybe_key.line, maybe_key.column)
                 else
