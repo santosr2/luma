@@ -11,6 +11,143 @@ local runtime = {}
 runtime.sandbox = sandbox
 runtime.context = context
 
+--- Create a Python-like list with methods
+-- Adds append, extend, insert, pop, remove, clear, etc.
+-- @param initial_values table Optional initial values
+-- @return table List with Python-like methods
+function runtime.list(initial_values)
+    local list = initial_values or {}
+    
+    local methods = {
+        append = function(value)
+            table.insert(list, value)
+            return nil  -- Python append returns None
+        end,
+        extend = function(other)
+            for _, v in ipairs(other) do
+                table.insert(list, v)
+            end
+            return nil
+        end,
+        insert = function(index, value)
+            table.insert(list, index, value)
+            return nil
+        end,
+        pop = function(index)
+            index = index or #list
+            return table.remove(list, index)
+        end,
+        remove = function(value)
+            for i, v in ipairs(list) do
+                if v == value then
+                    table.remove(list, i)
+                    return nil
+                end
+            end
+            error("list.remove(x): x not in list")
+        end,
+        clear = function()
+            for i = #list, 1, -1 do
+                list[i] = nil
+            end
+            return nil
+        end,
+    }
+    
+    -- Set up metatable for method access
+    local mt = {
+        __index = function(t, k)
+            -- First check methods
+            if methods[k] then
+                return methods[k]
+            end
+            -- Then check numeric indices
+            return rawget(t, k)
+        end
+    }
+    
+    setmetatable(list, mt)
+    return list
+end
+
+--- Create a Python-like dict with methods
+-- Adds get, keys, values, items, update, pop, etc.
+-- @param initial_values table Optional initial values
+-- @return table Dict with Python-like methods
+function runtime.dict(initial_values)
+    local dict = initial_values or {}
+    
+    local methods = {
+        get = function(key, default)
+            local value = dict[key]
+            if value == nil then
+                return default
+            end
+            return value
+        end,
+        keys = function()
+            local result = {}
+            for k, _ in pairs(dict) do
+                table.insert(result, k)
+            end
+            return result
+        end,
+        values = function()
+            local result = {}
+            for _, v in pairs(dict) do
+                table.insert(result, v)
+            end
+            return result
+        end,
+        items = function()
+            local result = {}
+            for k, v in pairs(dict) do
+                table.insert(result, {k, v})
+            end
+            return result
+        end,
+        update = function(other)
+            for k, v in pairs(other) do
+                dict[k] = v
+            end
+            return nil
+        end,
+        pop = function(key, default)
+            local value = dict[key]
+            if value ~= nil then
+                dict[key] = nil
+                return value
+            end
+            return default
+        end,
+        clear = function()
+            for k, _ in pairs(dict) do
+                dict[k] = nil
+            end
+            return nil
+        end,
+        __setitem__ = function(key, value)
+            dict[key] = value
+            return nil
+        end,
+    }
+    
+    -- Set up metatable for method access
+    local mt = {
+        __index = function(t, k)
+            -- First check methods
+            if methods[k] then
+                return methods[k]
+            end
+            -- Then check dict keys
+            return rawget(t, k)
+        end
+    }
+    
+    setmetatable(dict, mt)
+    return dict
+end
+
 --- Helper to extract named arguments from filter arguments
 -- Filters receive: (value, arg1, arg2, ..., [named_args_table])
 -- This helper extracts positional and named args
