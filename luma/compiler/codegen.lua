@@ -192,16 +192,58 @@ function codegen.gen_expression(node, ctx)
 
     if t == N.TABLE then
         local entries = {}
+        local is_array = true
+        
         for i, entry in ipairs(node.entries) do
             if entry.key then
+                is_array = false
                 local key = codegen.gen_expression(entry.key, ctx)
                 local value = codegen.gen_expression(entry.value, ctx)
+                
+                -- Wrap nested table literals for Python-like methods
+                if entry.value.type == N.TABLE then
+                    local nested_is_array = true
+                    for _, ne in ipairs(entry.value.entries) do
+                        if ne.key then
+                            nested_is_array = false
+                            break
+                        end
+                    end
+                    value = nested_is_array and ("__runtime.list(" .. value .. ")") or ("__runtime.dict(" .. value .. ")")
+                end
+                
                 table.insert(entries, "[" .. key .. "] = " .. value)
             else
-                table.insert(entries, codegen.gen_expression(entry.value, ctx))
+                local value = codegen.gen_expression(entry.value, ctx)
+                
+                -- Wrap nested table literals for Python-like methods
+                if entry.value.type == N.TABLE then
+                    local nested_is_array = true
+                    for _, ne in ipairs(entry.value.entries) do
+                        if ne.key then
+                            nested_is_array = false
+                            break
+                        end
+                    end
+                    value = nested_is_array and ("__runtime.list(" .. value .. ")") or ("__runtime.dict(" .. value .. ")")
+                end
+                
+                table.insert(entries, value)
             end
         end
-        return "{" .. table.concat(entries, ", ") .. "}"
+        
+        local table_code = "{" .. table.concat(entries, ", ") .. "}"
+        
+        -- Only wrap if we're in an assignment context (indicated by ctx.wrap_tables)
+        if ctx.wrap_tables then
+            if is_array then
+                return "__runtime.list(" .. table_code .. ")"
+            else
+                return "__runtime.dict(" .. table_code .. ")"
+            end
+        end
+        
+        return table_code
     end
 
     if t == N.TEST then
@@ -445,24 +487,11 @@ function codegen.gen_node(node, ctx)
             emit(ctx, "end")
         else
             -- Assignment syntax: @let x = value
+            -- Set flag to wrap table literals recursively
+            local old_wrap_tables = ctx.wrap_tables
+            ctx.wrap_tables = true
             local value = codegen.gen_expression(node.value, ctx)
-            
-            -- Wrap table literals with runtime.list/dict for Python-like methods
-            if node.value.type == N.TABLE then
-                -- Check if it's an array or dict
-                local is_array = true
-                for _, entry in ipairs(node.value.entries) do
-                    if entry.key then
-                        is_array = false
-                        break
-                    end
-                end
-                if is_array then
-                    value = "__runtime.list(" .. value .. ")"
-                else
-                    value = "__runtime.dict(" .. value .. ")"
-                end
-            end
+            ctx.wrap_tables = old_wrap_tables
             
             emit(ctx, "__ctx[\"" .. node.name .. "\"] = " .. value)
         end
