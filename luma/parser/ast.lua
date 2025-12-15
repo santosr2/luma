@@ -34,6 +34,7 @@ ast.types = {
     PIPELINE = "PIPELINE",              -- expr |> filter()
     BINARY_OP = "BINARY_OP",            -- expr op expr
     UNARY_OP = "UNARY_OP",              -- op expr
+    TERNARY = "TERNARY",                -- value if condition else alternative
     TABLE = "TABLE",                    -- {key: value} or [a, b, c]
     TEST = "TEST",                      -- expr is test / expr is not test
 
@@ -602,6 +603,21 @@ function ast.format(node, indent)
     end
 
     return table.concat(parts, "\n")
+end
+
+--- Create a ternary expression node (value if condition else alternative)
+-- @param value table Value expression (if condition is true)
+-- @param condition table Condition expression
+-- @param alternative table Alternative expression (if condition is false)
+-- @param line number Line number
+-- @param column number Column number
+-- @return table Ternary node
+function ast.ternary(value, condition, alternative, line, column)
+    local node = make_node(N.TERNARY, line, column)
+    node.value = value
+    node.condition = condition
+    node.alternative = alternative
+    return node
 end
 
 return ast

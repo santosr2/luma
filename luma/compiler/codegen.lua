@@ -259,6 +259,15 @@ function codegen.gen_expression(node, ctx)
         end
         return "(" .. test_call .. ")"
     end
+    
+    if t == N.TERNARY then
+        local condition = codegen.gen_expression(node.condition, ctx)
+        local value = codegen.gen_expression(node.value, ctx)
+        local alternative = codegen.gen_expression(node.alternative, ctx)
+        -- Lua ternary: (condition and value or alternative)
+        -- But needs special handling if value is false/nil
+        return "(" .. condition .. " and " .. value .. " or " .. alternative .. ")"
+    end
 
     errors.raise(errors.compile("Unknown expression type: " .. tostring(t), node.line, node.column))
 end

@@ -492,8 +492,33 @@ end
 --- Parse a full expression
 -- @param stream table Token stream
 -- @return table AST node
+--- Parse a ternary expression (value if condition else alternative)
+-- Lowest precedence - check after all binary operations
+function expressions.parse_ternary(stream)
+    local expr = expressions.parse_binary(stream, 1)
+    
+    -- Check for 'if' keyword (ternary start)
+    if stream:check(T.IF) then
+        stream:advance()  -- consume 'if'
+        
+        local condition = expressions.parse_binary(stream, 1)
+        
+        -- Expect 'else'
+        if not stream:check(T.ELSE) then
+            errors.raise(errors.parse("Expected 'else' in ternary expression", stream:peek().line, stream:peek().column))
+        end
+        stream:advance()  -- consume 'else'
+        
+        local alternative = expressions.parse_ternary(stream)  -- recursive for chaining
+        
+        return ast.ternary(expr, condition, alternative, expr.line, expr.column)
+    end
+    
+    return expr
+end
+
 function expressions.parse(stream)
-    return expressions.parse_binary(stream, 1)
+    return expressions.parse_ternary(stream)
 end
 
 --- Parse a simple path expression from a token value (e.g., "foo.bar.baz")
