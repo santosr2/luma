@@ -103,14 +103,7 @@ function codegen.gen_expression(node, ctx)
     end
 
     if t == N.FUNCTION_CALL then
-        -- Check if this is a simple identifier that might be a macro
-        local is_macro_call = false
-        local macro_name = nil
-        if node.callee.type == N.IDENT then
-            is_macro_call = true
-            macro_name = node.callee.name
-        end
-        
+        local callee = codegen.gen_expression(node.callee, ctx)
         local args = {}
 
         -- Add positional arguments
@@ -127,14 +120,8 @@ function codegen.gen_expression(node, ctx)
             end
             table.insert(args, "{" .. table.concat(named_parts, ",") .. "}")
         end
-        
-        -- If it's a simple identifier, try macros first, then context
-        if is_macro_call then
-            return "(__macros[\"" .. macro_name .. "\"] or __ctx[\"" .. macro_name .. "\"])(" .. table.concat(args, ", ") .. ")"
-        else
-            local callee = codegen.gen_expression(node.callee, ctx)
-            return callee .. "(" .. table.concat(args, ", ") .. ")"
-        end
+
+        return callee .. "(" .. table.concat(args, ", ") .. ")"
     end
 
     if t == N.FILTER then

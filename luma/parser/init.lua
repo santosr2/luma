@@ -874,7 +874,8 @@ function parser.parse_block(stream)
 
     -- Check for 'scoped' modifier
     local scoped = false
-    if stream:check(T.SCOPED) then
+    local next_token = stream:peek()
+    if next_token and next_token.type == T.IDENT and next_token.value == "scoped" then
         stream:advance()
         scoped = true
     end
