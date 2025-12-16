@@ -556,6 +556,17 @@ function runtime.default_filters()
         trim = function(s) return s and tostring(s):match("^%s*(.-)%s*$") or "" end,
         ltrim = function(s) return s and tostring(s):match("^%s*(.*)") or "" end,
         rtrim = function(s) return s and tostring(s):match("(.-)%s*$") or "" end,
+        center = function(s, width)
+            s = s and tostring(s) or ""
+            width = tonumber(width) or 80
+            -- Python/Jinja2 behavior: center the entire string (including newlines)
+            local len = #s
+            if len >= width then return s end
+            local total_padding = width - len
+            local left_padding = math.floor(total_padding / 2)
+            local right_padding = total_padding - left_padding
+            return string.rep(" ", left_padding) .. s .. string.rep(" ", right_padding)
+        end,
 
         -- Default value
         default = function(v, default_val)
@@ -760,16 +771,22 @@ function runtime.default_filters()
             local killwords = named.killwords or pos[3] or false
             local end_str = named['end'] or pos[4] or "..."
             
-            if #s <= length then return s end
+            if #s <= length then return runtime.safe(s) end
             local truncated = s:sub(1, length - #end_str)
             if not killwords then
-                -- Find last space
-                local last_space = truncated:match(".*()%s")
-                if last_space then
-                    truncated = truncated:sub(1, last_space - 1)
+                -- Find last space and trim it off (word boundary without trailing space)
+                local last_space = truncated:match("^(.-)%s+[^%s]*$")
+                if last_space and #last_space > 0 then
+                    truncated = last_space
+                end
+                -- When respecting word boundaries, add space before non-standard end markers
+                -- Standard markers like "...", "!", "?" don't need space
+                if not end_str:match("^[%.!?%s]") then
+                    truncated = truncated .. " "
                 end
             end
-            return truncated .. end_str
+            -- Return as safe to prevent HTML escaping of end_str
+            return runtime.safe(truncated .. end_str)
         end,
         striptags = function(s)
             s = s and tostring(s) or ""
@@ -1094,3 +1111,4 @@ function runtime.default_filters()
 end
 
 return runtime
+
