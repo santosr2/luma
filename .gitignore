@@ -1,12 +1,3 @@
 IDEA.md
 .busted
 luacov*
-
-# Internal work files - not for commit
-.cursorrules
-CLAUDE.md
-ROADMAP.md
-ENHANCEMENTS_COMPLETE.md
-*_COMPLETE.md
-*_STATUS.md
-*_REPORT.md
