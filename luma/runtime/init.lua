@@ -248,6 +248,13 @@ end
 -- @return table Namespace object
 function runtime.namespace(initial)
     local ns = initial or {}
+    
+    -- Add Python-like __setattr__ method for Jinja2 compatibility
+    ns.__setattr__ = function(key, value)
+        ns[key] = value
+        return nil  -- setattr returns None in Python
+    end
+    
     return ns
 end
 
@@ -386,11 +393,48 @@ end
 
 --- Import macros from another template
 -- @param name string Template name to import
--- @return table Macros from the template
+-- @return table Table with __macros containing the macros from the template
 function runtime.import(name)
-    -- For now, just return an empty table
-    -- Full implementation would parse the template and extract macros
-    return {}
+    -- Check cache for imported macros
+    local cache_key = "__import_" .. name
+    local cached = template_cache[cache_key]
+    
+    if cached then
+        return cached
+    end
+    
+    -- Load the template source
+    local source, err = runtime.load_source(name)
+    if not source then
+        error(err)
+    end
+    
+    -- Compile the template
+    local compiler = require("luma.compiler")
+    local compiled = compiler.compile(source, { name = name })
+    
+    -- Execute the template to extract macros
+    -- Create a macros table that will be populated during template execution
+    local macros_table = {}
+    local filters = require("luma.filters")
+    
+    -- Render the template (output is not needed, we just want the macros)
+    local _ = compiled:render({}, filters.get_all(), runtime, macros_table)
+    
+    -- The result needs to have both direct macro access and __macros
+    local result = {
+        __macros = macros_table
+    }
+    
+    -- Also add macros as direct properties for @from...import syntax
+    for k, v in pairs(macros_table) do
+        result[k] = v
+    end
+    
+    -- Cache the result
+    template_cache[cache_key] = result
+    
+    return result
 end
 
 --- Import all macros from another template into target
