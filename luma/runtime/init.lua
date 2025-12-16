@@ -232,10 +232,14 @@ end
 -- @param str string String to mark as safe
 -- @return table Safe string wrapper
 function runtime.safe(str)
-    return {
+    return setmetatable({
         __luma_safe = true,
         value = str,
-    }
+    }, {
+        __tostring = function(self)
+            return tostring(self.value)
+        end
+    })
 end
 
 --- Create a namespace object for mutable variables

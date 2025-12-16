@@ -840,7 +840,8 @@ function codegen.gen_macro_call(node, ctx)
     -- Special case: caller() is a context function, not a macro
     if node.name == "caller" and not node.caller_body then
         -- Just output the result of calling the caller function from context
-        emit(ctx, "__out[#__out + 1] = (__ctx[\"caller\"] and __ctx[\"caller\"](" .. table.concat(args, ", ") .. ") or \"\")")
+        -- Use tostring to handle safe wrappers
+        emit(ctx, "__out[#__out + 1] = tostring(__ctx[\"caller\"] and __ctx[\"caller\"](" .. table.concat(args, ", ") .. ") or \"\")")
         return
     end
 
@@ -873,7 +874,8 @@ function codegen.gen_macro_call(node, ctx)
 
         emit(ctx, "__ctx = __old_ctx")
         emit(ctx, "__out = __old_out")
-        emit(ctx, "return table.concat(__caller_out)")
+        -- Mark caller output as safe to prevent double-escaping
+        emit(ctx, "return __runtime.safe(table.concat(__caller_out))")
         dedent(ctx)
         emit(ctx, "end")
 
