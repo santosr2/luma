@@ -410,24 +410,27 @@ function codegen.gen_node(node, ctx)
             -- Generate assignment-friendly code for the target
             local target_expr = node.expression
             local value = codegen.gen_expression(node.value, ctx)
+            
+            -- If autoescape is off, mark the value as safe so it won't be escaped later
+            local safe_value = "(not __autoescape and __runtime.safe(" .. value .. ") or " .. value .. ")"
 
             if target_expr.type == N.MEMBER_ACCESS then
                 -- For member access: obj.field
                 local obj = codegen.gen_expression(target_expr.object, ctx)
                 local field = target_expr.member
-                emit(ctx, "if " .. obj .. " then " .. obj .. "[\"" .. field .. "\"] = " .. value .. " end")
+                emit(ctx, "if " .. obj .. " then " .. obj .. "[\"" .. field .. "\"] = " .. safe_value .. " end")
             elseif target_expr.type == N.INDEX_ACCESS then
                 -- For index access: obj[key]
                 local obj = codegen.gen_expression(target_expr.object, ctx)
                 local index = codegen.gen_expression(target_expr.index, ctx)
-                emit(ctx, "if " .. obj .. " then " .. obj .. "[" .. index .. "] = " .. value .. " end")
+                emit(ctx, "if " .. obj .. " then " .. obj .. "[" .. index .. "] = " .. safe_value .. " end")
             elseif target_expr.type == N.IDENT then
                 -- For simple variable: x
-                emit(ctx, "__ctx[\"" .. target_expr.name .. "\"] = " .. value)
+                emit(ctx, "__ctx[\"" .. target_expr.name .. "\"] = " .. safe_value)
             else
                 -- Fallback for other expression types
                 local target = codegen.gen_expression(target_expr, ctx)
-                emit(ctx, target .. " = " .. value)
+                emit(ctx, target .. " = " .. safe_value)
             end
         else
             -- Execute expression for side effects, discard result
