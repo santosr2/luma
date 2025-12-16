@@ -103,6 +103,15 @@ function codegen.gen_expression(node, ctx)
     end
 
     if t == N.FUNCTION_CALL then
+        -- Special case: caller() in expressions (for inline usage like $caller())
+        if node.callee.type == N.IDENT and node.callee.name == "caller" then
+            local args = {}
+            for _, arg in ipairs(node.args) do
+                table.insert(args, codegen.gen_expression(arg, ctx))
+            end
+            return "(__ctx[\"caller\"] and __ctx[\"caller\"](" .. table.concat(args, ", ") .. ") or \"\")"
+        end
+        
         local callee = codegen.gen_expression(node.callee, ctx)
         local args = {}
 
