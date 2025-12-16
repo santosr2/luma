@@ -17,7 +17,7 @@ runtime.context = context
 -- @return table List with Python-like methods
 function runtime.list(initial_values)
     local list = initial_values or {}
-    
+
     local methods = {
         append = function(value)
             table.insert(list, value)
@@ -53,7 +53,7 @@ function runtime.list(initial_values)
             return nil
         end,
     }
-    
+
     -- Set up metatable for method access
     local mt = {
         __index = function(t, k)
@@ -65,7 +65,7 @@ function runtime.list(initial_values)
             return rawget(t, k)
         end
     }
-    
+
     setmetatable(list, mt)
     return list
 end
@@ -76,7 +76,7 @@ end
 -- @return table Dict with Python-like methods
 function runtime.dict(initial_values)
     local dict = initial_values or {}
-    
+
     local methods = {
         get = function(key, default)
             local value = dict[key]
@@ -131,7 +131,7 @@ function runtime.dict(initial_values)
             return nil
         end,
     }
-    
+
     -- Set up metatable for method access
     local mt = {
         __index = function(t, k)
@@ -143,7 +143,7 @@ function runtime.dict(initial_values)
             return rawget(t, k)
         end
     }
-    
+
     setmetatable(dict, mt)
     return dict
 end
@@ -159,16 +159,16 @@ local function extract_filter_args(args, num_positional)
     num_positional = num_positional or 0
     local positional = {}
     local named = {}
-    
+
     -- Last arg might be named args table (check if it's a plain table with string keys)
     local last_arg = args[#args]
     local has_named = false
-    
+
     if type(last_arg) == "table" and not getmetatable(last_arg) then
         -- Check if it looks like a named args table (has string keys, no numeric keys)
         local has_string_keys = false
         local has_numeric_keys = false
-        
+
         for k, v in pairs(last_arg) do
             if type(k) == "string" then
                 has_string_keys = true
@@ -176,19 +176,19 @@ local function extract_filter_args(args, num_positional)
                 has_numeric_keys = true
             end
         end
-        
+
         if has_string_keys and not has_numeric_keys then
             has_named = true
             named = last_arg
         end
     end
-    
+
     -- Extract positional args
     local pos_count = has_named and (#args - 1) or #args
     for i = 1, pos_count do
         positional[i] = args[i]
     end
-    
+
     return positional, named
 end
 
@@ -248,13 +248,13 @@ end
 -- @return table Namespace object
 function runtime.namespace(initial)
     local ns = initial or {}
-    
+
     -- Add Python-like __setattr__ method for Jinja2 compatibility
     ns.__setattr__ = function(key, value)
         ns[key] = value
         return nil  -- setattr returns None in Python
     end
-    
+
     return ns
 end
 
@@ -398,42 +398,42 @@ function runtime.import(name)
     -- Check cache for imported macros
     local cache_key = "__import_" .. name
     local cached = template_cache[cache_key]
-    
+
     if cached then
         return cached
     end
-    
+
     -- Load the template source
     local source, err = runtime.load_source(name)
     if not source then
         error(err)
     end
-    
+
     -- Compile the template
     local compiler = require("luma.compiler")
     local compiled = compiler.compile(source, { name = name })
-    
+
     -- Execute the template to extract macros
     -- Create a macros table that will be populated during template execution
     local macros_table = {}
     local filters = require("luma.filters")
-    
+
     -- Render the template (output is not needed, we just want the macros)
     local _ = compiled:render({}, filters.get_all(), runtime, macros_table)
-    
+
     -- The result needs to have both direct macro access and __macros
     local result = {
         __macros = macros_table
     }
-    
+
     -- Also add macros as direct properties for @from...import syntax
     for k, v in pairs(macros_table) do
         result[k] = v
     end
-    
+
     -- Cache the result
     template_cache[cache_key] = result
-    
+
     return result
 end
 
@@ -512,12 +512,12 @@ function runtime.default_tests()
         ["true"] = function(v) return v == true end,
         ["false"] = function(v) return v == false end,
         sameas = function(v, other) return rawequal(v, other) end,
-        
+
         -- Containment test (checks if v is in other)
         -- Note: This is different from the 'in' operator which is left-to-right
         -- The test 'x is in(container)' checks if x is in container
         ["in"] = function(v, container) return runtime.contains(container, v) end,
-        
+
         -- String escaping test
         escaped = function(v)
             -- Check if the value is marked as safe (escaped or should not be escaped)
@@ -559,13 +559,20 @@ function runtime.default_filters()
         center = function(s, width)
             s = s and tostring(s) or ""
             width = tonumber(width) or 80
-            -- Python/Jinja2 behavior: center the entire string (including newlines)
-            local len = #s
-            if len >= width then return s end
-            local total_padding = width - len
-            local left_padding = math.floor(total_padding / 2)
-            local right_padding = total_padding - left_padding
-            return string.rep(" ", left_padding) .. s .. string.rep(" ", right_padding)
+            -- Center each line separately (better for multi-line content)
+            local lines = {}
+            for line in (s .. "\n"):gmatch("(.-)\n") do
+                local len = #line
+                if len >= width then
+                    table.insert(lines, line)
+                else
+                    local total_padding = width - len
+                    local left_padding = math.floor(total_padding / 2)
+                    local right_padding = total_padding - left_padding
+                    table.insert(lines, string.rep(" ", left_padding) .. line .. string.rep(" ", right_padding))
+                end
+            end
+            return table.concat(lines, "\n")
         end,
 
         -- Default value
@@ -686,11 +693,11 @@ function runtime.default_filters()
             -- Named: wordwrap(s, {width=79, break_long_words=false, wrapstring='\n'})
             s = s and tostring(s) or ""
             local pos, named = extract_filter_args({s, ...}, 3)
-            
+
             local width = named.width or pos[2] or 79
             local break_long = named.break_long_words or pos[3] or false
             local wrapstring = named.wrapstring or pos[4] or "\n"
-            
+
             local result = {}
             local line = ""
             for word in s:gmatch("%S+") do
@@ -712,22 +719,13 @@ function runtime.default_filters()
             end
             return table.concat(result, wrapstring)
         end,
-        center = function(s, width)
-            s = s and tostring(s) or ""
-            width = width or 80
-            if #s >= width then return s end
-            local pad = width - #s
-            local left = math.floor(pad / 2)
-            local right = pad - left
-            return string.rep(" ", left) .. s .. string.rep(" ", right)
-        end,
         indent = function(s, ...)
             -- Support both positional and named arguments
             -- Positional: indent(s, width, first, blank)
             -- Named: indent(s, {width=4, first=true, blank=false})
             s = s and tostring(s) or ""
             local pos, named = extract_filter_args({s, ...}, 3)
-            
+
             local width = named.width or pos[2] or 4
             local first = named.first
             if first == nil then
@@ -737,7 +735,7 @@ function runtime.default_filters()
                 end
             end
             local blank = named.blank or pos[4] or false
-            
+
             local prefix = string.rep(" ", width)
             local lines = {}
             local i = 1
@@ -766,11 +764,11 @@ function runtime.default_filters()
             s = s and tostring(s) or ""
             local args = {...}
             local pos, named = extract_filter_args({s, ...}, 3)
-            
+
             local length = named.length or pos[2] or 255
             local killwords = named.killwords or pos[3] or false
             local end_str = named['end'] or pos[4] or "..."
-            
+
             if #s <= length then return runtime.safe(s) end
             local truncated = s:sub(1, length - #end_str)
             if not killwords then
@@ -785,7 +783,7 @@ function runtime.default_filters()
                     truncated = truncated .. " "
                 end
             end
-            -- Return as safe to prevent HTML escaping of end_str
+            -- Return as safe to prevent HTML escaping of end markers
             return runtime.safe(truncated .. end_str)
         end,
         striptags = function(s)
@@ -1111,4 +1109,3 @@ function runtime.default_filters()
 end
 
 return runtime
-

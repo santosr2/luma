@@ -23,39 +23,39 @@ repos:
       - id: trailing-whitespace
         name: Trim trailing whitespace
         exclude: '\.md$'
-      
+
       - id: end-of-file-fixer
         name: Ensure files end with newline
-      
+
       - id: check-yaml
         name: Check YAML syntax
-      
+
       - id: check-json
         name: Check JSON syntax
-      
+
       - id: check-toml
         name: Check TOML syntax
-      
+
       - id: check-added-large-files
         name: Check for large files
         args: ['--maxkb=500']
-      
+
       - id: check-case-conflict
         name: Check for case conflicts
-      
+
       - id: check-merge-conflict
         name: Check for merge conflicts
-      
+
       - id: detect-private-key
         name: Detect private keys
-      
+
       - id: mixed-line-ending
         name: Fix mixed line endings
         args: ['--fix=lf']
-      
+
       - id: check-executables-have-shebangs
         name: Check executables have shebangs
-      
+
       - id: check-shebang-scripts-are-executable
         name: Check scripts are executable
 
@@ -98,7 +98,7 @@ repos:
         files: \.lua$
         pass_filenames: true
         require_serial: false
-        stages: [commit]
+        stages: [pre-commit]
         # This will fail gracefully if stylua is not installed
 
   # Custom Luma-specific checks
@@ -109,22 +109,22 @@ repos:
         entry: bash -c 'grep -q "$(cat luma/version.lua | grep -oP "(?<=VERSION = \").*(?=\")")" README.md || (echo "Version mismatch between luma/version.lua and README.md" && exit 1)'
         language: system
         pass_filenames: false
-        stages: [commit]
-      
+        stages: [pre-commit]
+
       - id: run-tests
         name: Run test suite
         entry: busted
         language: system
         pass_filenames: false
-        stages: [push]
+        stages: [pre-push]
         args: ['spec/']
-      
+
       - id: check-no-debug
         name: Check for debug statements
         entry: bash -c 'git diff --cached --name-only --diff-filter=ACM | grep "\.lua$" | xargs grep -n "print(" && exit 1 || exit 0'
         language: system
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
         verbose: true
 
 # Configuration
@@ -143,4 +143,3 @@ exclude: |
       spec/fixtures/|
       CHANGELOG\.md
   )$
-

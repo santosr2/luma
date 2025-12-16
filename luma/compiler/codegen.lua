@@ -193,13 +193,13 @@ function codegen.gen_expression(node, ctx)
     if t == N.TABLE then
         local entries = {}
         local is_array = true
-        
+
         for i, entry in ipairs(node.entries) do
             if entry.key then
                 is_array = false
                 local key = codegen.gen_expression(entry.key, ctx)
                 local value = codegen.gen_expression(entry.value, ctx)
-                
+
                 -- Wrap nested table literals for Python-like methods
                 if entry.value.type == N.TABLE then
                     local nested_is_array = true
@@ -211,11 +211,11 @@ function codegen.gen_expression(node, ctx)
                     end
                     value = nested_is_array and ("__runtime.list(" .. value .. ")") or ("__runtime.dict(" .. value .. ")")
                 end
-                
+
                 table.insert(entries, "[" .. key .. "] = " .. value)
             else
                 local value = codegen.gen_expression(entry.value, ctx)
-                
+
                 -- Wrap nested table literals for Python-like methods
                 if entry.value.type == N.TABLE then
                     local nested_is_array = true
@@ -227,13 +227,13 @@ function codegen.gen_expression(node, ctx)
                     end
                     value = nested_is_array and ("__runtime.list(" .. value .. ")") or ("__runtime.dict(" .. value .. ")")
                 end
-                
+
                 table.insert(entries, value)
             end
         end
-        
+
         local table_code = "{" .. table.concat(entries, ", ") .. "}"
-        
+
         -- Only wrap if we're in an assignment context (indicated by ctx.wrap_tables)
         if ctx.wrap_tables then
             if is_array then
@@ -242,7 +242,7 @@ function codegen.gen_expression(node, ctx)
                 return "__runtime.dict(" .. table_code .. ")"
             end
         end
-        
+
         return table_code
     end
 
@@ -259,7 +259,7 @@ function codegen.gen_expression(node, ctx)
         end
         return "(" .. test_call .. ")"
     end
-    
+
     if t == N.TERNARY then
         local condition = codegen.gen_expression(node.condition, ctx)
         local value = codegen.gen_expression(node.value, ctx)
@@ -388,7 +388,13 @@ function codegen.gen_node(node, ctx)
             table.insert(filter_args, "{" .. table.concat(named_parts, ",") .. "}")
         end
 
-        emit(ctx, "__out[#__out + 1] = __filters[\"" .. node.filter_name .. "\"](" .. table.concat(filter_args, ", ") .. ")")
+        emit(ctx, "local __filter_result = __filters[\"" .. node.filter_name .. "\"](" .. table.concat(filter_args, ", ") .. ")")
+        emit(ctx, "-- Extract value from safe wrapper if present")
+        emit(ctx, "if type(__filter_result) == 'table' and __filter_result.__luma_safe then")
+        emit(ctx, "  __out[#__out + 1] = __filter_result.value")
+        emit(ctx, "else")
+        emit(ctx, "  __out[#__out + 1] = __filter_result")
+        emit(ctx, "end")
 
         ctx.indent = ctx.indent - 1
         emit(ctx, "end")
@@ -501,7 +507,7 @@ function codegen.gen_node(node, ctx)
             ctx.wrap_tables = true
             local value = codegen.gen_expression(node.value, ctx)
             ctx.wrap_tables = old_wrap_tables
-            
+
             emit(ctx, "__ctx[\"" .. node.name .. "\"] = " .. value)
         end
         return
@@ -670,7 +676,7 @@ function codegen.gen_for(node, ctx)
     local iterable
     local is_ipairs_call = false
     local is_pairs_call = false
-    
+
     if node.iterable and node.iterable.type == "FUNCTION_CALL" then
         local callee = node.iterable.callee
         if callee and (callee.type == "IDENT" or callee.type == "IDENTIFIER") then
@@ -686,12 +692,12 @@ function codegen.gen_for(node, ctx)
             end
         end
     end
-    
+
     -- If not ipairs/pairs, generate the iterable expression normally
     if not iterable then
         iterable = codegen.gen_expression(node.iterable, ctx)
     end
-    
+
     local var_names = node.var_names or { node.var_name }  -- Support both old and new format
     local loop_var = gen_var(ctx, "loop")
     local uses_loop_control = has_loop_control(node.body)
