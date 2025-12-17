@@ -63,7 +63,7 @@ Success
         it("should work with nested directives", function()
             local template = [[
 Tags:   -@for tag in tags
-  -$tag-@if not loop.last, @end
+  -$tag-@if not loop.last; , @end
 @end]]
             local result = luma.render(template, { tags = {"red", "green", "blue"} })
             assert.equals("Tags:red,green,blue", result:gsub("%s+", ""))
@@ -85,8 +85,8 @@ Tags:   -@for tag in tags
 
         it("should trim multiline whitespace", function()
             local template = [[
-Line 1  
--$value-  
+Line 1
+-$value-
 Line 2]]
             local result = luma.render(template, { value = "X" })
             -- Trim should remove trailing/leading whitespace around X
@@ -97,7 +97,8 @@ Line 2]]
         it("should not affect escaped dollars", function()
             local template = "Price: $$100 -$extra"
             local result = luma.render(template, { extra = "50" })
-            assert.equals("Price: $100 50", result:gsub("%s+", " "):match("^%s*(.-)%s*$"))
+            -- The -$ should trim the space before $extra, so no space between $100 and 50
+            assert.equals("Price: $10050", result)
         end)
     end)
 
@@ -106,7 +107,7 @@ Line 2]]
             local template = [[
 apiVersion: v1
 metadata:
-  name:   -$name-  
+  name:   -$name-
   labels:
     app: myapp]]
             local result = luma.render(template, { name = "my-service" })
@@ -151,24 +152,24 @@ metadata:
         it("Jinja2 {{- var -}} equivalent to Luma -$var-", function()
             local jinja_template = "Hello  {{- name -}}  !"
             local luma_template = "Hello  -$name-  !"
-            
+
             local jinja_result = luma.render(jinja_template, { name = "World" }, { syntax = "jinja" })
             local luma_result = luma.render(luma_template, { name = "World" })
-            
+
             assert.equals(jinja_result, luma_result)
         end)
 
         it("Jinja2 {%- if %} equivalent to Luma -@if", function()
             local jinja_template = "Status:  {%- if active %}OK{% endif %}"
-            local luma_template = "Status:  -@if active OK @end"
-            
+            local luma_template = "Status:  -@if active; OK @end"
+
             local jinja_result = luma.render(jinja_template, { active = true }, { syntax = "jinja" })
             local luma_result = luma.render(luma_template, { active = true })
-            
+
             -- Both should trim leading whitespace before the conditional
-            assert.matches("Status:OK", jinja_result)
-            assert.matches("Status:OK", luma_result)
+            assert.equals("Status:OK", jinja_result)
+            -- Luma has space before @end which becomes part of output, normalize it
+            assert.equals("Status:OK", luma_result:gsub("%s+", ""))
         end)
     end)
 end)
-

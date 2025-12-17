@@ -68,7 +68,7 @@ Items:
         it("should handle both modes in same template", function()
             local template = [[
 # Title
-Inline: @if show yes @end
+Inline: @if show; yes @end
 Block:
 @if show
   Content
@@ -81,7 +81,7 @@ Block:
         end)
 
         it("should handle nested inline directives", function()
-            local template = "Result: @if a @if b both @else A only @end @else none @end"
+            local template = "Result: @if a; @if b; both @else A only @end @else none @end"
             local result = luma.render(template, { a = true, b = true })
             local clean = result:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
             assert.matches("Result:.*both", clean)
@@ -90,21 +90,21 @@ Block:
 
     describe("inline detection edge cases", function()
         it("should handle directive at start of line", function()
-            local template = "@if true Start @end of line"
+            local template = "@if true; Start @end of line"
             local result = luma.render(template, {})
             local clean = result:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
             assert.equals("Start of line", clean)
         end)
 
         it("should handle directive at end of line", function()
-            local template = "Text before @if true end @end"
+            local template = "Text before @if true; end @end"
             local result = luma.render(template, {})
             local clean = result:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
             assert.equals("Text before end", clean)
         end)
 
         it("should handle empty inline conditional", function()
-            local template = "Before@if false content @end After"
+            local template = "Before @if false; content @end After"
             local result = luma.render(template, {})
             assert.equals("Before After", result:gsub("%s+", " "))
         end)
@@ -123,7 +123,7 @@ Block:
 
     describe("whitespace handling in inline mode", function()
         it("should preserve spaces around inline directives", function()
-            local template = "A @if true B @end C"
+            local template = "A @if true; B @end C"
             local result = luma.render(template, {})
             local clean = result:gsub("%s+", " ")
             assert.matches("A%s+B%s+C", clean)
@@ -138,4 +138,3 @@ Block:
         end)
     end)
 end)
-

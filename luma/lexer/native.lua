@@ -568,7 +568,7 @@ function native:scan_text()
                 table.insert(parts, c)
                 self:advance()
             end
-        -- Check for @ (directive) - at line start OR after space (inline mode)
+        -- Check for @ (directive) - at line start OR after space/dash (inline mode)
         elseif c == "@" then
             if self.at_line_start then
                 -- Block mode: directive at line start
@@ -578,8 +578,25 @@ function native:scan_text()
                 -- Inline mode: @ preceded by space
                 -- Keep the text including the space, let next_token handle the @
                 break
+            elseif #parts > 0 and parts[#parts] == "-" then
+                -- Inline mode: @ preceded by dash (dash-trim marker)
+                -- Check if this is actually a directive (@ followed by keyword)
+                local next_c = self:peek(1)
+                if next_c and is_alpha(next_c) then
+                    -- Likely a directive after dash-trim, break to let next_token handle it
+                    break
+                else
+                    -- Not a directive, treat @ as literal
+                    for _, ws in ipairs(line_whitespace) do
+                        table.insert(parts, ws)
+                    end
+                    line_whitespace = {}
+                    on_line_start = false
+                    table.insert(parts, c)
+                    self:advance()
+                end
             else
-                -- Literal @ (not preceded by space or at line start)
+                -- Literal @ (not preceded by space/dash or at line start)
                 for _, ws in ipairs(line_whitespace) do
                     table.insert(parts, ws)
                 end
@@ -664,18 +681,27 @@ function native:next_token()
         end
     end
 
-    -- Check for directive at line start OR preceded by space (inline mode)
+    -- Check for directive at line start OR preceded by space/dash (inline mode)
     if c == "@" then
         if self.at_line_start then
             -- Block mode: directive at line start
             return self:scan_directive()
         else
-            -- Inline mode: check if preceded by space
+            -- Inline mode: check if preceded by space or dash
             local prev_pos = self.pos - 1
-            if prev_pos > 0 and (self.source:sub(prev_pos, prev_pos) == " " or
-                                  self.source:sub(prev_pos, prev_pos) == "\t") then
-                -- Preceded by space - this is an inline directive
-                return self:scan_directive()
+            if prev_pos > 0 then
+                local prev_char = self.source:sub(prev_pos, prev_pos)
+                if prev_char == " " or prev_char == "\t" then
+                    -- Preceded by space - this is an inline directive
+                    return self:scan_directive()
+                elseif prev_char == "-" then
+                    -- Preceded by dash - check if this is a directive (@ followed by keyword)
+                    local next_c = self:peek(1)
+                    if next_c and is_alpha(next_c) then
+                        -- This is a directive after dash-trim marker
+                        return self:scan_directive()
+                    end
+                end
             end
             -- Otherwise, @ is literal text (handled by scan_text)
         end
