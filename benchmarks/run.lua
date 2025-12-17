@@ -2,7 +2,7 @@
 --- Benchmark runner
 -- Usage: luajit benchmarks/run.lua
 
-package.path = package.path .. ";./?.lua;./?/init.lua"
+package.path = package.path .. ";./?.lua;./?/init.lua" -- luacheck: ignore
 
 local benchmarks = require("benchmarks.benchmark")
 

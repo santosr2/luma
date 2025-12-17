@@ -2,7 +2,7 @@
 --- Stress Testing for Luma - Large Templates
 -- Tests performance and stability with very large templates
 
-package.path = package.path .. ";./?.lua;./?/init.lua"
+package.path = package.path .. ";./?.lua;./?/init.lua" -- luacheck: ignore
 
 local luma = require("luma")
 

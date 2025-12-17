@@ -1,6 +1,6 @@
 #!/usr/bin/env luajit
 --- Example: Generating Terraform AWS ECS configuration
-package.path = package.path .. ";./?.lua;./?/init.lua"
+package.path = package.path .. ";./?.lua;./?/init.lua" -- luacheck: ignore
 
 local luma = require("luma")
 

@@ -1,5 +1,6 @@
 --- Tests for warning system
 -- @module spec.warnings_spec
+-- luacheck: ignore 122 (setting read-only field of global - intentional for testing)
 
 local luma = require("luma")
 local warnings = require("luma.utils.warnings")

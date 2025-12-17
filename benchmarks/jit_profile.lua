@@ -2,7 +2,7 @@
 --- JIT Compilation Profiling for Luma
 -- Analyzes LuaJIT trace compilation and hotspots
 
-package.path = package.path .. ";./?.lua;./?/init.lua"
+package.path = package.path .. ";./?.lua;./?/init.lua" -- luacheck: ignore
 
 local luma = require("luma")
 local jit = require("jit")

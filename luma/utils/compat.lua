@@ -11,7 +11,7 @@ compat.is_lua51 = lua_version == "5.1"
 compat.is_lua52 = lua_version == "5.2"
 compat.is_lua53 = lua_version == "5.3"
 compat.is_lua54 = lua_version == "5.4"
-compat.is_luajit = type(jit) == "table"
+compat.is_luajit = type(jit) == "table" -- luacheck: globals jit
 
 -- unpack compatibility (table.unpack in 5.2+, unpack in 5.1)
 compat.unpack = table.unpack or unpack
@@ -62,11 +62,11 @@ end
 -- @return table The environment table
 function compat.getfenv(fn)
 	if compat.is_lua51 or compat.is_luajit then
-		return getfenv(fn)
-	else
-		-- In Lua 5.2+, return _ENV or _G as fallback
-		return _ENV or _G
-	end
+	return getfenv(fn)
+else
+	-- In Lua 5.2+, return _ENV or _G as fallback
+	return _ENV or _G -- luacheck: globals _ENV
+end
 end
 
 --- Create a shallow copy of a table

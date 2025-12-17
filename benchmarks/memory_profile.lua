@@ -2,7 +2,7 @@
 --- Memory profiling for Luma
 -- @module benchmarks.memory_profile
 
-package.path = package.path .. ";./?.lua;./?/init.lua"
+package.path = package.path .. ";./?.lua;./?/init.lua" -- luacheck: ignore
 
 local luma = require("luma")
 
