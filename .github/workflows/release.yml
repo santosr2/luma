@@ -12,27 +12,27 @@ jobs:
   test:
     name: Pre-release Tests
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "5.4"
-      
+
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Install dependencies
         run: |
           luarocks install busted
           luarocks install luacheck
-      
+
       - name: Run tests
         run: busted --verbose spec/
-      
+
       - name: Run linter
         run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted
 
@@ -40,26 +40,26 @@ jobs:
     name: Build Release Assets
     needs: test
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "5.4"
-      
+
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Extract version
         id: version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-      
+
       - name: Create rockspec
         run: |
           cat > luma-${{ steps.version.outputs.version }}-1.rockspec << 'EOF'
@@ -109,7 +109,7 @@ jobs:
             }
           }
           EOF
-      
+
       - name: Create source tarball
         run: |
           tar czf luma-${{ steps.version.outputs.version }}.tar.gz \
@@ -117,7 +117,7 @@ jobs:
             README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md \
             --exclude='*.swp' --exclude='.git*' --exclude='__pycache__' \
             --exclude='.venv' --exclude='*.pyc'
-      
+
       - name: Generate changelog
         id: changelog
         run: |
@@ -127,7 +127,7 @@ jobs:
           else
             echo "Release ${{ steps.version.outputs.version }}" > release_notes.md
           fi
-      
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -145,25 +145,25 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: ${{ !contains(github.ref, 'alpha') && !contains(github.ref, 'beta') && !contains(github.ref, 'rc') }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "5.4"
-      
+
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Extract version
         id: version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-      
+
       - name: Upload to LuaRocks
         env:
           LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
@@ -179,17 +179,17 @@ jobs:
     name: Post-release Announcement
     needs: [build, luarocks]
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Extract version
         id: version
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-      
+
       - name: Create announcement
         run: |
           echo "🎉 Luma ${{ steps.version.outputs.version }} has been released!"
@@ -197,4 +197,3 @@ jobs:
           echo "Release notes: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
           echo ""
           echo "Install: luarocks install luma"
-

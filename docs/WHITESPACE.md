@@ -21,6 +21,7 @@ Luma automatically preserves indentation and whitespace structure in **all** fil
 **Luma preserves the indentation context where placeholders and directives appear.**
 
 This means:
+
 1. Content inside directives maintains its indentation level
 2. Multiline interpolations indent subsequent lines to match the placeholder position
 3. Directive lines themselves are consumed (not output)
@@ -49,6 +50,7 @@ spec:
 ```
 
 **Output:**
+
 ```yaml
 apiVersion: v1
 kind: Service
@@ -86,6 +88,7 @@ spec:
 ```
 
 **Output:**
+
 ```html
 <!DOCTYPE html>
 <html>
@@ -119,6 +122,7 @@ DATABASES = {
 ```
 
 **Output:**
+
 ```python
 # config.py
 DATABASES = {
@@ -150,6 +154,7 @@ DATABASES = {
 ```
 
 **Output:**
+
 ```json
 {
   "name": "my-app",
@@ -220,18 +225,23 @@ Luma **automatically detects** when directives should be inline based on context
 #### Inline Examples (Auto-detected)
 
 **Inline Conditional:**
+
 ```
 Result: @if success ✓ Passed @else ✗ Failed @end
 ```
+
 **Output:** `Result: ✓ Passed`
 
 **Compact List:**
+
 ```
 Colors: @for color in colors $color@if not loop.last, @end @end
 ```
+
 **Output:** `Colors: red, green, blue`
 
 **Mixed Block + Inline:**
+
 ```yaml
 metadata:
   name: $name
@@ -258,11 +268,13 @@ For micro-adjustments, use dash (`-`) to explicitly trim whitespace:
 #### Trim Examples
 
 **Remove extra whitespace:**
+
 ```
 text-$value-more
 ```
 
 **Remove blank line before loop:**
+
 ```yaml
 items:
 @-for item in items
@@ -271,6 +283,7 @@ items:
 ```
 
 **Inline with trimming:**
+
 ```
 Status: @-if ok- ✓ @-else- ✗ @-end
 ```
@@ -342,4 +355,3 @@ local result = luma.render(template, context, {
 4. **Configuration options** - for special needs
 
 **Trust the defaults.** Luma is designed to make templates clean and maintainable without thinking about whitespace.
-

@@ -52,6 +52,7 @@ Error message here
 ## Additional Context
 
 Add any other context about the problem here:
+
 - Does this work in Jinja2?
 - Related to specific syntax (Jinja2 vs Luma native)?
 - Occurs with specific data types?
@@ -60,4 +61,3 @@ Add any other context about the problem here:
 ## Possible Solution
 
 If you have ideas on how to fix this, please share them here.
-

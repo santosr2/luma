@@ -9,11 +9,13 @@ This directory contains real-world examples demonstrating Luma's capabilities.
 Generate Kubernetes deployment manifests with proper indentation and structure.
 
 **Run:**
+
 ```bash
 luajit examples/run_k8s_example.lua
 ```
 
 **Features demonstrated:**
+
 - Clean YAML generation
 - Smart indentation preservation
 - Loop rendering for ports and environment variables
@@ -24,6 +26,7 @@ luajit examples/run_k8s_example.lua
 Professional HTML email template with conditional content and tables.
 
 **Features demonstrated:**
+
 - HTML generation
 - Conditional blocks
 - Table rendering with loops
@@ -35,11 +38,13 @@ Professional HTML email template with conditional content and tables.
 Generate Terraform configuration for AWS ECS deployments.
 
 **Run:**
+
 ```bash
 luajit examples/run_terraform_example.lua
 ```
 
 **Features demonstrated:**
+
 - Infrastructure as Code generation
 - Complex nested resources
 - Dynamic tag generation
@@ -50,6 +55,7 @@ luajit examples/run_terraform_example.lua
 Generate Helm chart metadata with dependencies and maintainers.
 
 **Features demonstrated:**
+
 - Helm chart structure
 - Conditional dependencies
 - List iteration for maintainers and keywords
@@ -59,6 +65,7 @@ Generate Helm chart metadata with dependencies and maintainers.
 Generate Ansible playbooks with tasks and handlers.
 
 **Features demonstrated:**
+
 - YAML playbook generation
 - Task iteration with conditional logic
 - Handler definitions
@@ -132,9 +139,9 @@ Based on profiling (`benchmarks/memory_profile.lua`):
 ## Contributing Examples
 
 Have a great use case? Submit a PR with:
+
 1. Template file (`.luma` extension)
 2. Example runner script (`.lua`)
 3. Brief description in this README
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
-

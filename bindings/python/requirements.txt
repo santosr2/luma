@@ -11,4 +11,3 @@ mypy>=1.0
 # Optional integrations
 flask>=2.0; extra == "flask"
 django>=3.2; extra == "django"
-

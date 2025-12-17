@@ -20,6 +20,7 @@ Complete guides for integrating Luma into popular tools and frameworks.
 Helm charts benefit from Luma's clean syntax and smart indentation.
 
 **Directory Structure:**
+
 ```
 my-app/
 ├── generate-chart.lua
@@ -32,6 +33,7 @@ my-app/
 ```
 
 **Example: `generate-chart.lua`**
+
 ```lua
 local luma = require("luma")
 local yaml = require("yaml")  -- optional, for validation
@@ -60,6 +62,7 @@ out:close()
 ```
 
 **Benefits:**
+
 - Type-safe chart generation
 - Dynamic versioning
 - Environment-specific values
@@ -74,6 +77,7 @@ out:close()
 Generate Terraform configurations programmatically with Luma.
 
 **Use Cases:**
+
 - Multi-environment deployments
 - Repetitive resource definitions
 - Dynamic module generation
@@ -82,6 +86,7 @@ Generate Terraform configurations programmatically with Luma.
 **Example Workflow:**
 
 1. **Define Template** (`main.tf.luma`):
+
 ```hcl
 resource "aws_instance" "$name" {
   ami           = "$ami"
@@ -96,6 +101,7 @@ resource "aws_instance" "$name" {
 ```
 
 2. **Generate Script:**
+
 ```lua
 local luma = require("luma")
 local json = require("json")  -- or cjson
@@ -123,12 +129,14 @@ end
 ```
 
 3. **Usage:**
+
 ```bash
 lua generate-terraform.lua
 cd terraform/production && terraform plan
 ```
 
 **Best Practices:**
+
 - Keep templates in version control
 - Validate generated HCL with `terraform fmt`
 - Use consistent naming conventions
@@ -178,6 +186,7 @@ file:close()
 ```
 
 **Integration Points:**
+
 - **Pre-deployment**: Generate playbooks from configs
 - **Dynamic inventories**: Create inventory files
 - **Role generation**: Template out role structures
@@ -260,12 +269,14 @@ jobs:
 Full Python integration for web apps and scripts.
 
 **Installation:**
+
 ```bash
 cd luma/bindings/python
 pip install .
 ```
 
 **Basic Usage:**
+
 ```python
 from luma import Template
 
@@ -276,6 +287,7 @@ print(result)  # "Hello, World!"
 ```
 
 **Flask Integration:**
+
 ```python
 from flask import Flask, render_template_string
 from luma import Template
@@ -296,6 +308,7 @@ def user_profile(username):
 ```
 
 **Django Integration:**
+
 ```python
 from django.http import HttpResponse
 from luma import Template
@@ -372,6 +385,7 @@ local nginx_conf = luma.render(template, config)
    - Test generated configs before deployment
 
 3. **Error Handling**
+
    ```lua
    local ok, result = pcall(function()
        return luma.render(template, context)
@@ -400,6 +414,7 @@ local nginx_conf = luma.render(template, config)
 ### Common Issues
 
 **Issue: "Template not found"**
+
 ```lua
 -- Solution: Use absolute paths or set loader paths
 local runtime = require("luma.runtime")
@@ -407,6 +422,7 @@ runtime.set_paths({"/path/to/templates", "."})
 ```
 
 **Issue: "Syntax error in template"**
+
 ```lua
 -- Solution: Enable better error messages
 local luma = require("luma")
@@ -419,6 +435,7 @@ end
 ```
 
 **Issue: Performance degradation**
+
 ```lua
 -- Solution: Pre-compile and reuse
 local compiled = luma.compile(template_source)
@@ -445,4 +462,3 @@ end
 Have an integration guide to share? Submit a PR!
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
-

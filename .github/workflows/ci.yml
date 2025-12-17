@@ -14,36 +14,36 @@ jobs:
       fail-fast: false
       matrix:
         lua-version: ["5.1", "5.2", "5.3", "5.4", "luajit"]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: ${{ matrix.lua-version }}
-      
+
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Install dependencies
         run: |
           luarocks install busted
           luarocks install luacheck
           luarocks install luacov
           luarocks install luacov-coveralls
-      
+
       - name: Run Luacheck
         run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted --globals=describe,it,before_each,after_each,setup,teardown
-      
+
       - name: Run tests with coverage
         run: busted --coverage --verbose spec/
-      
+
       - name: Generate coverage report
         if: matrix.lua-version == '5.4'
         run: luacov
-      
+
       - name: Upload coverage to Coveralls
         if: matrix.lua-version == '5.4'
         uses: coverallsapp/github-action@v2
@@ -55,22 +55,22 @@ jobs:
   lint:
     name: Code Quality
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "5.4"
-      
+
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Install Luacheck
         run: luarocks install luacheck
-      
+
       - name: Run Luacheck (strict)
         run: |
           luacheck luma/ cli/ benchmarks/ \
@@ -83,11 +83,11 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -96,7 +96,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
         continue-on-error: true
-      
+
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
@@ -106,34 +106,34 @@ jobs:
   complexity:
     name: Complexity Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "5.4"
-      
+
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Install analysis tools
         run: |
           luarocks install luacheck
           sudo apt-get update
           sudo apt-get install -y cloc
-      
+
       - name: Analyze code complexity
         run: |
           echo "=== Lines of Code ==="
           cloc luma/ cli/ benchmarks/ examples/ --by-file
-          
+
           echo ""
           echo "=== Cyclomatic Complexity ==="
           luacheck luma/ cli/ benchmarks/ --formatter plain --no-color | grep -E "complexity|function" || true
-      
+
       - name: Check file sizes
         run: |
           echo "=== Large Files (>500 lines) ==="
@@ -142,34 +142,34 @@ jobs:
   documentation:
     name: Documentation Check
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "5.4"
-      
+
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Install LDoc
         run: luarocks install ldoc
-      
+
       - name: Generate documentation
         run: |
           ldoc -c .ldoc luma/ || echo "LDoc not configured yet"
         continue-on-error: true
-      
+
       - name: Check README
         run: |
           if [ ! -f README.md ]; then
             echo "ERROR: README.md not found"
             exit 1
           fi
-          
+
           # Check for required sections
           grep -q "Installation" README.md || echo "WARNING: No Installation section"
           grep -q "Usage" README.md || echo "WARNING: No Usage section"
@@ -178,19 +178,19 @@ jobs:
   examples:
     name: Example Validation
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "luajit"
-      
+
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
-      
+
       - name: Validate example templates
         run: |
           echo "=== Validating Example Templates ==="
@@ -215,7 +215,7 @@ jobs:
               " || exit 1
             fi
           done
-      
+
       - name: Run example scripts
         run: |
           echo "=== Running Example Scripts ==="
@@ -232,30 +232,30 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "luajit"
-      
+
       - name: Install dependencies
         run: |
           pip install pytest lupa
-      
+
       - name: Run Python binding tests
         run: |
           cd bindings/python
           python -m pytest tests/ -v
-      
+
       - name: Test installation
         run: |
           cd bindings/python
@@ -265,33 +265,33 @@ jobs:
   benchmarks:
     name: Performance Benchmarks
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
           luaVersion: "luajit"
-      
+
       - name: Run performance benchmarks
         run: |
           echo "=== Performance Benchmarks ==="
           luajit benchmarks/run.lua
-          
+
           echo ""
           echo "=== Memory Profiling ==="
           luajit benchmarks/memory_profile.lua
-          
+
           echo ""
           echo "=== JIT Profiling ==="
           luajit benchmarks/jit_profile.lua
-          
+
           echo ""
           echo "=== Stress Testing ==="
           luajit benchmarks/stress_test.lua
-      
+
       - name: Check performance thresholds
         run: |
           echo "Checking performance meets minimum thresholds..."
@@ -299,14 +299,13 @@ jobs:
             package.path = package.path .. ';./?.lua;./?/init.lua'
             local benchmarks = require('benchmarks.benchmark')
             local results = benchmarks.run_all()
-            
+
             -- Check compiled reuse is fast enough (>100K ops/sec)
             local compiled_reuse = results[9]
             if compiled_reuse.ops_per_sec < 100000 then
               print('ERROR: Compiled reuse too slow: ' .. compiled_reuse.ops_per_sec .. ' ops/sec')
               os.exit(1)
             end
-            
+
             print('✓ Performance thresholds met')
           "
-

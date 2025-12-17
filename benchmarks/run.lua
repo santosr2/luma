@@ -8,4 +8,3 @@ local benchmarks = require("benchmarks.benchmark")
 
 -- Run benchmarks
 benchmarks.run_all()
-

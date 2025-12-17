@@ -139,4 +139,3 @@ Luma:    0.892s (1.4x faster)
 ## License
 
 MIT License - See LICENSE file for details.
-

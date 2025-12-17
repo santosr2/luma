@@ -24,4 +24,3 @@ from .exceptions import (
     TemplateSyntaxError,
     TemplateNotFound,
 )
-

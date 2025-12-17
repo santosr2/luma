@@ -21,7 +21,7 @@
         <div class="content">
             <h2>Hello, ${user.name}!</h2>
             <p>${message}</p>
-            
+
             @if items
             <h3>Your Order Summary:</h3>
             <table style="width: 100%; border-collapse: collapse;">
@@ -47,7 +47,7 @@
                 </tfoot>
             </table>
             @end
-            
+
             @if action_url
             <p style="margin-top: 20px;">
                 <a href="${action_url}" class="button">${action_text | default("Click Here")}</a>
@@ -61,4 +61,3 @@
     </div>
 </body>
 </html>
-

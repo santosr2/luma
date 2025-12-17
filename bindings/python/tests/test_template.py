@@ -53,4 +53,3 @@ def test_template_repr():
     repr_str = repr(template)
     assert "Template" in repr_str
     assert "Hello" in repr_str
-

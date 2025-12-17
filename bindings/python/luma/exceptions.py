@@ -24,4 +24,3 @@ class TemplateRuntimeError(TemplateError):
 class UndefinedError(TemplateRuntimeError):
     """Raised when accessing undefined variables (if strict mode enabled)."""
     pass
-

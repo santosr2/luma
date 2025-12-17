@@ -9,6 +9,7 @@
 A language-agnostic, Lua-powered templating engine with clean, directive-based syntax.
 
 Luma is designed as a modern alternative to Jinja2-style templating with:
+
 - Less punctuation noise
 - Line-based directives
 - Familiar `$variable` interpolation (like shell/JS)
@@ -197,6 +198,7 @@ local directive = luma.render("Result: @if x; yes @end", {x=true})  -- @ is dire
 ```
 
 **Rules:**
+
 - Use `;` after directive expressions (e.g., `@if condition;`, `@for x in list;`)
 - Directives without expressions don't need `;` (e.g., `@else`, `@end`)
 - Require space before `@` for inline directives to avoid ambiguity with emails, etc.
@@ -205,7 +207,7 @@ local directive = luma.render("Result: @if x; yes @end", {x=true})  -- @ is dire
 
 > [!IMPORTANT]
 > **Luma automatically preserves indentation in ALL file types** - YAML, HTML, JSON, code, configs, markdown, etc.
-> 
+>
 > Indentation is preserved based on where placeholders and directives appear. You rarely need to think about whitespace - Luma handles it intelligently by default.
 
 > [!TIP]

@@ -25,9 +25,9 @@ Fixes #
 
 <!-- List the main changes in this PR -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Testing
 
@@ -90,4 +90,3 @@ local luma = require("luma")
 ## Additional Notes
 
 <!-- Any additional information that reviewers should know -->
-

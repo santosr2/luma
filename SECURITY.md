@@ -17,9 +17,10 @@ We take security vulnerabilities seriously. If you discover a security issue, pl
 
 **DO NOT** open a public GitHub issue for security vulnerabilities.
 
-Instead, please email security concerns to: **security@luma-project.org** (or your contact email)
+Instead, please email security concerns to: **<security@luma-project.org>** (or your contact email)
 
 Include in your report:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -52,4 +53,3 @@ When using Luma:
 5. **Autoescape:** Enable autoescape for HTML contexts
 
 Thank you for helping keep Luma secure!
-

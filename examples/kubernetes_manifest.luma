@@ -37,4 +37,3 @@ spec:
           limits:
             memory: "${resources.limits.memory}"
             cpu: "${resources.limits.cpu}"
-

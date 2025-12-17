@@ -77,4 +77,3 @@ files["spec/**/*.lua"] = {
 files["luma/version.lua"] = {
     ignore = {"111", "112", "113"}, -- Allow redefining globals for version info
 }
-

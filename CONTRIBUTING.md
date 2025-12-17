@@ -84,6 +84,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -223,6 +224,7 @@ Fix all warnings and errors. Configuration is in `.luacheckrc`.
 ### Complexity
 
 Keep cyclomatic complexity low:
+
 - Functions: Maximum complexity of 15
 - Files: Maximum 500 lines (consider splitting larger files)
 
@@ -240,18 +242,24 @@ Keep cyclomatic complexity low:
 1. **Update documentation** (README, CHANGELOG, etc.)
 2. **Add tests** for new functionality
 3. **Run the full test suite:**
+
    ```bash
    busted spec/
    luacheck luma/ cli/ spec/
    ```
+
 4. **Commit with signoff:**
+
    ```bash
    git commit -s -m "feat: add new feature"
    ```
+
 5. **Push to your fork:**
+
    ```bash
    git push origin feat/my-feature
    ```
+
 6. **Create Pull Request** with description including:
    - What changes were made
    - Why the changes are needed
@@ -324,6 +332,7 @@ git push origin feat/my-feature
 ### Pre-commit Hooks
 
 Hooks automatically run on commit:
+
 - ✅ Luacheck (linting)
 - ✅ Trailing whitespace removal
 - ✅ End-of-file fixer
@@ -332,6 +341,7 @@ Hooks automatically run on commit:
 - ✅ Secret detection
 
 Skip hooks (not recommended):
+
 ```bash
 git commit --no-verify
 ```
@@ -368,9 +378,9 @@ git commit --no-verify
 ## Recognition
 
 Contributors are recognized in:
+
 - `CONTRIBUTORS.md`
 - Release notes
 - GitHub contributors page
 
 Thank you for contributing to Luma! 🎉
-

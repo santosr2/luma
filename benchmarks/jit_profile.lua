@@ -33,7 +33,7 @@ local runtime = require("luma.runtime")
 
 -- Warmup to trigger JIT compilation
 for i = 1, 1000 do
-    compiled:render({name = "World"}, filters.get_all(), runtime)
+	compiled:render({ name = "World" }, filters.get_all(), runtime)
 end
 
 print("  Warmup complete (1000 iterations)")
@@ -52,14 +52,14 @@ local loop_template = [[
 
 local items = {}
 for i = 1, 100 do
-    items[i] = i
+	items[i] = i
 end
 
 local loop_compiled = luma.compile(loop_template)
 
 -- Warmup
 for i = 1, 100 do
-    loop_compiled:render({items = items}, filters.get_all(), runtime)
+	loop_compiled:render({ items = items }, filters.get_all(), runtime)
 end
 
 print("  Warmup complete (100 iterations with 100 items each)")
@@ -71,10 +71,10 @@ print("-" .. string.rep("-", 70))
 
 -- Check if functions are JIT compiled
 local function check_jit_status(name, func)
-    local info = jutil.funcinfo(func)
-    if info then
-        print(string.format("  %-30s  %s", name, info.source or "native"))
-    end
+	local info = jutil.funcinfo(func)
+	if info then
+		print(string.format("  %-30s  %s", name, info.source or "native"))
+	end
 end
 
 print("  Checking JIT compilation status of key functions:")
@@ -90,19 +90,19 @@ print("Test 4: JIT vs Interpreter Performance")
 print("-" .. string.rep("-", 70))
 
 local function benchmark(name, iterations, fn)
-    collectgarbage("collect")
-    local start = os.clock()
-    for i = 1, iterations do
-        fn()
-    end
-    local elapsed = os.clock() - start
-    local ops_per_sec = iterations / elapsed
-    return ops_per_sec
+	collectgarbage("collect")
+	local start = os.clock()
+	for i = 1, iterations do
+		fn()
+	end
+	local elapsed = os.clock() - start
+	local ops_per_sec = iterations / elapsed
+	return ops_per_sec
 end
 
 -- With JIT
 local with_jit = benchmark("With JIT", 10000, function()
-    compiled:render({name = "World"}, filters.get_all(), runtime)
+	compiled:render({ name = "World" }, filters.get_all(), runtime)
 end)
 
 print(string.format("  With JIT:    %10.0f ops/sec", with_jit))
@@ -115,7 +115,7 @@ local template_no_jit = "Hello, $name!"
 local compiled_no_jit = luma.compile(template_no_jit)
 
 local without_jit = benchmark("Without JIT", 10000, function()
-    compiled_no_jit:render({name = "World"}, filters.get_all(), runtime)
+	compiled_no_jit:render({ name = "World" }, filters.get_all(), runtime)
 end)
 
 print(string.format("  Without JIT: %10.0f ops/sec", without_jit))
@@ -146,4 +146,3 @@ print("For detailed trace analysis, run:")
 print("  luajit -jdump benchmarks/jit_profile.lua > traces.txt 2>&1")
 print("  luajit -jv benchmarks/jit_profile.lua")
 print("")
-

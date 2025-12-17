@@ -20,6 +20,7 @@ help:
 
 install:
 	@echo "Installing dependencies..."
+	mise install
 	luarocks install --local busted
 	luarocks install --local luacheck
 	luarocks install --local luacov
@@ -32,8 +33,7 @@ install:
 
 dev: install
 	@echo "Setting up development environment..."
-	pip3 install pre-commit || echo "pre-commit not installed"
-	pre-commit install || echo "Skipping pre-commit hooks"
+	mise exec -- pre-commit install || echo "Skipping pre-commit hooks"
 	@echo "✓ Development environment ready"
 
 test:
@@ -183,4 +183,3 @@ release: clean check
 	fi
 
 .DEFAULT_GOAL := help
-

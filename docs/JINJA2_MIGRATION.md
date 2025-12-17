@@ -17,16 +17,19 @@ Luma provides **full Jinja2 compatibility** to enable seamless migration from ex
 ### Comparison Examples
 
 **Variable Interpolation:**
+
 ```jinja
 {# Jinja2 #}
 Hello {{ user.name }}!
 ```
+
 ```luma
 @# Luma
 Hello $user.name!
 ```
 
 **Control Flow:**
+
 ```jinja
 {# Jinja2 #}
 {% if user.is_admin %}
@@ -35,6 +38,7 @@ Hello $user.name!
   <p>Welcome, {{ user.name }}!</p>
 {% endif %}
 ```
+
 ```luma
 @# Luma
 @if user.is_admin
@@ -45,12 +49,14 @@ Hello $user.name!
 ```
 
 **Loops:**
+
 ```jinja
 {# Jinja2 #}
 {% for item in items %}
   <li>{{ loop.index }}: {{ item.name }}</li>
 {% endfor %}
 ```
+
 ```luma
 @# Luma
 @for item in items
@@ -258,6 +264,7 @@ TEMPLATES = [{
 ### Pattern 1: Kubernetes Manifests
 
 **Before (Jinja2):**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -282,6 +289,7 @@ spec:
 ```
 
 **After (Luma):**
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -308,6 +316,7 @@ spec:
 ### Pattern 2: HTML Components
 
 **Before (Jinja2):**
+
 ```html
 {% macro button(text, type='primary') %}
   <button class="btn btn-{{ type }}">
@@ -319,6 +328,7 @@ spec:
 ```
 
 **After (Luma):**
+
 ```html
 @macro button(text, type='primary')
   <button class="btn btn-$type">
@@ -378,7 +388,7 @@ spec:
 
 ## Getting Help
 
-- **Documentation:** https://github.com/santosr2/luma
+- **Documentation:** <https://github.com/santosr2/luma>
 - **Roadmap:** See `ROADMAP.md` for upcoming features
 - **Issues:** Report migration problems on GitHub
 
@@ -389,4 +399,3 @@ spec:
 3. ✅ Compare output and verify correctness
 4. ✅ Gradually migrate your project
 5. ✅ Enjoy cleaner, more maintainable templates!
-

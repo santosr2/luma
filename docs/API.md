@@ -19,6 +19,7 @@ Complete API reference for the Luma template engine.
 Render a template string with context data.
 
 **Parameters:**
+
 - `template` (string): Template source code
 - `context` (table): Variables to pass to template
 - `options` (table, optional): Rendering options
@@ -29,6 +30,7 @@ Render a template string with context data.
 **Returns:** (string) Rendered output
 
 **Example:**
+
 ```lua
 local luma = require("luma")
 
@@ -37,6 +39,7 @@ print(result)  -- "Hello, World!"
 ```
 
 **Error Handling:**
+
 ```lua
 local ok, result = pcall(function()
     return luma.render(template, context)
@@ -52,6 +55,7 @@ end
 Compile a template for reuse.
 
 **Parameters:**
+
 - `template` (string): Template source code
 - `options` (table, optional): Compilation options
   - `syntax` (string): Template syntax mode
@@ -60,6 +64,7 @@ Compile a template for reuse.
 **Returns:** (table) Compiled template object
 
 **Example:**
+
 ```lua
 local luma = require("luma")
 
@@ -87,6 +92,7 @@ end
 Create a template environment with shared state.
 
 **Parameters:**
+
 - `options` (table, optional): Environment options
   - `paths` (table): Template search paths
   - `filters` (table): Custom filters
@@ -95,11 +101,13 @@ Create a template environment with shared state.
 **Returns:** (table) Environment object
 
 **Methods:**
+
 - `env:render(template, context)` - Render template string
 - `env:render_file(name, context)` - Render template file
 - `env:compile(template)` - Compile template
 
 **Example:**
+
 ```lua
 local luma = require("luma")
 
@@ -120,12 +128,14 @@ local result = env:render_file("page.luma", {title = "Home"})
 Low-level template compilation.
 
 **Parameters:**
+
 - `source` (string): Template source code
 - `options` (table): Compilation options
 
 **Returns:** (table) Compiled template with metadata
 
 **Example:**
+
 ```lua
 local compiler = require("luma.compiler")
 
@@ -142,6 +152,7 @@ print("Dependencies:", #compiled.dependencies)
 Render a compiled template.
 
 **Parameters:**
+
 - `context` (table): Template variables
 - `filters` (table): Available filters
 - `runtime` (table): Runtime utilities
@@ -159,12 +170,14 @@ Render a compiled template.
 HTML-escape a value.
 
 **Parameters:**
+
 - `value` (any): Value to escape
 - `column` (number, optional): Column for error reporting
 
 **Returns:** (string) HTML-escaped string
 
 **Example:**
+
 ```lua
 local runtime = require("luma.runtime")
 
@@ -177,9 +190,11 @@ local escaped = runtime.escape("<script>alert('xss')</script>")
 Set template search paths.
 
 **Parameters:**
+
 - `paths` (table): Array of directory paths
 
 **Example:**
+
 ```lua
 local runtime = require("luma.runtime")
 
@@ -191,13 +206,16 @@ runtime.set_paths({"/usr/share/templates", "./templates", "."})
 Load template source by name.
 
 **Parameters:**
+
 - `name` (string): Template name or path
 
 **Returns:**
+
 - `source` (string|nil): Template source
 - `error` (string|nil): Error message if not found
 
 **Example:**
+
 ```lua
 local runtime = require("luma.runtime")
 
@@ -212,11 +230,13 @@ end
 Create a mutable namespace object for templates.
 
 **Parameters:**
+
 - `initial` (table, optional): Initial values
 
 **Returns:** (table) Namespace object
 
 **Example (in template):**
+
 ```lua
 {% set ns = namespace(count=0) %}
 {% for item in items %}
@@ -234,37 +254,44 @@ Total: {{ ns.count }}
 #### String Filters
 
 **`upper`** - Convert to uppercase
+
 ```lua
 {{ "hello" | upper }}  -- "HELLO"
 ```
 
 **`lower`** - Convert to lowercase
+
 ```lua
 {{ "HELLO" | lower }}  -- "hello"
 ```
 
 **`title`** - Title case
+
 ```lua
 {{ "hello world" | title }}  -- "Hello World"
 ```
 
 **`capitalize`** - Capitalize first letter
+
 ```lua
 {{ "hello" | capitalize }}  -- "Hello"
 ```
 
 **`trim`** - Remove whitespace
+
 ```lua
 {{ "  hello  " | trim }}  -- "hello"
 ```
 
 **`truncate(length, end)`** - Truncate string
+
 ```lua
 {{ "Long text" | truncate(5) }}  -- "Long..."
 {{ "Long text" | truncate(5, "…") }}  -- "Long…"
 ```
 
 **`replace(old, new)`** - Replace substring
+
 ```lua
 {{ "hello world" | replace("world", "Lua") }}  -- "hello Lua"
 ```
@@ -272,31 +299,37 @@ Total: {{ ns.count }}
 #### List Filters
 
 **`length`** - Get length
+
 ```lua
 {{ items | length }}  -- number of items
 ```
 
 **`join(sep)`** - Join list elements
+
 ```lua
 {{ ["a", "b", "c"] | join(", ") }}  -- "a, b, c"
 ```
 
 **`first`** - First element
+
 ```lua
 {{ items | first }}
 ```
 
 **`last`** - Last element
+
 ```lua
 {{ items | last }}
 ```
 
 **`sort`** - Sort list
+
 ```lua
 {{ [3, 1, 2] | sort }}  -- [1, 2, 3]
 ```
 
 **`reverse`** - Reverse list
+
 ```lua
 {{ [1, 2, 3] | reverse }}  -- [3, 2, 1]
 ```
@@ -304,16 +337,19 @@ Total: {{ ns.count }}
 #### Numeric Filters
 
 **`abs`** - Absolute value
+
 ```lua
 {{ -5 | abs }}  -- 5
 ```
 
 **`round(precision)`** - Round number
+
 ```lua
 {{ 3.14159 | round(2) }}  -- 3.14
 ```
 
 **`format(fmt)`** - Format number
+
 ```lua
 {{ 1234.5 | format("%.2f") }}  -- "1234.50"
 ```
@@ -321,6 +357,7 @@ Total: {{ ns.count }}
 #### Date/Time Filters
 
 **`date(format)`** - Format timestamp
+
 ```lua
 {{ timestamp | date("%Y-%m-%d") }}
 ```
@@ -328,11 +365,13 @@ Total: {{ ns.count }}
 #### Misc Filters
 
 **`default(value)`** - Default if nil/empty
+
 ```lua
 {{ var | default("N/A") }}
 ```
 
 **`escape`** - HTML escape (alias: `e`)
+
 ```lua
 {{ "<script>" | escape }}  -- "&lt;script&gt;"
 ```
@@ -340,6 +379,7 @@ Total: {{ ns.count }}
 ### Custom Filters
 
 **Define custom filter:**
+
 ```lua
 local filters = require("luma.filters")
 
@@ -354,6 +394,7 @@ end)
 ```
 
 **Use in template:**
+
 ```lua
 {{ 5 | double }}  -- 10
 {{ "Alice" | greet }}  -- "Hello, Alice!"
@@ -408,6 +449,7 @@ result = template.render(title="Home", items=[1, 2, 3])
 ### Loaders
 
 **FileSystemLoader:**
+
 ```python
 from luma.loaders import FileSystemLoader
 
@@ -415,6 +457,7 @@ loader = FileSystemLoader("/templates", encoding="utf-8")
 ```
 
 **DictLoader:**
+
 ```python
 from luma.loaders import DictLoader
 
@@ -425,6 +468,7 @@ loader = DictLoader({
 ```
 
 **PackageLoader:**
+
 ```python
 from luma.loaders import PackageLoader
 
@@ -482,12 +526,14 @@ end
 ### Error Messages
 
 Luma provides detailed error messages with:
+
 - Line and column numbers
 - Context snippet
 - Error description
 - Stack trace
 
 Example error:
+
 ```
 ParseError: Expected 'end' after 'for' block
   at template.luma:15:1
@@ -502,12 +548,14 @@ ParseError: Expected 'end' after 'for' block
 ## Performance Tips
 
 1. **Compile Once, Reuse Many Times**
+
    ```lua
    local compiled = luma.compile(template)
    for i = 1, 1000 do
        compiled:render(data, filters, runtime)
    end
    ```
+
    *50-100x faster than re-compiling each time*
 
 2. **Use Native Syntax**
@@ -519,6 +567,7 @@ ParseError: Expected 'end' after 'for' block
    - Avoid complex transformations in templates
 
 4. **Cache Compiled Templates**
+
    ```lua
    local cache = {}
    
@@ -540,6 +589,7 @@ ParseError: Expected 'end' after 'for' block
 - Filters and runtime are **stateless** and safe to share
 
 **Multi-threaded example (conceptual):**
+
 ```lua
 local compiled = luma.compile(template)  -- Shared
 local filters = require("luma.filters").get_all()  -- Shared
@@ -561,4 +611,3 @@ local result = compiled:render(
 - [Examples](../examples/)
 - [Benchmarks](../benchmarks/)
 - [Contributing](../CONTRIBUTING.md)
-
