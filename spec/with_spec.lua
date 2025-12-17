@@ -248,26 +248,22 @@ First: {{ list[1] }}
 	end)
 
 	describe("practical use cases", function()
-		it("should be useful for temporary calculations", function()
-			local template = [[
-{% with
-    subtotal = price * quantity,
-    tax = subtotal * tax_rate,
-    total = subtotal + tax
-%}
+	it("should be useful for temporary calculations", function()
+		local template = [[
+{% with subtotal = price * quantity, tax = subtotal * tax_rate, total = subtotal + tax %}
 Subtotal: ${{ subtotal }}
 Tax: ${{ tax }}
 Total: ${{ total }}
 {% endwith %}]]
-			local result = luma.render(template, {
-				price = 100,
-				quantity = 2,
-				tax_rate = 0.1,
-			}, { syntax = "jinja" })
-			assert.matches("Subtotal: %$200", result)
-			assert.matches("Tax: %$20", result)
-			assert.matches("Total: %$220", result)
-		end)
+		local result = luma.render(template, {
+			price = 100,
+			quantity = 2,
+			tax_rate = 0.1,
+		}, { syntax = "jinja" })
+		assert.matches("Subtotal: %$200", result)
+		assert.matches("Tax: %$20", result)
+		assert.matches("Total: %$220", result)
+	end)
 
 		it("should be useful for API response formatting", function()
 			local template = [[
