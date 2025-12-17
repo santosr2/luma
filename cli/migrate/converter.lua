@@ -19,7 +19,7 @@ function converter.convert(source, options)
 
     -- Auto-detect source syntax if needed
     if from == "auto" then
-        if source:match("{{") or source:match("{%%") then
+        if source:match("{{") or source:match("{%%") or source:match("{#") then
             from = "jinja"
         else
             from = "luma"
@@ -50,4 +50,3 @@ function converter.convert(source, options)
 end
 
 return converter
-

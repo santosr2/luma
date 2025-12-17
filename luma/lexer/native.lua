@@ -275,9 +275,9 @@ function native:scan_expression_token()
             end
             check_pos = check_pos - 1
         end
-        
+
         self:advance()  -- consume newline
-        
+
         if has_comma then
             -- Line continues - skip leading whitespace and continue scanning
             self.directive_first_newline = true  -- We've seen content
@@ -302,7 +302,7 @@ function native:scan_expression_token()
             self.directive_first_newline = false
             self.directive_has_content = false
             return self:make_token(T.NEWLINE, nil, start_line, start_col)
-        
+
         else
             -- No continuation, end directive
             self.in_directive = false
@@ -311,7 +311,7 @@ function native:scan_expression_token()
             return self:make_token(T.NEWLINE, nil, start_line, start_col)
         end
     end
-    
+
     -- Semicolon ends directive (for inline mode)
     -- Allows: "Status: @if active; Success @else; Failed @end"
     if c == ";" and self.in_directive then
@@ -520,12 +520,24 @@ function native:scan_text()
         -- Check for - followed by $ or @ (dash trimming)
         if c == "-" then
             local next_c = self:peek(1)
-            if next_c == "$" or (next_c == "@" and self.at_line_start) then
-                -- This is a dash trim marker, don't include it in text
+            local next_next_c = self:peek(2)
+            -- Check for -$ (dash trim before interpolation)
+            if next_c == "$" then
                 break
             end
+            -- Check for -@ (dash trim before directive)
+            -- Can be at line start OR preceded by space (inline mode)
+            if next_c == "@" and next_next_c and is_alpha(next_next_c) then
+                if self.at_line_start then
+                    -- Block mode: at line start
+                    break
+                elseif #parts > 0 and (parts[#parts] == " " or parts[#parts] == "\t") then
+                    -- Inline mode: preceded by space
+                    break
+                end
+            end
         end
-        
+
         -- Check for $ (interpolation)
         if c == "$" then
             local next_c = self:peek(1)
@@ -626,14 +638,29 @@ function native:next_token()
     local start_col = self.column
 
     -- Check for dash trimming before directive: -@
-    if c == "-" and self:peek(1) == "@" and self.at_line_start then
+    if c == "-" and self:peek(1) == "@" then
         local next_next = self:peek(2)
         -- Make sure it's -@ followed by directive keyword
         if next_next and is_alpha(next_next) then
-            self:advance()  -- skip -
-            local token = self:scan_directive()
-            token.trim_prev = true
-            return token
+            -- Can appear at line start OR after whitespace (inline mode)
+            if self.at_line_start then
+                -- Block mode: -@ at line start
+                self:advance()  -- skip -
+                local token = self:scan_directive()
+                token.trim_prev = true
+                return token
+            else
+                -- Inline mode: check if preceded by space
+                local prev_pos = self.pos - 1
+                if prev_pos > 0 and (self.source:sub(prev_pos, prev_pos) == " " or
+                                      self.source:sub(prev_pos, prev_pos) == "\t") then
+                    -- Preceded by space - this is an inline dash-directive
+                    self:advance()  -- skip -
+                    local token = self:scan_directive()
+                    token.trim_prev = true
+                    return token
+                end
+            end
         end
     end
 
@@ -645,7 +672,7 @@ function native:next_token()
         else
             -- Inline mode: check if preceded by space
             local prev_pos = self.pos - 1
-            if prev_pos > 0 and (self.source:sub(prev_pos, prev_pos) == " " or 
+            if prev_pos > 0 and (self.source:sub(prev_pos, prev_pos) == " " or
                                   self.source:sub(prev_pos, prev_pos) == "\t") then
                 -- Preceded by space - this is an inline directive
                 return self:scan_directive()
@@ -659,7 +686,7 @@ function native:next_token()
         self:advance()  -- skip -
         c = self:peek()  -- now at $
         local next_c = self:peek(1)
-        
+
         if next_c == "$" then
             -- Escaped $$ - handled in scan_text
             return self:scan_text()

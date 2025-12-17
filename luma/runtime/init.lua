@@ -413,22 +413,31 @@ function runtime.import(name)
     local compiler = require("luma.compiler")
     local compiled = compiler.compile(source, { name = name })
 
-    -- Execute the template to extract macros
-    -- Create a macros table that will be populated during template execution
+    -- Execute the template to extract macros and variables
+    -- Create a context and macros table that will be populated during template execution
+    local ctx = {}
     local macros_table = {}
     local filters = require("luma.filters")
 
-    -- Render the template (output is not needed, we just want the macros)
-    local _ = compiled:render({}, filters.get_all(), runtime, macros_table)
+    -- Render the template (output is not needed, we just want the macros and variables)
+    local _ = compiled:render(ctx, filters.get_all(), runtime, macros_table)
 
     -- The result needs to have both direct macro access and __macros
     local result = {
         __macros = macros_table
     }
 
-    -- Also add macros as direct properties for @from...import syntax
+    -- Add macros as direct properties for @from...import syntax
     for k, v in pairs(macros_table) do
         result[k] = v
+    end
+
+    -- Also add context variables (from @let directives)
+    for k, v in pairs(ctx) do
+        -- Skip internal variables
+        if type(k) == "string" and not k:match("^__") then
+            result[k] = v
+        end
     end
 
     -- Cache the result

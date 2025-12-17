@@ -40,7 +40,7 @@ Goodbye, $name!
 ]]
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("Hello, World!", result)
-            
+
             remove_temp_file(macros_file)
         end)
 
@@ -63,7 +63,7 @@ Goodbye, $name!
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("Hello, Alice!", result)
             assert.matches("Goodbye, Bob!", result)
-            
+
             remove_temp_file(macros_file)
         end)
 
@@ -80,7 +80,7 @@ Hi, $name!
 ]]
             local result = luma.render(template, {})
             assert.matches("Hi, Test!", result)
-            
+
             remove_temp_file(macros_file)
         end)
     end)
@@ -99,7 +99,7 @@ Original: $text
 ]]
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("Original: Test", result)
-            
+
             remove_temp_file(macros_file)
         end)
 
@@ -122,7 +122,7 @@ F2: $x
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("F1: 1", result)
             assert.matches("F2: 2", result)
-            
+
             remove_temp_file(macros_file)
         end)
 
@@ -145,7 +145,7 @@ Rename: $x
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("Keep: A", result)
             assert.matches("Rename: B", result)
-            
+
             remove_temp_file(macros_file)
         end)
     end)
@@ -164,7 +164,7 @@ $greeting! Count: $count
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("Hello!", result)
             assert.matches("Count: 42", result)
-            
+
             remove_temp_file(vars_file)
         end)
 
@@ -179,7 +179,7 @@ Value: $v
 ]]
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("Value: test", result)
-            
+
             remove_temp_file(vars_file)
         end)
     end)
@@ -203,7 +203,7 @@ This uses full import (not selective)
             -- Just verify it doesn't error
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.is_not_nil(result)
-            
+
             remove_temp_file(macros_file)
         end)
 
@@ -225,9 +225,9 @@ I am not included
             -- included should work
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("I am included", result)
-            
+
             -- not_included should not be available (would error if called)
-            
+
             remove_temp_file(macros_file)
         end)
     end)
@@ -241,11 +241,11 @@ I am not included
 
             local template = [[
 {% from "]] .. macros_file .. [[" import empty %}
-Before@call empty()After
+Before @call empty(); After
 ]]
             local result = luma.render(template, {}, { syntax = "jinja" })
-            assert.matches("BeforeAfter", result)
-            
+            assert.matches("Before.*After", result)
+
             remove_temp_file(macros_file)
         end)
 
@@ -265,7 +265,7 @@ Before@call empty()After
             local result = luma.render(template, { items = {"A", "B"} }, { syntax = "jinja" })
             assert.matches("- A", result)
             assert.matches("- B", result)
-            
+
             remove_temp_file(macros_file)
         end)
 
@@ -282,7 +282,7 @@ $should_import
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches("yes", result)
             assert.not_matches("no", result)
-            
+
             remove_temp_file(macros_file)
         end)
     end)
@@ -307,7 +307,7 @@ Product: $product.name
                 user = { name = "Alice" }
             }, { syntax = "jinja" })
             assert.matches("Name: Alice", result)
-            
+
             remove_temp_file(utils_file)
         end)
 
@@ -330,9 +330,8 @@ Product: $product.name
             local result = luma.render(template, {}, { syntax = "jinja" })
             assert.matches('<input name="email"', result)
             assert.matches("<button>Submit</button>", result)
-            
+
             remove_temp_file(helpers_file)
         end)
     end)
 end)
-

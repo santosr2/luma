@@ -26,6 +26,38 @@ local function is_whitespace(c)
     return c == " " or c == "\t" or c == "\r"
 end
 
+--- Map native directive keywords to token types
+local NATIVE_DIRECTIVES = {
+    ["if"] = T.DIR_IF,
+    ["elif"] = T.DIR_ELIF,
+    ["else"] = T.DIR_ELSE,
+    ["for"] = T.DIR_FOR,
+    ["let"] = T.DIR_LET,
+    ["set"] = T.DIR_LET,
+    ["macro"] = T.DIR_MACRO,
+    ["call"] = T.DIR_CALL,
+    ["endcall"] = T.DIR_ENDCALL,
+    ["include"] = T.DIR_INCLUDE,
+    ["import"] = T.DIR_IMPORT,
+    ["from"] = T.DIR_FROM,
+    ["end"] = T.DIR_END,
+    ["raw"] = T.DIR_RAW,
+    ["endraw"] = T.DIR_ENDRAW,
+    ["autoescape"] = T.DIR_AUTOESCAPE,
+    ["endautoescape"] = T.DIR_ENDAUTOESCAPE,
+    ["with"] = T.DIR_WITH,
+    ["endwith"] = T.DIR_ENDWITH,
+    ["filter"] = T.DIR_FILTER,
+    ["endfilter"] = T.DIR_ENDFILTER,
+    ["do"] = T.DIR_DO,
+    ["break"] = T.DIR_BREAK,
+    ["continue"] = T.DIR_CONTINUE,
+    ["extends"] = T.DIR_EXTENDS,
+    ["block"] = T.DIR_BLOCK,
+    ["endblock"] = T.DIR_ENDBLOCK,
+    ["endset"] = T.DIR_ENDSET,
+}
+
 --- Create a new Jinja lexer
 -- @param source string The template source code
 -- @param source_name string|nil Name for error messages
@@ -43,6 +75,11 @@ function jinja.new(source, source_name)
         in_stmt = false,       -- Inside {% ... %}
         stmt_keyword = nil,    -- The keyword of the current statement
         trim_next = false,     -- Whether to trim whitespace on next text
+        at_line_start = true,  -- Track if we're at the start of a line (for @ directives)
+        in_expression = false, -- Inside ${ ... } (Luma interpolation)
+        in_luma_var = false,   -- Inside ${ ... } for mixed syntax
+        in_native_directive = false, -- Inside @directive (vs {% %})
+        native_paren_depth = 0, -- Track parentheses depth in native directives
     }
     setmetatable(self, { __index = jinja })
     return self
@@ -68,8 +105,13 @@ function jinja:advance()
     if c == "\n" then
         self.line = self.line + 1
         self.column = 1
+        self.at_line_start = true
     else
         self.column = self.column + 1
+        -- Update at_line_start based on character (whitespace doesn't affect it)
+        if not is_whitespace(c) then
+            self.at_line_start = false
+        end
     end
     return c
 end
@@ -186,6 +228,15 @@ end
 
 --- Scan an expression token (inside {{ }} or {% %})
 function jinja:scan_expression_token()
+    -- For native directives in statement mode, check for newline BEFORE skipping whitespace
+    if self.in_stmt and not self:is_eof() and self:peek() == "\n" then
+        local start_line = self.line
+        local start_col = self.column
+        self:advance()
+        self.in_stmt = false
+        return self:make_token(T.NEWLINE, nil, start_line, start_col)
+    end
+
     self:skip_whitespace(true)
 
     if self:is_eof() then
@@ -202,7 +253,7 @@ function jinja:scan_expression_token()
         self.in_expression = false
         return self:make_token(T.INTERP_END, nil, start_line, start_col)
     end
-    
+
     -- Check for end of variable block: }} or -}}
     if self.in_var then
         if self:match("-}}") then
@@ -220,9 +271,15 @@ function jinja:scan_expression_token()
         end
     end
 
-    -- Check for end of statement block: %} or -%}
+    -- Check for end of statement block: %} or -%} or ; (for inline native directives)
     if self.in_stmt then
-        if self:match("-%}") then
+        -- Check for semicolon (inline native directive delimiter)
+        if c == ";" then
+            self:advance()
+            self.in_stmt = false
+            -- Return NEWLINE to end directive mode
+            return self:make_token(T.NEWLINE, nil, start_line, start_col)
+        elseif self:match("-%}") then
             self:advance()
             self:advance()
             self:advance()
@@ -484,7 +541,24 @@ function jinja:scan_text()
                 break
             end
         end
-        
+
+        -- Check for Luma native directives at line start or after whitespace (for mixed syntax support)
+        if c == "@" then
+            if self.at_line_start then
+                -- At line start, always check for directive
+                local next_c = self:peek(1)
+                if next_c and next_c:match("[a-zA-Z_]") then
+                    break
+                end
+            elseif #parts > 0 and (parts[#parts] == " " or parts[#parts] == "\t") then
+                -- After whitespace, check for directive (inline directive)
+                local next_c = self:peek(1)
+                if next_c and next_c:match("[a-zA-Z_]") then
+                    break
+                end
+            end
+        end
+
         -- Check for Luma interpolation (for mixed syntax support)
         if c == "$" then
             local next_c = self:peek(1)
@@ -532,11 +606,33 @@ function jinja:next_token()
     local start_line = self.line
     local start_col = self.column
 
+    -- Check for Luma native directives (mixed syntax support)
+    -- Can appear at line start or after whitespace (inline)
+    if c == "@" then
+        local next_c = self:peek(1)
+        if next_c and next_c:match("[a-zA-Z_]") then
+            self:advance()  -- skip @
+            local keyword = self:read_identifier()
+            local dir_type = NATIVE_DIRECTIVES[keyword]
+            if dir_type then
+                -- Enter statement mode for directive arguments
+                self.in_stmt = true
+                self.at_line_start = false
+                return self:make_token(dir_type, keyword, start_line, start_col)
+            else
+                -- Not a recognized directive, treat @ as text
+                -- Put the @ back by rewinding
+                self.pos = self.pos - #keyword
+                self.column = self.column - #keyword
+            end
+        end
+    end
+
     -- Check for Luma interpolation (mixed syntax support)
     if c == "$" then
         local next_c = self:peek(1)
         local next_next_c = self:peek(2)
-        
+
         -- Don't treat ${{ as interpolation (it's literal $ + Jinja2 {{)
         if next_c == "{" and next_next_c == "{" then
             -- Let it fall through to scan_text
@@ -553,7 +649,7 @@ function jinja:next_token()
             return self:make_token(T.INTERP_START, nil, start_line, start_col)
         end
     end
-    
+
     -- Check for Jinja blocks
     if c == "{" then
         local next_c = self:peek(1)
@@ -606,7 +702,7 @@ function jinja:tokenize()
 
     while true do
         local token = self:next_token()
-        
+
         -- Handle trim_prev: trim trailing whitespace from previous TEXT token
         if token.trim_prev and #result > 0 then
             for i = #result, 1, -1 do
@@ -617,7 +713,7 @@ function jinja:tokenize()
                 end
             end
         end
-        
+
         table.insert(result, token)
         if token.type == T.EOF then
             break

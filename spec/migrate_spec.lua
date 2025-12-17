@@ -130,10 +130,10 @@ describe("Jinja2 to Luma Migration", function()
 {% endfor %}
 ]]
             local luma = converter.convert(jinja)
-            
+
             assert.match("@for user in users", luma)
             assert.match("@if user.active", luma)
-            assert.match("$user.name | upper", luma)
+            assert.match("$%{user%.name | upper%}", luma)
             assert.match("@end", luma)
         end)
 
@@ -149,7 +149,7 @@ describe("Jinja2 to Luma Migration", function()
 {% endblock %}
 ]]
             local luma = converter.convert(jinja)
-            
+
             assert.match('@extends "base.html"', luma)
             assert.match("@block title", luma)
             assert.match("@block content", luma)
@@ -166,4 +166,3 @@ describe("Jinja2 to Luma Migration", function()
         end)
     end)
 end)
-

@@ -18,12 +18,19 @@ function formatter.tokens_to_luma(tokens, source)
 
         if token.type == T.TEXT then
             table.insert(parts, token.value)
+            -- Add newline after text if next token is a directive
+            if i < #tokens then
+                local next_token = tokens[i + 1]
+                if next_token and next_token.type:match("^DIR_") then
+                    table.insert(parts, "\n")
+                end
+            end
 
         elseif token.type == T.INTERP_START then
             -- {{ expr }} → ${expr} or $var
             i = i + 1
             local expr_tokens = {}
-            
+
             -- Collect expression tokens until INTERP_END
             while i <= #tokens and tokens[i].type ~= T.INTERP_END do
                 table.insert(expr_tokens, tokens[i])
@@ -67,11 +74,19 @@ function formatter.tokens_to_luma(tokens, source)
                 end
             end
 
+            -- Add newline after interpolation if next token is a directive (including closing ones)
+            if i + 1 <= #tokens then
+                local next_token = tokens[i + 1]
+                if next_token and next_token.type:match("^DIR_") then
+                    table.insert(parts, "\n")
+                end
+            end
+
         elseif token.type == T.DIR_IF then
             -- {% if x %} → @if x
             table.insert(parts, "@if ")
             i = i + 1
-            
+
             -- Collect condition tokens until NEWLINE
             local cond_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
@@ -79,116 +94,124 @@ function formatter.tokens_to_luma(tokens, source)
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(cond_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_ELIF then
             table.insert(parts, "@elif ")
             i = i + 1
-            
+
             local cond_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
                 table.insert(cond_tokens, tokens[i])
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(cond_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_ELSE then
-            table.insert(parts, "@else")
+            table.insert(parts, "@else\n")
 
         elseif token.type == T.DIR_END or token.type == T.DIR_ENDBLOCK then
-            table.insert(parts, "@end")
+            table.insert(parts, "@end\n")
 
         elseif token.type == T.DIR_FOR then
             -- {% for x in y %} → @for x in y
             table.insert(parts, "@for ")
             i = i + 1
-            
+
             local for_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
                 table.insert(for_tokens, tokens[i])
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(for_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_LET then
             -- {% set x = y %} → @let x = y
             table.insert(parts, "@let ")
             i = i + 1
-            
+
             local let_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
                 table.insert(let_tokens, tokens[i])
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(let_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_MACRO then
             -- {% macro name() %} → @macro name()
             table.insert(parts, "@macro ")
             i = i + 1
-            
+
             local macro_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
                 table.insert(macro_tokens, tokens[i])
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(macro_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_CALL then
             table.insert(parts, "@call ")
             i = i + 1
-            
+
             local call_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
                 table.insert(call_tokens, tokens[i])
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(call_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_INCLUDE then
             table.insert(parts, "@include ")
             i = i + 1
-            
+
             local inc_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
                 table.insert(inc_tokens, tokens[i])
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(inc_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_EXTENDS then
             table.insert(parts, "@extends ")
             i = i + 1
-            
+
             local ext_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
                 table.insert(ext_tokens, tokens[i])
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(ext_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_BLOCK then
             table.insert(parts, "@block ")
             i = i + 1
-            
+
             local block_tokens = {}
             while i <= #tokens and tokens[i].type ~= T.NEWLINE do
                 table.insert(block_tokens, tokens[i])
                 i = i + 1
             end
             table.insert(parts, formatter.format_expression(block_tokens))
+            table.insert(parts, "\n")
 
         elseif token.type == T.DIR_BREAK then
-            table.insert(parts, "@break")
+            table.insert(parts, "@break\n")
 
         elseif token.type == T.DIR_CONTINUE then
-            table.insert(parts, "@continue")
+            table.insert(parts, "@continue\n")
 
         elseif token.type == T.DIR_COMMENT then
             table.insert(parts, "@# " .. (token.value or ""))
 
         elseif token.type == T.NEWLINE then
-            -- Directive completed, add newline if needed
-            table.insert(parts, "\n")
+            -- Skip - newlines are handled by directives and text
 
         elseif token.type == T.EOF then
             -- End of file
@@ -284,4 +307,3 @@ function formatter.format_expression(tokens)
 end
 
 return formatter
-

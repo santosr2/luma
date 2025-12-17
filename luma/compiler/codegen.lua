@@ -111,7 +111,7 @@ function codegen.gen_expression(node, ctx)
             end
             return "(__ctx[\"caller\"] and __ctx[\"caller\"](" .. table.concat(args, ", ") .. ") or \"\")"
         end
-        
+
         local callee = codegen.gen_expression(node.callee, ctx)
         local args = {}
 
@@ -419,7 +419,7 @@ function codegen.gen_node(node, ctx)
             -- Generate assignment-friendly code for the target
             local target_expr = node.expression
             local value = codegen.gen_expression(node.value, ctx)
-            
+
             -- If autoescape is off, mark the value as safe so it won't be escaped later
             local safe_value = "(not __autoescape and __runtime.safe(" .. value .. ") or " .. value .. ")"
 
@@ -456,7 +456,8 @@ function codegen.gen_node(node, ctx)
 
     if t == N.INTERPOLATION then
         local expr = codegen.gen_expression(node.expression, ctx)
-        local col = node.column or 1
+        -- Don't apply indentation for string literals (they may contain intentional \n)
+        local col = (node.expression and node.expression.type == N.LITERAL and node.expression.literal_type == "string") and 1 or (node.column or 1)
         emit(ctx, "__out[#__out + 1] = __esc(" .. expr .. ", " .. col .. ")")
         return
     end

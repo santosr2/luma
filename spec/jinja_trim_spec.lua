@@ -79,14 +79,17 @@ C]]
         it("should only trim after when only -%} is used", function()
             local template = "A  \n  {% if true -%}  \n  B{% endif %}"
             local result = luma.render(template, {}, { syntax = "jinja" })
-            assert.match("A%s+B", result) -- Whitespace before preserved
-            assert.is_not.match("%s+B", result) -- Whitespace after removed
+            -- Jinja2 behavior: preserves whitespace before directive AND inside body
+            -- The -%} only trims whitespace immediately after the %}, not the body content
+            assert.equals("A  \n  B", result)
         end)
 
         it("should only trim before when only {%- is used", function()
             local template = "A  \n  {%- if true %}  \n  B{% endif %}"
             local result = luma.render(template, {}, { syntax = "jinja" })
-            assert.equals("AB", result) -- Whitespace before removed, content inside preserved
+            -- Jinja2 behavior: {%- trims whitespace before the directive
+            -- But in this case, directive is on its own line, so behaves same as test above
+            assert.equals("A  \n  B", result)
         end)
 
         it("should not trim when no markers are present", function()
@@ -146,4 +149,3 @@ C]]
         end)
     end)
 end)
-
