@@ -62,11 +62,11 @@ end
 -- @return table The environment table
 function compat.getfenv(fn)
 	if compat.is_lua51 or compat.is_luajit then
-	return getfenv(fn)
-else
-	-- In Lua 5.2+, return _ENV or _G as fallback
-	return _ENV or _G -- luacheck: globals _ENV
-end
+		return getfenv(fn)
+	else
+		-- In Lua 5.2+, return _ENV or _G as fallback
+		return _ENV or _G -- luacheck: globals _ENV
+	end
 end
 
 --- Create a shallow copy of a table

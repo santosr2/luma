@@ -972,71 +972,71 @@ function runtime.default_filters()
 			if type(t) ~= "table" then
 				return {}
 			end
-		local result = {}
-		for _, item in ipairs(t) do
-			local val = item[attr]
-			local keep
-			if test == nil or test == "defined" then
-				keep = val ~= nil
-			elseif test == "undefined" then
-				keep = val == nil
-			elseif test == "none" then
-				keep = val == nil
-			elseif test == "eq" or test == "equalto" then
-				keep = val == testval
-			elseif test == "ne" then
-				keep = val ~= testval
-			elseif test == "lt" then
-				keep = val < testval
-			elseif test == "le" then
-				keep = val <= testval
-			elseif test == "gt" then
-				keep = val > testval
-			elseif test == "ge" then
-				keep = val >= testval
-			else
-				-- Truthy test by default
-				keep = val and true or false
+			local result = {}
+			for _, item in ipairs(t) do
+				local val = item[attr]
+				local keep
+				if test == nil or test == "defined" then
+					keep = val ~= nil
+				elseif test == "undefined" then
+					keep = val == nil
+				elseif test == "none" then
+					keep = val == nil
+				elseif test == "eq" or test == "equalto" then
+					keep = val == testval
+				elseif test == "ne" then
+					keep = val ~= testval
+				elseif test == "lt" then
+					keep = val < testval
+				elseif test == "le" then
+					keep = val <= testval
+				elseif test == "gt" then
+					keep = val > testval
+				elseif test == "ge" then
+					keep = val >= testval
+				else
+					-- Truthy test by default
+					keep = val and true or false
+				end
+				if keep then
+					table.insert(result, item)
+				end
 			end
-			if keep then
-				table.insert(result, item)
-			end
-		end
 			return result
 		end,
 		rejectattr = function(t, attr, test, testval)
 			if type(t) ~= "table" then
 				return {}
 			end
-		local result = {}
-		for _, item in ipairs(t) do
-			local val = item[attr]
-			local reject
-			if test == nil or test == "defined" then
-				reject = val ~= nil
-			elseif test == "undefined" then
-				reject = val == nil
-			elseif test == "none" then
-				reject = val == nil
-			elseif test == "eq" or test == "equalto" then
-				reject = val == testval
-			elseif test == "ne" then
-				reject = val ~= testval
-			elseif test == "lt" then
-				reject = val < testval
-			elseif test == "le" then
-				reject = val <= testval
-			elseif test == "gt" then
-				reject = val > testval
-			elseif test == "ge" then
-				reject = val >= testval
-			else
-				reject = val and true or false
+			local result = {}
+			for _, item in ipairs(t) do
+				local val = item[attr]
+				local reject
+				if test == nil or test == "defined" then
+					reject = val ~= nil
+				elseif test == "undefined" then
+					reject = val == nil
+				elseif test == "none" then
+					reject = val == nil
+				elseif test == "eq" or test == "equalto" then
+					reject = val == testval
+				elseif test == "ne" then
+					reject = val ~= testval
+				elseif test == "lt" then
+					reject = val < testval
+				elseif test == "le" then
+					reject = val <= testval
+				elseif test == "gt" then
+					reject = val > testval
+				elseif test == "ge" then
+					reject = val >= testval
+				else
+					reject = val and true or false
+				end
+				if not reject then
+					table.insert(result, item)
+				end
 			end
-			if not reject then
-				table.insert(result, item)
-			end
-		end
 			return result
 		end,
 		map = function(t, attr)

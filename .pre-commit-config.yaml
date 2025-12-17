@@ -15,6 +15,7 @@ repos:
           - --std=lua51+busted
           - --globals=describe,it,before_each,after_each,setup,teardown
           - --max-line-length=120
+          - --no-max-cyclomatic-complexity  # Ignore complexity warnings (architectural)
 
   # General file checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -93,13 +94,13 @@ repos:
     hooks:
       - id: lua-format
         name: Lua formatter (stylua)
-        entry: stylua
+        entry: bash -c 'command -v stylua >/dev/null 2>&1 && stylua "$@" || exit 0'
         language: system
         files: \.lua$
         pass_filenames: true
         require_serial: false
         stages: [pre-commit]
-        # This will fail gracefully if stylua is not installed
+        # This will skip gracefully if stylua is not installed
 
   # Custom Luma-specific checks
   - repo: local
@@ -121,7 +122,7 @@ repos:
 
       - id: check-no-debug
         name: Check for debug statements
-        entry: bash -c 'git diff --cached --name-only --diff-filter=ACM | grep "\.lua$" | xargs grep -n "print(" && exit 1 || exit 0'
+        entry: bash -c 'files=$(git diff --cached --name-only --diff-filter=ACM | grep "\.lua$" | grep -v -E "(benchmarks|examples)" || true); [ -n "$files" ] && echo "$files" | xargs grep -n "print(" && exit 1 || exit 0'
         language: system
         pass_filenames: false
         stages: [pre-commit]

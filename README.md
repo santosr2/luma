@@ -210,7 +210,9 @@ local directive = luma.render("Result: @if x; yes @end", {x=true})  -- @ is dire
 >
 > Indentation is preserved based on where placeholders and directives appear. You rarely need to think about
 > whitespace - Luma handles it intelligently by default.
->
+
+---
+
 > [!TIP]
 > While directives don't *require* indentation, we **strongly recommend** indenting them to match your document
 > structure for better readability.

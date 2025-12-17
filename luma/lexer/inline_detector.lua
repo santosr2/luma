@@ -39,57 +39,57 @@ end
 -- @return table Modified token array with inline flags
 function detector.detect_inline(tokens)
 	for i, token in ipairs(tokens) do
-	if is_inlineable_directive(token.type) then
-		local has_text_before = false
-		local has_text_after = false
+		if is_inlineable_directive(token.type) then
+			local has_text_before = false
+			local has_text_after = false
 
-		-- Check for text before (look backwards)
-		for j = i - 1, 1, -1 do
-			local prev = tokens[j]
-			if prev.type == T.TEXT then
-				if not text_ends_with_newline(prev.value) then
-					has_text_before = true
+			-- Check for text before (look backwards)
+			for j = i - 1, 1, -1 do
+				local prev = tokens[j]
+				if prev.type == T.TEXT then
+					if not text_ends_with_newline(prev.value) then
+						has_text_before = true
+					end
+					break
+				elseif prev.type ~= T.NEWLINE then
+					-- Found non-text, non-newline token
+					break
 				end
-				break
-			elseif prev.type ~= T.NEWLINE then
-				-- Found non-text, non-newline token
-				break
 			end
-		end
 
-		-- Check for text after (look forward)
-		-- The NEWLINE token right after directive marks end of directive
-		local newline_idx = nil
-		if i + 1 <= #tokens and tokens[i + 1].type == T.NEWLINE then
-			newline_idx = i + 1
-		end
+			-- Check for text after (look forward)
+			-- The NEWLINE token right after directive marks end of directive
+			local newline_idx = nil
+			if i + 1 <= #tokens and tokens[i + 1].type == T.NEWLINE then
+				newline_idx = i + 1
+			end
 
-		local start_after = newline_idx and (newline_idx + 1) or (i + 1)
+			local start_after = newline_idx and (newline_idx + 1) or (i + 1)
 
-		for j = start_after, #tokens do
-			local next_tok = tokens[j]
-			if next_tok.type == T.TEXT then
-				if not text_starts_with_newline(next_tok.value) then
-					has_text_after = true
+			for j = start_after, #tokens do
+				local next_tok = tokens[j]
+				if next_tok.type == T.TEXT then
+					if not text_starts_with_newline(next_tok.value) then
+						has_text_after = true
+					end
+					break
+				elseif next_tok.type ~= T.NEWLINE then
+					-- Found non-text, non-newline token
+					break
 				end
-				break
-			elseif next_tok.type ~= T.NEWLINE then
-				-- Found non-text, non-newline token
-				break
+			end
+
+			-- Mark as inline if text on same line before OR after
+			if has_text_before or has_text_after then
+				token.inline = true
+
+				-- Remove the NEWLINE token that terminates the directive
+				-- This prevents block-mode newline handling
+				if newline_idx then
+					table.remove(tokens, newline_idx)
+				end
 			end
 		end
-
-		-- Mark as inline if text on same line before OR after
-		if has_text_before or has_text_after then
-			token.inline = true
-
-			-- Remove the NEWLINE token that terminates the directive
-			-- This prevents block-mode newline handling
-			if newline_idx then
-				table.remove(tokens, newline_idx)
-			end
-		end
-	end
 	end
 
 	return tokens

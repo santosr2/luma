@@ -674,9 +674,8 @@ function jinja:next_token()
 		local next_next_c = self:peek(2)
 
 		-- Don't treat ${{ as interpolation (it's literal $ + Jinja2 {{)
-		if next_c == "{" and next_next_c == "{" then
+		if next_c == "{" and next_next_c == "{" then -- luacheck: ignore (empty branch intentional)
 		-- Let it fall through to scan_text
-		-- luacheck: ignore
 		elseif next_c and next_c:match("[a-zA-Z_]") then
 			-- Simple variable: $var
 			self:advance() -- skip $
