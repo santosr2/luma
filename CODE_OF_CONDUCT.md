@@ -22,7 +22,8 @@ Unacceptable behavior includes:
 
 ## Enforcement
 
-Project maintainers may remove, edit, or reject comments, commits, code, issues, and other contributions that are not aligned with this Code of Conduct.
+Project maintainers may remove, edit, or reject comments, commits, code, issues, and other contributions that are
+not aligned with this Code of Conduct.
 
 ## Attribution
 

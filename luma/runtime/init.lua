@@ -155,8 +155,7 @@ end
 -- @param num_positional number Expected number of positional args (excluding input value)
 -- @return table Positional arguments (including input value at [1])
 -- @return table Named arguments table or empty table
-local function extract_filter_args(args, num_positional)
-	num_positional = num_positional or 0
+local function extract_filter_args(args, _num_positional)
 	local positional = {}
 	local named = {}
 

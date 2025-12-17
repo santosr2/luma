@@ -130,7 +130,7 @@ That's it! Your Jinja2 templates work unchanged.
 
 Luma offers better performance than Jinja2 for most workloads:
 
-```
+```text
 Benchmark: 10,000 renders
 Jinja2:  1.245s
 Luma:    0.892s (1.4x faster)

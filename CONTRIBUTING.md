@@ -37,7 +37,7 @@ git clone https://github.com/santosr2/luma.git
 cd luma
 ```
 
-2. **Install dependencies:**
+1. **Install dependencies:**
 
 ```bash
 luarocks install busted
@@ -45,14 +45,14 @@ luarocks install luacheck
 luarocks install luacov
 ```
 
-3. **Install pre-commit hooks:**
+1. **Install pre-commit hooks:**
 
 ```bash
 pip install pre-commit # or use mise
 pre-commit install
 ```
 
-4. **Run tests to verify setup:**
+1. **Run tests to verify setup:**
 
 ```bash
 busted spec/
@@ -75,7 +75,7 @@ Use descriptive branch names with prefixes:
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 <type>(<scope>): <subject>
 
 <body>
@@ -96,7 +96,7 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 **Examples:**
 
-```
+```text
 feat(lexer): add support for custom delimiters
 
 Implement configurable delimiter syntax to allow users
@@ -105,7 +105,7 @@ to customize {{ }}, {% %}, and {# #} delimiters.
 Closes #123
 ```
 
-```
+```text
 fix(parser): handle empty block statements correctly
 
 Empty blocks were causing parser errors. This fix allows
@@ -191,13 +191,13 @@ describe("Feature Name", function()
 end)
 ```
 
-3. **Test organization:**
+1. **Test organization:**
    - Basic functionality first
    - Edge cases
    - Error handling
    - Integration scenarios
 
-4. **Coverage requirements:**
+1. **Coverage requirements:**
    - New features: 90%+ coverage
    - Bug fixes: Add test that would have caught the bug
    - All critical paths must be tested

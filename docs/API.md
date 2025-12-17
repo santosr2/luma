@@ -534,7 +534,7 @@ Luma provides detailed error messages with:
 
 Example error:
 
-```
+```text
 ParseError: Expected 'end' after 'for' block
   at template.luma:15:1
   

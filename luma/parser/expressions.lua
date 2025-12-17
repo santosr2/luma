@@ -414,7 +414,7 @@ function expressions.parse_binary(stream, min_prec)
 		stream:advance()
 
 		-- Right associative for power operator
-		local next_prec = prec
+		local next_prec
 		if token.type == T.CARET then
 			next_prec = prec -- Right associative
 		else
@@ -444,12 +444,12 @@ function expressions.parse_test(stream, expr)
 		local test_name = "in"
 
 		local positional_args = {}
-		local named_args = nil
+		local _named_args
 
 		-- Arguments in parentheses
 		if stream:check(T.LPAREN) then
 			stream:advance()
-			positional_args, named_args = expressions.parse_args(stream)
+			positional_args, _named_args = expressions.parse_args(stream)
 			stream:expect(T.RPAREN, "Expected ')' after test arguments")
 		end
 
@@ -482,12 +482,12 @@ function expressions.parse_test(stream, expr)
 	end
 
 	local positional_args = {}
-	local named_args = nil
+	local _named_args
 
 	-- Optional arguments in parentheses
 	if stream:check(T.LPAREN) then
 		stream:advance()
-		positional_args, named_args = expressions.parse_args(stream)
+		positional_args, _named_args = expressions.parse_args(stream)
 		stream:expect(T.RPAREN, "Expected ')' after test arguments")
 	end
 

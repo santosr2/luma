@@ -195,7 +195,8 @@ function formatter.tokens_to_luma(tokens, source)
 		elseif token.type == T.DIR_COMMENT then
 			table.insert(parts, "@# " .. (token.value or ""))
 		elseif token.type == T.NEWLINE then
-			-- Skip - newlines are handled by directives and text
+		-- Skip - newlines are handled by directives and text
+		-- luacheck: ignore
 		elseif token.type == T.EOF then
 			-- End of file
 			break

@@ -39,16 +39,16 @@ After
 			assert.match("After", result)
 		end)
 
-	it("should return empty string when no parent block", function()
-		local template = [[
+		it("should return empty string when no parent block", function()
+			local template = [[
 @block content
 ${super()}
 Child only
 @end]]
-		local result = luma.render(template, {})
-		-- super() returns empty string, one newline from block start
-		assert.equals("\nChild only\n", result)
-	end)
+			local result = luma.render(template, {})
+			-- super() returns empty string, one newline from block start
+			assert.equals("\nChild only\n", result)
+		end)
 
 		it("should work with interpolation in parent block", function()
 			templates["base.html"] = [[
@@ -64,20 +64,20 @@ ${super()} from child!
 			assert.match("from child!", result)
 		end)
 
-	it("should work multiple times in same block", function()
-		templates["base.html"] = [[
+		it("should work multiple times in same block", function()
+			templates["base.html"] = [[
 @block content
 [Parent]
 @end]]
-		local child = [[@extends "base.html"
+			local child = [[@extends "base.html"
 @block content
 Start ${super()} Middle ${super()} End
 @end]]
-		local result = luma.render(child, {})
-		-- Normalize whitespace for comparison
-		local normalized = result:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
-		assert.match("Start %[Parent%] Middle %[Parent%] End", normalized)
-	end)
+			local result = luma.render(child, {})
+			-- Normalize whitespace for comparison
+			local normalized = result:gsub("%s+", " "):gsub("^%s+", ""):gsub("%s+$", "")
+			assert.match("Start %[Parent%] Middle %[Parent%] End", normalized)
+		end)
 	end)
 
 	describe("super() with nested blocks", function()

@@ -38,7 +38,7 @@ A clear description of what you expected to happen.
 
 What actually happened. Include error messages if any:
 
-```
+```text
 Error message here
 ```
 

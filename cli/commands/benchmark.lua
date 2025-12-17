@@ -55,8 +55,8 @@ function benchmark.execute(args)
 	local context = { name = "World", items = { 1, 2, 3, 4, 5 } }
 
 	local render_start = os.clock()
-	for i = 1, iterations do
-		local _ = compiled:render(context)
+	for _ = 1, iterations do
+		local _result = compiled:render(context)
 	end
 	local render_time = os.clock() - render_start
 

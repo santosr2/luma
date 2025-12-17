@@ -21,7 +21,7 @@ Helm charts benefit from Luma's clean syntax and smart indentation.
 
 **Directory Structure:**
 
-```
+```text
 my-app/
 ├── generate-chart.lua
 ├── templates/
@@ -100,7 +100,7 @@ resource "aws_instance" "$name" {
 }
 ```
 
-2. **Generate Script:**
+1. **Generate Script:**
 
 ```lua
 local luma = require("luma")
@@ -128,7 +128,7 @@ for env_name, env_config in pairs(config.environments) do
 end
 ```
 
-3. **Usage:**
+1. **Usage:**
 
 ```bash
 lua generate-terraform.lua
@@ -150,7 +150,7 @@ cd terraform/production && terraform plan
 
 Generate Ansible playbooks from structured data.
 
-**Example: Inventory-Driven Playbook Generation**
+#### Example: Inventory-Driven Playbook Generation
 
 ```lua
 local luma = require("luma")
@@ -200,7 +200,7 @@ file:close()
 
 Generate workflow files or use Luma within workflows.
 
-**Example 1: Generate Workflow Files**
+#### Example 1: Generate Workflow Files
 
 ```yaml
 # .github/workflows/generate.yml
@@ -241,7 +241,7 @@ jobs:
           git push
 ```
 
-**Example 2: Template Rendering in Workflow**
+#### Example 2: Template Rendering in Workflow
 
 ```yaml
 - name: Render Kubernetes Manifests
@@ -413,7 +413,7 @@ local nginx_conf = luma.render(template, config)
 
 ### Common Issues
 
-**Issue: "Template not found"**
+#### Issue: "Template not found"
 
 ```lua
 -- Solution: Use absolute paths or set loader paths
@@ -421,7 +421,7 @@ local runtime = require("luma.runtime")
 runtime.set_paths({"/path/to/templates", "."})
 ```
 
-**Issue: "Syntax error in template"**
+#### Issue: "Syntax error in template"
 
 ```lua
 -- Solution: Enable better error messages
@@ -434,7 +434,7 @@ if not ok then
 end
 ```
 
-**Issue: Performance degradation**
+#### Issue: Performance degradation
 
 ```lua
 -- Solution: Pre-compile and reuse

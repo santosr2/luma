@@ -2,7 +2,9 @@
 
 ## Overview
 
-Luma provides **full Jinja2 compatibility** to enable seamless migration from existing Jinja2 templates. While Jinja2 syntax is fully supported, we **strongly recommend** using Luma's cleaner native syntax for better readability and maintainability.
+Luma provides **full Jinja2 compatibility** to enable seamless migration from existing Jinja2 templates. While
+Jinja2 syntax is fully supported, we **strongly recommend** using Luma's cleaner native syntax for better
+readability and maintainability.
 
 ## Why Migrate?
 

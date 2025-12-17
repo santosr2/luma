@@ -822,11 +822,9 @@ function parser.parse_do(stream)
 	-- If the expression is a member access or index, and next token is '=',
 	-- then we need to parse this as an assignment
 	-- But expressions.parse already consumed the LHS, so we need to check for '='
-	local is_assignment = false
 	if stream:check(T.ASSIGN) then
 		stream:advance() -- skip '='
 		local value = expressions.parse(stream)
-		is_assignment = true
 
 		-- Create an assignment node
 		local do_node = ast.do_statement(expr, start.line, start.column)

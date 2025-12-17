@@ -294,8 +294,8 @@ Hello!
 			assert.equals(3, count)
 		end)
 
-	it("should work with filters in caller", function()
-		local template = [[
+		it("should work with filters in caller", function()
+			local template = [[
 @macro wrap()
 [
 @call caller()
@@ -305,9 +305,9 @@ Hello!
 @call wrap()
 ${"hello" | upper}
 @endcall]]
-		local result = luma.render(template, {})
-		assert.matches("%[%s*HELLO%s*%]", result)
-	end)
+			local result = luma.render(template, {})
+			assert.matches("%[%s*HELLO%s*%]", result)
+		end)
 	end)
 
 	describe("Jinja2 compatibility", function()
@@ -325,11 +325,11 @@ ${"hello" | upper}
 {% call render_dialog("Welcome") %}
   <p>This is a dialog box</p>
 {% endcall %}]]
-		local result = luma.render(template, {}, { syntax = "jinja" })
-		-- Allow optional whitespace when default parameter is empty string
-		assert.matches('<div class="dialog%s*">', result)
-		assert.matches("<h2>Welcome</h2>", result)
-		assert.matches("<p>This is a dialog box</p>", result)
+			local result = luma.render(template, {}, { syntax = "jinja" })
+			-- Allow optional whitespace when default parameter is empty string
+			assert.matches('<div class="dialog%s*">', result)
+			assert.matches("<h2>Welcome</h2>", result)
+			assert.matches("<p>This is a dialog box</p>", result)
 		end)
 
 		it("should match Jinja2 caller with arguments", function()

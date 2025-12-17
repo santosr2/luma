@@ -2,7 +2,8 @@
 
 ## Smart Indentation Preservation (Default Behavior)
 
-Luma automatically preserves indentation and whitespace structure in **all** file types, not just YAML or Kubernetes configs. This intelligent behavior works for:
+Luma automatically preserves indentation and whitespace structure in **all** file types, not just YAML or
+Kubernetes configs. This intelligent behavior works for:
 
 - **Configuration files**: YAML, TOML, INI, JSON
 - **Markup**: HTML, XML, Markdown
@@ -226,7 +227,7 @@ Luma **automatically detects** when directives should be inline based on context
 
 **Inline Conditional:**
 
-```
+```text
 Result: @if success ✓ Passed @else ✗ Failed @end
 ```
 
@@ -234,7 +235,7 @@ Result: @if success ✓ Passed @else ✗ Failed @end
 
 **Compact List:**
 
-```
+```text
 Colors: @for color in colors $color@if not loop.last, @end @end
 ```
 
@@ -269,7 +270,7 @@ For micro-adjustments, use dash (`-`) to explicitly trim whitespace:
 
 **Remove extra whitespace:**
 
-```
+```text
 text-$value-more
 ```
 
@@ -284,7 +285,7 @@ items:
 
 **Inline with trimming:**
 
-```
+```text
 Status: @-if ok- ✓ @-else- ✗ @-end
 ```
 

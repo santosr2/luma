@@ -44,7 +44,7 @@ print(template:render({ name = "Bob" }))
 
 ### Interpolation
 
-```
+```text
 $var                    -- Simple variable
 $user.name              -- Member access
 ${expr}                 -- Expression with full features
@@ -57,7 +57,7 @@ $$                      -- Escaped $ (literal $)
 
 Directives start with `@` at the beginning of a line (after optional indentation):
 
-```
+```text
 @if condition
   Content when true
 @elif other_condition
@@ -125,7 +125,7 @@ ${missing | default("fallback")}
 
 Inside `@for` loops, you have access to `loop` metadata:
 
-```
+```text
 @for item in items
   ${loop.index}   -- 1-based index
   ${loop.index0}  -- 0-based index
@@ -208,17 +208,20 @@ local directive = luma.render("Result: @if x; yes @end", {x=true})  -- @ is dire
 > [!IMPORTANT]
 > **Luma automatically preserves indentation in ALL file types** - YAML, HTML, JSON, code, configs, markdown, etc.
 >
-> Indentation is preserved based on where placeholders and directives appear. You rarely need to think about whitespace - Luma handles it intelligently by default.
-
+> Indentation is preserved based on where placeholders and directives appear. You rarely need to think about
+> whitespace - Luma handles it intelligently by default.
+>
 > [!TIP]
-> While directives don't *require* indentation, we **strongly recommend** indenting them to match your document structure for better readability.
+> While directives don't *require* indentation, we **strongly recommend** indenting them to match your document
+> structure for better readability.
 >
 > **Inline directives**: Use semicolon (`;`) after expressions for single-line compact output: `@if x; yes @else no @end`
+>
 > Space required before `@` for inline mode. See [docs/WHITESPACE.md](docs/WHITESPACE.md) for details.
 
 ## Example: Kubernetes Deployment
 
-#### ✅ Recommended (indented directives)
+### ✅ Recommended (indented directives)
 
 ```yaml
 apiVersion: apps/v1
