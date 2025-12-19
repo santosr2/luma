@@ -1,0 +1,140 @@
+{
+  "If Statement": {
+    "prefix": "if",
+    "body": [
+      "{% if ${1:condition} %}",
+      "\t$0",
+      "{% endif %}"
+    ],
+    "description": "If statement"
+  },
+  "If-Else Statement": {
+    "prefix": "ifelse",
+    "body": [
+      "{% if ${1:condition} %}",
+      "\t${2}",
+      "{% else %}",
+      "\t${3}",
+      "{% endif %}"
+    ],
+    "description": "If-else statement"
+  },
+  "For Loop": {
+    "prefix": "for",
+    "body": [
+      "{% for ${1:item} in ${2:items} %}",
+      "\t$0",
+      "{% endfor %}"
+    ],
+    "description": "For loop"
+  },
+  "For Loop with Loop Variable": {
+    "prefix": "fori",
+    "body": [
+      "{% for ${1:item} in ${2:items} %}",
+      "\t{# loop.index: {{ loop.index }} #}",
+      "\t$0",
+      "{% endfor %}"
+    ],
+    "description": "For loop with loop variable"
+  },
+  "Macro Definition": {
+    "prefix": "macro",
+    "body": [
+      "{% macro ${1:name}(${2:params}) %}",
+      "\t$0",
+      "{% endmacro %}"
+    ],
+    "description": "Macro definition"
+  },
+  "Call Macro": {
+    "prefix": "call",
+    "body": [
+      "{{ ${1:macro}(${2:args}) }}"
+    ],
+    "description": "Call macro"
+  },
+  "Set Variable": {
+    "prefix": "set",
+    "body": [
+      "{% set ${1:name} = ${2:value} %}"
+    ],
+    "description": "Variable declaration"
+  },
+  "Variable": {
+    "prefix": "var",
+    "body": [
+      "{{ ${1:variable} }}"
+    ],
+    "description": "Variable interpolation"
+  },
+  "Filter": {
+    "prefix": "filter",
+    "body": [
+      "{{ ${1:variable} | ${2:upper} }}"
+    ],
+    "description": "Apply filter to variable"
+  },
+  "Block": {
+    "prefix": "block",
+    "body": [
+      "{% block ${1:name} %}",
+      "\t$0",
+      "{% endblock %}"
+    ],
+    "description": "Block definition"
+  },
+  "Extends": {
+    "prefix": "extends",
+    "body": [
+      "{% extends \"${1:base.j2}\" %}"
+    ],
+    "description": "Template inheritance"
+  },
+  "Import": {
+    "prefix": "import",
+    "body": [
+      "{% import \"${1:template.j2}\" as ${2:name} %}"
+    ],
+    "description": "Import template"
+  },
+  "From Import": {
+    "prefix": "from",
+    "body": [
+      "{% from \"${1:template.j2}\" import ${2:macro} %}"
+    ],
+    "description": "Selective import"
+  },
+  "Comment": {
+    "prefix": "comment",
+    "body": [
+      "{# ${1:comment} #}"
+    ],
+    "description": "Comment"
+  },
+  "Include": {
+    "prefix": "include",
+    "body": [
+      "{% include \"${1:template.j2}\" %}"
+    ],
+    "description": "Include template"
+  },
+  "With": {
+    "prefix": "with",
+    "body": [
+      "{% with ${1:var} = ${2:value} %}",
+      "\t$0",
+      "{% endwith %}"
+    ],
+    "description": "With block"
+  },
+  "Autoescape": {
+    "prefix": "autoescape",
+    "body": [
+      "{% autoescape ${1:true} %}",
+      "\t$0",
+      "{% endautoescape %}"
+    ],
+    "description": "Autoescape block"
+  }
+}

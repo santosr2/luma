@@ -1,0 +1,140 @@
+{
+  "If Statement": {
+    "prefix": "if",
+    "body": [
+      "@if ${1:condition}",
+      "\t$0",
+      "@end"
+    ],
+    "description": "If statement"
+  },
+  "If-Else Statement": {
+    "prefix": "ifelse",
+    "body": [
+      "@if ${1:condition}",
+      "\t${2}",
+      "@else",
+      "\t${3}",
+      "@end"
+    ],
+    "description": "If-else statement"
+  },
+  "For Loop": {
+    "prefix": "for",
+    "body": [
+      "@for ${1:item} in ${2:items}",
+      "\t$0",
+      "@end"
+    ],
+    "description": "For loop"
+  },
+  "For Loop with Index": {
+    "prefix": "fori",
+    "body": [
+      "@for ${1:item} in ${2:items}",
+      "\t@# loop.index: ${3}",
+      "\t$0",
+      "@end"
+    ],
+    "description": "For loop with loop variable"
+  },
+  "Macro Definition": {
+    "prefix": "macro",
+    "body": [
+      "@macro ${1:name}(${2:params})",
+      "\t$0",
+      "@end"
+    ],
+    "description": "Macro definition"
+  },
+  "Call Macro": {
+    "prefix": "call",
+    "body": [
+      "@call ${1:macro}(${2:args})"
+    ],
+    "description": "Call macro"
+  },
+  "Let Variable": {
+    "prefix": "let",
+    "body": [
+      "@let ${1:name} = ${2:value}"
+    ],
+    "description": "Variable declaration"
+  },
+  "Variable Interpolation": {
+    "prefix": "var",
+    "body": [
+      "\\$${1:variable}"
+    ],
+    "description": "Simple variable interpolation"
+  },
+  "Expression Interpolation": {
+    "prefix": "expr",
+    "body": [
+      "\\${${1:expression}}"
+    ],
+    "description": "Expression interpolation"
+  },
+  "Filter": {
+    "prefix": "filter",
+    "body": [
+      "\\$${1:variable} | ${2:upper}"
+    ],
+    "description": "Apply filter to variable"
+  },
+  "Block": {
+    "prefix": "block",
+    "body": [
+      "@block ${1:name}",
+      "\t$0",
+      "@end"
+    ],
+    "description": "Block definition"
+  },
+  "Extends": {
+    "prefix": "extends",
+    "body": [
+      "@extends \"${1:base.luma}\""
+    ],
+    "description": "Template inheritance"
+  },
+  "Import": {
+    "prefix": "import",
+    "body": [
+      "@import \"${1:template.luma}\""
+    ],
+    "description": "Import template"
+  },
+  "From Import": {
+    "prefix": "from",
+    "body": [
+      "@from \"${1:template.luma}\" import ${2:macro}"
+    ],
+    "description": "Selective import"
+  },
+  "Comment": {
+    "prefix": "comment",
+    "body": [
+      "@# ${1:comment}"
+    ],
+    "description": "Line comment"
+  },
+  "Block Comment": {
+    "prefix": "commentblock",
+    "body": [
+      "@comment",
+      "${1:comment}",
+      "@end"
+    ],
+    "description": "Block comment"
+  },
+  "Autoescape": {
+    "prefix": "autoescape",
+    "body": [
+      "@autoescape ${1:true}",
+      "\t$0",
+      "@end"
+    ],
+    "description": "Autoescape block"
+  }
+}

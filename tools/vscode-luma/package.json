@@ -1,0 +1,181 @@
+{
+  "name": "luma",
+  "displayName": "Luma Templates",
+  "description": "Language support for Luma template engine with Jinja2 compatibility",
+  "version": "0.1.0",
+  "publisher": "luma",
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Formatters",
+    "Linters"
+  ],
+  "keywords": [
+    "luma",
+    "template",
+    "jinja2",
+    "kubernetes",
+    "helm",
+    "devops"
+  ],
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/santosr2/luma.git",
+    "directory": "tools/vscode-luma"
+  },
+  "bugs": {
+    "url": "https://github.com/santosr2/luma/issues"
+  },
+  "homepage": "https://github.com/santosr2/luma#readme",
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:luma",
+    "onLanguage:jinja-luma"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "luma",
+        "aliases": [
+          "Luma",
+          "luma"
+        ],
+        "extensions": [
+          ".luma"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./images/file-icon.svg",
+          "dark": "./images/file-icon.svg"
+        }
+      },
+      {
+        "id": "jinja-luma",
+        "aliases": [
+          "Jinja-Luma",
+          "jinja-luma"
+        ],
+        "extensions": [
+          ".j2",
+          ".jinja",
+          ".jinja2"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "luma",
+        "scopeName": "source.luma",
+        "path": "./syntaxes/luma.tmLanguage.json"
+      },
+      {
+        "language": "jinja-luma",
+        "scopeName": "source.jinja",
+        "path": "./syntaxes/jinja.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "luma",
+        "path": "./snippets/luma.json"
+      },
+      {
+        "language": "jinja-luma",
+        "path": "./snippets/jinja.json"
+      }
+    ],
+    "configuration": {
+      "title": "Luma",
+      "properties": {
+        "luma.lint.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable linting for Luma templates"
+        },
+        "luma.lint.onSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Lint templates on save"
+        },
+        "luma.lint.onType": {
+          "type": "boolean",
+          "default": false,
+          "description": "Lint templates while typing"
+        },
+        "luma.format.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable formatting for Luma templates"
+        },
+        "luma.format.indentSize": {
+          "type": "number",
+          "default": 2,
+          "description": "Number of spaces for indentation"
+        },
+        "luma.completion.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable auto-completion"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "luma.renderPreview",
+        "title": "Luma: Render Preview",
+        "icon": "$(play)"
+      },
+      {
+        "command": "luma.lintCurrentFile",
+        "title": "Luma: Lint Current File"
+      },
+      {
+        "command": "luma.formatDocument",
+        "title": "Luma: Format Document"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "luma.renderPreview",
+          "when": "resourceLangId == luma || resourceLangId == jinja-luma",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "luma.lintCurrentFile",
+          "when": "resourceLangId == luma || resourceLangId == jinja-luma",
+          "group": "luma"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.70.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vscode/test-electron": "^2.3.0",
+    "eslint": "^8.45.0",
+    "typescript": "^5.1.0",
+    "vsce": "^2.15.0"
+  },
+  "dependencies": {},
+  "license": "MIT"
+}
