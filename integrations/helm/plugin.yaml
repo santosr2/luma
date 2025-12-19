@@ -1,0 +1,25 @@
+name: "luma"
+version: "0.1.0"
+usage: "Use Luma templates in Helm charts"
+description: |-
+  A Helm plugin that enables Luma template syntax as an alternative to Go templates.
+  Provides cleaner, more readable templates for Kubernetes manifests.
+command: "$HELM_PLUGIN_DIR/helm-luma"
+hooks:
+  install: "cd $HELM_PLUGIN_DIR && go build -o helm-luma ./cmd/helm-luma"
+  update: "cd $HELM_PLUGIN_DIR && go build -o helm-luma ./cmd/helm-luma"
+platformCommand:
+  - os: linux
+    arch: amd64
+    command: "$HELM_PLUGIN_DIR/helm-luma"
+  - os: darwin
+    arch: amd64
+    command: "$HELM_PLUGIN_DIR/helm-luma"
+  - os: darwin
+    arch: arm64
+    command: "$HELM_PLUGIN_DIR/helm-luma"
+  - os: windows
+    arch: amd64
+    command: "$HELM_PLUGIN_DIR/helm-luma.exe"
+ignoreFlags: false
+useTunnel: false

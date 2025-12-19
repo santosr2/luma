@@ -4,7 +4,7 @@ Helm plugin for using Luma templates in Kubernetes charts.
 
 ## Status
 
-🚧 **Planned** - Architecture defined, ready for Go implementation.
+✅ **Production Ready** - v0.1.0 - Fully implemented, tested, and documented.
 
 ## Installation
 
@@ -65,9 +65,35 @@ spec:
 @end
 ```
 
+## Features
+
+✅ **Implemented**:
+
+- `helm luma template` - Render charts with Luma templates
+- `helm luma convert` - Convert Go templates to Luma syntax
+- Full Helm context support (Values, Chart, Release)
+- Values file support (-f flag)
+- Command-line value overrides (--set flag)
+- Output to files or stdout
+- Conditional templates
+- Complete example chart
+
 ## Implementation
 
-Built as Go plugin using luma-go bindings.
+Built as a Go plugin using luma-go bindings.
+
+### Commands
+
+- **template**: Render Helm charts using Luma syntax
+- **convert**: Convert existing Go templates to Luma
+- **version**: Show version information
+
+### Architecture
+
+- Uses luma-go for template rendering
+- Integrates with Helm chart structure
+- Supports all Luma features (filters, loops, conditionals)
+- Compatible with standard Helm workflows
 
 ## License
 
