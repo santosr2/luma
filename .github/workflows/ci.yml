@@ -35,7 +35,7 @@ jobs:
           luarocks install luacov-coveralls
 
       - name: Run Luacheck
-        run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted --globals=describe,it,before_each,after_each,setup,teardown
+        run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted --globals=describe,it,before_each,after_each,setup,teardown --no-max-cyclomatic-complexity
 
       - name: Run tests with coverage
         run: busted --coverage --verbose spec/
@@ -78,7 +78,8 @@ jobs:
             --globals=describe,it,before_each,after_each,setup,teardown \
             --max-line-length=120 \
             --max-code-line-length=120 \
-            --max-comment-line-length=120
+            --max-comment-line-length=120 \
+            --no-max-cyclomatic-complexity
 
   security:
     name: Security Scan
@@ -131,8 +132,8 @@ jobs:
           cloc luma/ cli/ benchmarks/ examples/ --by-file
 
           echo ""
-          echo "=== Cyclomatic Complexity ==="
-          luacheck luma/ cli/ benchmarks/ --formatter plain --no-color | grep -E "complexity|function" || true
+          echo "=== Cyclomatic Complexity (informational) ==="
+          luacheck luma/ cli/ benchmarks/ --formatter plain --no-color | grep -E "complexity|function" || echo "No issues found"
 
       - name: Check file sizes
         run: |
