@@ -192,14 +192,14 @@ function formatter.tokens_to_luma(tokens, source)
 			table.insert(parts, "@break\n")
 		elseif token.type == T.DIR_CONTINUE then
 			table.insert(parts, "@continue\n")
-	elseif token.type == T.DIR_COMMENT then
-		table.insert(parts, "@# " .. (token.value or ""))
-	elseif token.type == T.NEWLINE then -- luacheck: ignore (empty branch intentional)
+		elseif token.type == T.DIR_COMMENT then
+			table.insert(parts, "@# " .. (token.value or ""))
+		elseif token.type == T.NEWLINE then -- luacheck: ignore (empty branch intentional)
 		-- Skip - newlines are handled by directives and text
-	elseif token.type == T.EOF then
-		-- End of file
-		break
-	end
+		elseif token.type == T.EOF then
+			-- End of file
+			break
+		end
 
 		i = i + 1
 	end

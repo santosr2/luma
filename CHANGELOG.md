@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.1.0] - 2025-11-23
+
 ### Added
 - {% with %} directive for scoped variables
 - {% filter %} blocks for content filtering
@@ -19,19 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pre-commit hooks configuration
 - Luacheck code quality checks
 - Security policy and contributing guidelines
-
-### Changed
-- Enhanced template inheritance with super() function
-- Improved whitespace control with context-aware inline mode
-- Extended filter system with named arguments
-
-### Fixed
-- Various parser edge cases
-- Whitespace handling in nested blocks
-
-## [1.0.0] - TBD
-
-### Added
 - Initial release with 100% Jinja2 compatibility
 - Native Luma syntax (@directives, $variables)
 - Smart indentation preservation
@@ -42,5 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Autoescape for security
 - Migration tool from Jinja2
 
-[Unreleased]: https://github.com/santosr2/luma/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/santosr2/luma/releases/tag/v1.0.0
+### Changed
+- Enhanced template inheritance with super() function
+- Improved whitespace control with context-aware inline mode
+- Extended filter system with named arguments
+
+### Fixed
+- Various parser edge cases
+- Whitespace handling in nested blocks
+
+[Unreleased]: https://github.com/santosr2/luma/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/santosr2/luma/releases/tag/v0.1.0
