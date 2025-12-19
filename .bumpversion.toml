@@ -20,16 +20,18 @@ message = "chore: bump version {current_version} → {new_version}"
 commit_args = "--signoff --no-gpg-sign"
 
 [tool.bumpversion.parts.pre_l]
-optional_value = "final"
+optional_value = "_"
+first_value = "alpha"
+independent = false
 values = [
+    "_",
     "alpha",
     "beta",
-    "rc",
-    "final"
+    "rc"
 ]
 
 [tool.bumpversion.parts.pre_n]
-optional_value = "0"
+first_value = "0"
 
 # Core Lua version file
 [[tool.bumpversion.files]]
