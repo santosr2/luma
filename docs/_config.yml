@@ -1,0 +1,56 @@
+# Luma Documentation Site Configuration
+title: Luma Template Engine
+description: A fast, clean templating language with full Jinja2 compatibility
+baseurl: "/luma"
+url: "https://santosr2.github.io"
+
+# Theme
+theme: jekyll-theme-cayman
+# Alternative: minima, jekyll-theme-minimal, jekyll-theme-architect
+
+# Navigation
+nav_links:
+  - title: Home
+    url: /
+  - title: Getting Started
+    url: /getting-started
+  - title: Documentation
+    url: /documentation
+  - title: Examples
+    url: /examples
+  - title: API Reference
+    url: /API
+  - title: GitHub
+    url: https://github.com/santosr2/luma
+
+# Build settings
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge  # noqa: codespell
+
+# Plugins
+plugins:
+  - jekyll-relative-links
+  - jekyll-optional-front-matter
+  - jekyll-titles-from-headings
+
+relative_links:
+  enabled: true
+  collections: false
+
+optional_front_matter:
+  remove_originals: false
+
+titles_from_headings:
+  enabled: true
+  strip_title: false
+  collections: false
+
+# Exclude from processing
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
