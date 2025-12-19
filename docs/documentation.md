@@ -22,13 +22,19 @@ Complete reference for the Luma template engine.
 
 #### Simple Variables
 
+{% raw %}
+
 ```luma
 $name
 $user.email
 $config.server.host
 ```
 
+{% endraw %}
+
 #### Complex Expressions
+
+{% raw %}
 
 ```luma
 ${1 + 2}
@@ -37,7 +43,11 @@ ${users[0].name}
 ${dict["key"]}
 ```
 
+{% endraw %}
+
 #### Variable Assignment
+
+{% raw %}
 
 ```luma
 @let name = "Alice"
@@ -45,11 +55,15 @@ ${dict["key"]}
 @let items = ["apple", "banana", "cherry"]
 ```
 
+{% endraw %}
+
 ---
 
 ### Control Flow
 
 #### If Statements
+
+{% raw %}
 
 ```luma
 @if condition
@@ -65,7 +79,11 @@ ${dict["key"]}
 @end
 ```
 
+{% endraw %}
+
 #### For Loops
+
+{% raw %}
 
 ```luma
 @# List iteration
@@ -89,7 +107,11 @@ ${dict["key"]}
 @end
 ```
 
+{% endraw %}
+
 #### Loop Variables
+
+{% raw %}
 
 ```luma
 @for item in items
@@ -106,7 +128,11 @@ ${dict["key"]}
 @end
 ```
 
+{% endraw %}
+
 #### Loop Control
+
+{% raw %}
 
 ```luma
 @for item in items
@@ -122,7 +148,11 @@ ${dict["key"]}
 @end
 ```
 
+{% endraw %}
+
 #### While Loops
+
+{% raw %}
 
 ```luma
 @let count = 0
@@ -132,11 +162,15 @@ ${dict["key"]}
 @end
 ```
 
+{% endraw %}
+
 ---
 
 ### Filters
 
 Filters transform values using the pipe operator:
+
+{% raw %}
 
 ```luma
 $value | filter
@@ -144,7 +178,11 @@ $value | filter(arg1, arg2)
 $value | filter1 | filter2 | filter3
 ```
 
+{% endraw %}
+
 #### String Filters
+
+{% raw %}
 
 ```luma
 $text | upper
@@ -162,7 +200,11 @@ $text | urlencode
 $text | escape
 ```
 
+{% endraw %}
+
 #### List Filters
+
+{% raw %}
 
 ```luma
 $items | length
@@ -185,7 +227,11 @@ $items | batch(3)
 $items | slice(2)
 ```
 
+{% endraw %}
+
 #### Dictionary Filters
+
+{% raw %}
 
 ```luma
 $dict | keys
@@ -194,7 +240,11 @@ $dict | items
 $dict | dictsort
 ```
 
+{% endraw %}
+
 #### Type Filters
+
+{% raw %}
 
 ```luma
 $value | default("fallback")
@@ -203,7 +253,11 @@ $obj | attr("property")
 $data | tojson
 ```
 
+{% endraw %}
+
 #### Numeric Filters
+
+{% raw %}
 
 ```luma
 $number | round
@@ -211,13 +265,19 @@ $number | round(2)
 $number | abs
 ```
 
+{% endraw %}
+
 #### Named Arguments
+
+{% raw %}
 
 ```luma
 $text | truncate(length=50, killwords=true, end="...")
 $text | wordwrap(width=80, break_long_words=false)
 $text | indent(width=4, first=false)
 ```
+
+{% endraw %}
 
 See [API Reference - Filters](/API#filters) for complete list.
 
@@ -226,6 +286,8 @@ See [API Reference - Filters](/API#filters) for complete list.
 ### Tests
 
 Tests check conditions using `is`:
+
+{% raw %}
 
 ```luma
 @if value is defined
@@ -246,7 +308,11 @@ Tests check conditions using `is`:
 @if value is upper
 ```
 
+{% endraw %}
+
 #### Negation
+
+{% raw %}
 
 ```luma
 @if value is not defined
@@ -254,11 +320,15 @@ Tests check conditions using `is`:
 @if x is not even
 ```
 
+{% endraw %}
+
 See [API Reference - Tests](/API#tests) for complete list.
 
 ---
 
 ### Membership Operators
+
+{% raw %}
 
 ```luma
 @if "key" in dict
@@ -267,6 +337,8 @@ See [API Reference - Tests](/API#tests) for complete list.
 @if x not in collection
 ```
 
+{% endraw %}
+
 ---
 
 ### Template Inheritance
@@ -274,6 +346,8 @@ See [API Reference - Tests](/API#tests) for complete list.
 #### Extends
 
 **Base Template (`base.luma`):**
+
+{% raw %}
 
 ```luma
 <!DOCTYPE html>
@@ -291,7 +365,11 @@ See [API Reference - Tests](/API#tests) for complete list.
 </html>
 ```
 
+{% endraw %}
+
 **Child Template:**
+
+{% raw %}
 
 ```luma
 @extends "base.luma"
@@ -305,9 +383,13 @@ See [API Reference - Tests](/API#tests) for complete list.
 @end
 ```
 
+{% endraw %}
+
 #### Super Function
 
 Call parent block content:
+
+{% raw %}
 
 ```luma
 @extends "base.luma"
@@ -318,7 +400,11 @@ Call parent block content:
 @end
 ```
 
+{% endraw %}
+
 #### Scoped Blocks
+
+{% raw %}
 
 ```luma
 @for user in users
@@ -328,9 +414,13 @@ Call parent block content:
 @end
 ```
 
+{% endraw %}
+
 ---
 
 ### Includes
+
+{% raw %}
 
 ```luma
 @# Simple include
@@ -343,11 +433,15 @@ Call parent block content:
 @include "config.luma" ignore missing
 ```
 
+{% endraw %}
+
 ---
 
 ### Macros
 
 #### Define Macros
+
+{% raw %}
 
 ```luma
 @macro button(text, type="default")
@@ -362,7 +456,11 @@ Call parent block content:
 @end
 ```
 
+{% endraw %}
+
 #### Call Macros
+
+{% raw %}
 
 ```luma
 @call button("Click Me")
@@ -370,7 +468,11 @@ Call parent block content:
 @call card("Title", "Content goes here")
 ```
 
+{% endraw %}
+
 #### Import Macros
+
+{% raw %}
 
 ```luma
 @# Import all macros
@@ -383,7 +485,11 @@ Call parent block content:
 @from "macros.luma" import button as btn
 ```
 
+{% endraw %}
+
 #### Call with Caller
+
+{% raw %}
 
 ```luma
 @# Define macro that accepts caller
@@ -401,11 +507,15 @@ Call parent block content:
 @end
 ```
 
+{% endraw %}
+
 ---
 
 ### Do Blocks
 
 Execute code without output:
+
+{% raw %}
 
 ```luma
 @do
@@ -416,11 +526,15 @@ Execute code without output:
 Result: $formatted
 ```
 
+{% endraw %}
+
 ---
 
 ### Set Blocks
 
 Multi-line variable assignment:
+
+{% raw %}
 
 ```luma
 @let html_content
@@ -433,11 +547,15 @@ Multi-line variable assignment:
 $html_content
 ```
 
+{% endraw %}
+
 ---
 
 ### Namespaces
 
 Mutable objects for variable management:
+
+{% raw %}
 
 ```luma
 @do
@@ -456,9 +574,13 @@ Mutable objects for variable management:
 Found: $ns.found, Count: $ns.count
 ```
 
+{% endraw %}
+
 ---
 
 ### Comments
+
+{% raw %}
 
 ```luma
 @# Single-line comment
@@ -469,11 +591,15 @@ Can span multiple lines
 @end
 ```
 
+{% endraw %}
+
 ---
 
 ### Raw Blocks
 
 Disable template processing:
+
+{% raw %}
 
 ```luma
 @raw
@@ -482,7 +608,11 @@ This $variable will not be processed
 @end
 ```
 
+{% endraw %}
+
 **Jinja2 syntax:**
+
+{% raw %}
 
 ```jinja
 {% raw %}
@@ -490,11 +620,15 @@ This $variable will not be processed
 {% endraw %}
 ```
 
+{% endraw %}
+
 ---
 
 ### Autoescape
 
 Control HTML escaping:
+
+{% raw %}
 
 ```luma
 @autoescape true
@@ -506,12 +640,18 @@ Control HTML escaping:
 @end
 ```
 
+{% endraw %}
+
 **Mark content as safe:**
+
+{% raw %}
 
 ```luma
 @let safe_html = html | safe
 $safe_html  @# Won't be escaped even in autoescape blocks
 ```
+
+{% endraw %}
 
 ---
 
@@ -534,6 +674,8 @@ containers:
 
 For precise control, use dash (`-`) syntax:
 
+{% raw %}
+
 ```luma
 @# Trim before
 text-$value
@@ -550,9 +692,13 @@ text-$value-more
 @end
 ```
 
+{% endraw %}
+
 ### Inline Mode
 
 Use semicolons for inline directives:
+
+{% raw %}
 
 ```luma
 Status: @if active; Online @else Offline @end
@@ -560,13 +706,19 @@ Status: @if active; Online @else Offline @end
 Result: @for i in {1,2,3}; $i @end
 ```
 
+{% endraw %}
+
 ### Jinja2 Trim Syntax
+
+{% raw %}
 
 ```jinja
 {%- if condition -%}
   {{- value -}}
 {%- endif -%}
 ```
+
+{% endraw %}
 
 See [Whitespace Control Guide](/WHITESPACE) for details.
 
@@ -575,6 +727,8 @@ See [Whitespace Control Guide](/WHITESPACE) for details.
 ## Jinja2 Syntax
 
 Luma supports full Jinja2 syntax for compatibility:
+
+{% raw %}
 
 ```jinja
 {% set name = "World" %}
@@ -599,6 +753,8 @@ Hello, {{ name }}!
 {{ button("Click") }}
 ```
 
+{% endraw %}
+
 **Migration:**
 
 ```bash
@@ -613,6 +769,8 @@ See [Jinja2 Migration Guide](/JINJA2_MIGRATION).
 
 ### 1. Use Native Syntax for Readability
 
+{% raw %}
+
 ```luma
 @# Preferred - clean and readable
 @if condition
@@ -624,6 +782,8 @@ See [Jinja2 Migration Guide](/JINJA2_MIGRATION).
   {{ value }}
 {% endif %}
 ```
+
+{% endraw %}
 
 ### 2. Leverage Smart Whitespace
 
@@ -645,6 +805,8 @@ spec:
 
 ### 3. Use Macros for Reusability
 
+{% raw %}
+
 ```luma
 @# Define once
 @macro alert(message, type="info")
@@ -656,7 +818,11 @@ spec:
 @call alert("Warning!", type="warning")
 ```
 
+{% endraw %}
+
 ### 4. Filter Data Appropriately
+
+{% raw %}
 
 ```luma
 @# Always escape user input for HTML
@@ -667,6 +833,8 @@ $email | lower
 $name | title
 $date | date_format
 ```
+
+{% endraw %}
 
 ### 5. Organize Templates
 
@@ -723,6 +891,8 @@ luajit your_script.lua
 
 ### 4. Minimize Filter Chains
 
+{% raw %}
+
 ```luma
 @# Less efficient
 $value | filter1 | filter2 | filter3 | filter4
@@ -730,6 +900,8 @@ $value | filter1 | filter2 | filter3 | filter4
 @# More efficient - combine when possible
 $value | combined_filter
 ```
+
+{% endraw %}
 
 ---
 
@@ -754,6 +926,8 @@ local luma = require("luma")
 luma.strict_undefined = false  -- Don't error on undefined
 ```
 
+{% raw %}
+
 ```luma
 @# Use defaults for safety
 ${maybe_undefined | default("fallback")}
@@ -765,6 +939,8 @@ ${maybe_undefined | default("fallback")}
   Not available
 @end
 ```
+
+{% endraw %}
 
 ### Validation
 

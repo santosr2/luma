@@ -13,6 +13,8 @@ Real-world examples demonstrating Luma's capabilities across different domains.
 
 Generate production-ready Kubernetes manifests with proper YAML structure:
 
+{% raw %}
+
 ```luma
 apiVersion: apps/v1
 kind: Deployment
@@ -58,6 +60,8 @@ spec:
 @end
 ```
 
+{% endraw %}
+
 **Run the full example:**
 
 ```bash
@@ -69,6 +73,8 @@ luajit examples/run_k8s_example.lua
 ### Terraform AWS ECS Module
 
 Infrastructure as Code with Terraform:
+
+{% raw %}
 
 ```luma
 resource "aws_ecs_cluster" "main" {
@@ -125,6 +131,8 @@ resource "aws_ecs_task_definition" "app" {
 }
 ```
 
+{% endraw %}
+
 **Run:**
 
 ```bash
@@ -136,6 +144,8 @@ luajit examples/run_terraform_example.lua
 ### Ansible Playbook
 
 Generate Ansible playbooks dynamically:
+
+{% raw %}
 
 ```luma
 ---
@@ -190,11 +200,15 @@ Generate Ansible playbooks dynamically:
 @end
 ```
 
+{% endraw %}
+
 ---
 
 ### Helm Chart.yaml
 
 Generate Helm chart metadata:
+
+{% raw %}
 
 ```luma
 apiVersion: v2
@@ -235,6 +249,8 @@ dependencies:
 @end
 ```
 
+{% endraw %}
+
 ---
 
 ## Web Applications
@@ -242,6 +258,8 @@ dependencies:
 ### HTML Email Template
 
 Professional HTML email with responsive design:
+
+{% raw %}
 
 ```luma
 <!DOCTYPE html>
@@ -308,11 +326,15 @@ Professional HTML email with responsive design:
 </html>
 ```
 
+{% endraw %}
+
 ---
 
 ### Web Page with Template Inheritance
 
 **Base Template (`base.luma`):**
+
+{% raw %}
 
 ```luma
 <!DOCTYPE html>
@@ -349,7 +371,11 @@ Professional HTML email with responsive design:
 </html>
 ```
 
+{% endraw %}
+
 **Page Template:**
+
+{% raw %}
 
 ```luma
 @extends "base.luma"
@@ -392,11 +418,15 @@ Professional HTML email with responsive design:
 @end
 ```
 
+{% endraw %}
+
 ---
 
 ## Configuration Files
 
 ### Nginx Configuration
+
+{% raw %}
 
 ```luma
 server {
@@ -449,9 +479,13 @@ server {
 }
 ```
 
+{% endraw %}
+
 ---
 
 ### Docker Compose
+
+{% raw %}
 
 ```luma
 version: "$compose_version"
@@ -519,11 +553,15 @@ volumes:
 @end
 ```
 
+{% endraw %}
+
 ---
 
 ## Reusable Components with Macros
 
 ### UI Component Library
+
+{% raw %}
 
 ```luma
 @# Button macro
@@ -565,6 +603,8 @@ volumes:
 @call card("Welcome", "This is a card component")
 @call alert("Success!", type="success")
 ```
+
+{% endraw %}
 
 ---
 
