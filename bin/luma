@@ -17,19 +17,28 @@ Commands:
   version                  Show version information
   help                     Show this help message
 
+Render Options:
+  --data, -d <json>       Inline JSON context data
+  --data-file, -f <file>  Load context from JSON/YAML file
+  --data-stdin            Read context data from stdin
+  --stdin                 Read template from stdin (or use -)
+  --output, -o <file>     Write output to file
+  --syntax, -s <mode>     Syntax mode: auto, jinja, luma (default: auto)
+
 Examples:
   luma render template.luma --data '{"name":"World"}'
-  luma render template.luma --data-file data.json
+  luma render template.luma --data-file data.yaml
+  luma render - --data-stdin < template.luma
+  echo "Hello, \$name!" | luma render --stdin --data '{"name":"World"}'
   luma compile template.luma --output template.lua
   luma migrate old.jinja > new.luma
   luma validate template.luma
   luma benchmark template.luma --iterations 1000
 
-Options:
+Global Options:
   -h, --help              Show help
   -v, --version           Show version
   --verbose               Verbose output
-  --syntax <mode>         Syntax mode: auto, jinja, luma (default: auto)
 
 Documentation: https://github.com/santosr2/luma
 ]])
