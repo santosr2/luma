@@ -1,0 +1,54 @@
+{
+  "name": "@luma/browser",
+  "version": "0.1.0",
+  "description": "Luma template engine for browsers - WebAssembly build",
+  "main": "dist/luma.js",
+  "module": "dist/luma.esm.js",
+  "types": "dist/index.d.ts",
+  "unpkg": "dist/luma.min.js",
+  "jsdelivr": "dist/luma.min.js",
+  "scripts": {
+    "build": "rollup -c",
+    "build:prod": "NODE_ENV=production rollup -c",
+    "dev": "rollup -c -w",
+    "serve": "python3 -m http.server 8080",
+    "test": "echo 'Tests TODO'",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "luma",
+    "template",
+    "browser",
+    "wasm",
+    "webassembly",
+    "jinja2",
+    "lua"
+  ],
+  "author": "Luma Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/santosr2/luma.git",
+    "directory": "dist/wasm"
+  },
+  "bugs": {
+    "url": "https://github.com/santosr2/luma/issues"
+  },
+  "homepage": "https://github.com/santosr2/luma#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "wasmoon": "^1.16.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-terser": "^0.4.0",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "rollup": "^4.0.0",
+    "typescript": "^5.1.0"
+  }
+}
