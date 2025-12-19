@@ -5,7 +5,7 @@ services:
     build:
       context: ../..
       dockerfile: dist/docker/Dockerfile
-    image: luma/luma:latest
+    image: ghcr.io/santosr2/luma:latest
     container_name: luma
     volumes:
       # Mount your templates directory
@@ -22,7 +22,7 @@ services:
     build:
       context: ../..
       dockerfile: dist/docker/Dockerfile
-    image: luma/luma:latest
+    image: ghcr.io/santosr2/luma:latest
     container_name: luma-web
     volumes:
       - ./templates:/templates

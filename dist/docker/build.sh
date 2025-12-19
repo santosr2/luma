@@ -14,28 +14,29 @@ echo "========================================"
 
 # Get version from rockspec or default to 0.1.0
 VERSION="${1:-0.1.0}"
+REGISTRY="${REGISTRY:-ghcr.io/santosr2}"
 
 # Change to repository root
 cd "$(dirname "$0")/../.."
 
 # Build the image
-echo -e "\n${YELLOW}Building image: luma/luma:${VERSION}${NC}"
+echo -e "\n${YELLOW}Building image: ${REGISTRY}/luma:${VERSION}${NC}"
 docker build \
-    -t "luma/luma:${VERSION}" \
-    -t "luma/luma:latest" \
+    -t "${REGISTRY}/luma:${VERSION}" \
+    -t "${REGISTRY}/luma:latest" \
     -f dist/docker/Dockerfile \
     .
 
 echo -e "\n${GREEN}Build complete!${NC}"
 echo "========================================"
 echo "Images created:"
-echo "  - luma/luma:${VERSION}"
-echo "  - luma/luma:latest"
+echo "  - ${REGISTRY}/luma:${VERSION}"
+echo "  - ${REGISTRY}/luma:latest"
 echo ""
 echo "Test the image:"
-echo "  docker run luma/luma:latest --version"
-echo "  docker run -v \$(pwd):/templates luma/luma:latest render examples/hello.luma"
+echo "  docker run ${REGISTRY}/luma:latest --version"
+echo "  docker run -v \$(pwd):/templates ${REGISTRY}/luma:latest render examples/hello.luma"
 echo ""
-echo "Push to Docker Hub:"
-echo "  docker push luma/luma:${VERSION}"
-echo "  docker push luma/luma:latest"
+echo "Push to GitHub Container Registry:"
+echo "  docker push ${REGISTRY}/luma:${VERSION}"
+echo "  docker push ${REGISTRY}/luma:latest"

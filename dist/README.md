@@ -92,45 +92,44 @@ cd dist/docker
 Or manually:
 
 ```bash
-docker build -t luma/luma:0.1.0 -f dist/docker/Dockerfile .
-docker tag luma/luma:0.1.0 luma/luma:latest
+docker build -t ghcr.io/santosr2/luma:0.1.0 -f dist/docker/Dockerfile .
+docker tag ghcr.io/santosr2/luma:0.1.0 ghcr.io/santosr2/luma:latest
 ```
 
 ### Testing the Image
 
 ```bash
 # Test version
-docker run luma/luma:latest --version
+docker run ghcr.io/santosr2/luma:latest --version
 
 # Test rendering
 echo "Hello, \$name!" > /tmp/test.luma
-docker run -v /tmp:/templates luma/luma:latest render test.luma --data '{"name":"World"}'
+docker run -v /tmp:/templates ghcr.io/santosr2/luma:latest render test.luma --data '{"name":"World"}'
 
 # Test with examples
-docker run -v $(pwd)/examples:/templates luma/luma:latest render hello.luma
-```
-
-### Publishing to Docker Hub
-
-1. Create an account at <https://hub.docker.com>
-2. Create a repository: `luma/luma`
-3. Login and push:
-
-```bash
-docker login
-docker push luma/luma:0.1.0
-docker push luma/luma:latest
+docker run -v $(pwd)/examples:/templates ghcr.io/santosr2/luma:latest render hello.luma
 ```
 
 ### Publishing to GitHub Container Registry (GHCR)
+
+Luma images are published to GitHub Container Registry and are publicly available.
+
+**Pull the image:**
+
+```bash
+docker pull ghcr.io/santosr2/luma:latest
+docker pull ghcr.io/santosr2/luma:0.1.0
+```
+
+**Manual publishing** (automated via GitHub Actions):
 
 ```bash
 # Login to GHCR
 echo $GITHUB_TOKEN | docker login ghcr.io -u santosr2 --password-stdin
 
-# Tag for GHCR
-docker tag luma/luma:0.1.0 ghcr.io/santosr2/luma:0.1.0
-docker tag luma/luma:latest ghcr.io/santosr2/luma:latest
+# Build and tag
+docker build -t ghcr.io/santosr2/luma:0.1.0 -f dist/docker/Dockerfile .
+docker tag ghcr.io/santosr2/luma:0.1.0 ghcr.io/santosr2/luma:latest
 
 # Push
 docker push ghcr.io/santosr2/luma:0.1.0
@@ -146,77 +145,28 @@ cd dist/docker
 docker-compose run luma render /examples/hello.luma
 ```
 
+The compose file automatically uses the GitHub Container Registry image.
+
 ---
 
 ## GitHub Actions for Automated Publishing
 
 ### Docker Image Publishing
 
-Create `.github/workflows/docker-publish.yml`:
+The repository includes `.github/workflows/docker-publish.yml` for automated publishing to
+GitHub Container Registry.
 
-```yaml
-name: Publish Docker Image
+**Key features:**
 
-on:
-  release:
-    types: [published]
-  workflow_dispatch:
+- Automatically publishes on releases
+- Multi-architecture support (amd64, arm64)
+- Semantic versioning tags (0.1.0, 0.1, latest)
+- Build caching for faster builds
+- Automated testing of published images
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+**No secrets required** - uses `GITHUB_TOKEN` which is automatically provided by GitHub Actions.
 
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Extract version
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: |
-            luma/luma
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: dist/docker/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-```
+The workflow can also be triggered manually from the Actions tab for testing.
 
 ---
 
@@ -268,14 +218,14 @@ brew uninstall luma
 
 ```bash
 # Build
-docker build -t luma:test -f dist/docker/Dockerfile .
+docker build -t ghcr.io/santosr2/luma:test -f dist/docker/Dockerfile .
 
 # Test
-docker run luma:test --version
-docker run -v $(pwd)/examples:/templates luma:test render hello.luma
+docker run ghcr.io/santosr2/luma:test --version
+docker run -v $(pwd)/examples:/templates ghcr.io/santosr2/luma:test render hello.luma
 
 # Cleanup
-docker rmi luma:test
+docker rmi ghcr.io/santosr2/luma:test
 ```
 
 ### Test LuaRocks Installation
