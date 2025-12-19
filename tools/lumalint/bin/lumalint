@@ -1,0 +1,19 @@
+#!/usr/bin/env luajit
+--[[
+Lumalint - A linter for Luma templates
+
+Usage:
+  lumalint [OPTIONS] FILES...
+
+Examples:
+  lumalint template.luma
+  lumalint templates/**/*.luma
+  lumalint --config .lumalintrc.yaml .
+]]
+
+package.path = package.path .. ";../../?.lua;../../?/init.lua"
+
+local lumalint = require("lumalint.init")
+local cli = require("lumalint.cli")
+
+os.exit(cli.main(arg))

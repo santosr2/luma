@@ -1,0 +1,20 @@
+@# This template has several linting issues
+
+@# Issue 1: Undefined variable
+Hello, $undefined_name!
+
+@# Issue 2: Unused variable
+@let unused_var = "never used"
+
+@# Issue 3: Empty block
+@if some_condition
+@end
+
+@# Issue 4: Debug statement
+@do print("debug output") @end
+
+@# Issue 5: Line too long (if max-line-length is 80)
+This is a very long line that exceeds the maximum line length and should be broken into multiple lines for better readability
+
+@# Issue 6: Another undefined variable in expression
+Total: ${price * quantity}

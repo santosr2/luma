@@ -1,0 +1,37 @@
+# Lumalint configuration file
+
+# Enable/disable rules
+rules:
+  undefined-variable: true
+  unused-variable: true
+  missing-filter: true
+  empty-block: true
+  duplicate-key: true
+  deprecated-syntax: true
+  max-line-length:
+    enabled: true
+    max: 120
+  no-debug: true
+  prefer-explicit-autoescape: false
+
+# Variables to ignore (won't be flagged as undefined)
+ignore_vars:
+  # Helm/Kubernetes
+  Values: true
+  Chart: true
+  Release: true
+  Capabilities: true
+  Template: true
+  Files: true
+  # Ansible
+  ansible_facts: true
+  inventory_hostname: true
+  hostvars: true
+  # Terraform
+  var: true
+  local: true
+  module: true
+
+# Linting options
+max_line_length: 120
+strict: false

@@ -1,0 +1,18 @@
+@# This template passes all linting rules
+
+@# Define variables before use
+@let name = "Alice"
+@let items = {"apple", "banana", "cherry"}
+@let show_greeting = true
+
+@# Use defined variables
+@if show_greeting
+Hello, $name!
+
+Your items:
+@for item in items
+  - $item
+@end
+@end
+
+@# Clean, readable, no issues

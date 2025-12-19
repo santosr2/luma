@@ -122,7 +122,7 @@ repos:
 
       - id: check-no-debug
         name: Check for debug statements
-        entry: bash -c 'files=$(git diff --cached --name-only --diff-filter=ACM | grep "\.lua$" | grep -v -E "(benchmarks|examples)" || true); [ -n "$files" ] && echo "$files" | xargs grep -n "print(" && exit 1 || exit 0'
+        entry: bash -c 'files=$(git diff --cached --name-only --diff-filter=ACM | grep "\.lua$" | grep -v -E "(benchmarks|examples|tools)" || true); [ -n "$files" ] && echo "$files" | xargs grep -n "print(" && exit 1 || exit 0'
         language: system
         pass_filenames: false
         stages: [pre-commit]
