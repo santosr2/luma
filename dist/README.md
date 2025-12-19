@@ -47,7 +47,7 @@ When releasing a new version:
 2. Calculate SHA256:
 
 ```bash
-curl -L https://github.com/santosr2/luma/archive/v1.0.0.tar.gz | shasum -a 256
+curl -L https://github.com/santosr2/luma/archive/v0.1.0.tar.gz | shasum -a 256
 ```
 
 1. Update `luma.rb`:
@@ -86,14 +86,14 @@ Requirements:
 
 ```bash
 cd dist/docker
-./build.sh 1.0.0
+./build.sh 0.1.0
 ```
 
 Or manually:
 
 ```bash
-docker build -t luma/luma:1.0.0 -f dist/docker/Dockerfile .
-docker tag luma/luma:1.0.0 luma/luma:latest
+docker build -t luma/luma:0.1.0 -f dist/docker/Dockerfile .
+docker tag luma/luma:0.1.0 luma/luma:latest
 ```
 
 ### Testing the Image
@@ -118,7 +118,7 @@ docker run -v $(pwd)/examples:/templates luma/luma:latest render hello.luma
 
 ```bash
 docker login
-docker push luma/luma:1.0.0
+docker push luma/luma:0.1.0
 docker push luma/luma:latest
 ```
 
@@ -129,11 +129,11 @@ docker push luma/luma:latest
 echo $GITHUB_TOKEN | docker login ghcr.io -u santosr2 --password-stdin
 
 # Tag for GHCR
-docker tag luma/luma:1.0.0 ghcr.io/santosr2/luma:1.0.0
+docker tag luma/luma:0.1.0 ghcr.io/santosr2/luma:0.1.0
 docker tag luma/luma:latest ghcr.io/santosr2/luma:latest
 
 # Push
-docker push ghcr.io/santosr2/luma:1.0.0
+docker push ghcr.io/santosr2/luma:0.1.0
 docker push ghcr.io/santosr2/luma:latest
 ```
 
@@ -231,7 +231,7 @@ Luma is published to LuaRocks: <https://luarocks.org/modules/santosr2/luma>
 3. Upload the rockspec:
 
 ```bash
-luarocks upload luma-1.0.0-1.rockspec --api-key=YOUR_API_KEY
+luarocks upload luma-0.1.0.rockspec --api-key=YOUR_API_KEY
 ```
 
 ### Automated Publishing via GitHub Actions
@@ -282,7 +282,7 @@ docker rmi luma:test
 
 ```bash
 # Install locally
-luarocks make luma-1.0.0-1.rockspec
+luarocks make luma-0.1.0.rockspec
 
 # Test
 luma --version
@@ -306,8 +306,8 @@ When preparing a new release:
   - [ ] `CHANGELOG.md`
 - [ ] Run all tests: `make test`
 - [ ] Run all pre-commit checks: `pre-commit run -a`
-- [ ] Create Git tag: `git tag -a v1.0.0 -m "Release v1.0.0"`
-- [ ] Push tag: `git push origin v1.0.0`
+- [ ] Create Git tag: `git tag -a v0.1.0 -m "Release v0.1.0"`
+- [ ] Push tag: `git push origin v0.1.0`
 - [ ] Create GitHub Release with release notes
 - [ ] Build and push Docker image
 - [ ] Upload to LuaRocks

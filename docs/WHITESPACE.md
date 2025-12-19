@@ -159,7 +159,7 @@ DATABASES = {
 ```json
 {
   "name": "my-app",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "dependencies": {
     "express": "^4.18.0",
     "lodash": "^4.17.21"

@@ -12,8 +12,8 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}Building Luma Docker Image${NC}"
 echo "========================================"
 
-# Get version from rockspec or default to 1.0.0
-VERSION="${1:-1.0.0}"
+# Get version from rockspec or default to 0.1.0
+VERSION="${1:-0.1.0}"
 
 # Change to repository root
 cd "$(dirname "$0")/../.."

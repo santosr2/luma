@@ -9,7 +9,7 @@ FROM alpine:3.19
 
 LABEL maintainer="Rubens Santos <rubens@example.com>"
 LABEL description="Luma Template Engine - Fast, clean templating with Jinja2 compatibility"
-LABEL version="1.0.0"
+LABEL version="0.1.0"
 
 # Install dependencies
 RUN apk add --no-cache \
@@ -28,12 +28,12 @@ WORKDIR /app
 COPY luma/ /app/luma/
 COPY bin/ /app/bin/
 COPY cli/ /app/cli/
-COPY luma-1.0.0-1.rockspec /app/
+COPY luma-0.1.0.rockspec /app/
 COPY README.md /app/
 COPY LICENSE /app/
 
 # Install Luma
-RUN luarocks-5.1 make luma-1.0.0-1.rockspec
+RUN luarocks-5.1 make luma-0.1.0.rockspec
 
 # Add luma CLI to PATH
 RUN ln -s /app/bin/luma /usr/local/bin/luma \

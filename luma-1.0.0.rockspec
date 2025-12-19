@@ -1,8 +1,8 @@
 package = "luma"
-version = "1.0.0-1"
+version = "0.1.0"
 source = {
    url = "git+https://github.com/santosr2/luma.git",
-   tag = "v1.0.0"
+   tag = "v0.1.0"
 }
 description = {
    summary = "A fast, clean templating language with full Jinja2 compatibility",

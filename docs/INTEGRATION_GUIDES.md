@@ -46,7 +46,7 @@ file:close()
 -- Context
 local context = {
     chart_name = "my-app",
-    version = "1.0.0",
+    version = "0.1.0",
     app_version = "2.3.4",
     description = "My application",
     -- ... more context

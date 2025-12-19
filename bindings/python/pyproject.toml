@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "luma-template"
-version = "1.0.0"
+version = "0.1.0"
 description = "Lua-powered templating engine with 100% Jinja2 compatibility"
 readme = "README.md"
 authors = [

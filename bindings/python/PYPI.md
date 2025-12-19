@@ -63,8 +63,8 @@ python -m build
 
 This creates:
 
-- `dist/luma-template-1.0.0.tar.gz` (source distribution)
-- `dist/luma_template-1.0.0-py3-none-any.whl` (wheel)
+- `dist/luma-template-0.1.0.tar.gz` (source distribution)
+- `dist/luma_template-0.1.0-py3-none-any.whl` (wheel)
 
 ### 3. Verify the Build
 
@@ -100,7 +100,7 @@ python3 -c "from luma import Template; t = Template('Hello, \$name!'); print(t.r
 - [ ] Documentation updated
 - [ ] CHANGELOG.md updated
 - [ ] Version bumped in `pyproject.toml`
-- [ ] Git tag created: `git tag -a py-v1.0.0`
+- [ ] Git tag created: `git tag -a py-v0.1.0`
 
 ### 2. Upload to PyPI
 

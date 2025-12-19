@@ -8,7 +8,7 @@
 class Luma < Formula
   desc "Fast, clean templating language with full Jinja2 compatibility"
   homepage "https://github.com/santosr2/luma"
-  url "https://github.com/santosr2/luma/archive/v1.0.0.tar.gz"
+  url "https://github.com/santosr2/luma/archive/v0.1.0.tar.gz"
   sha256 ""  # Will be calculated after creating the release tarball
   license "MIT"
   head "https://github.com/santosr2/luma.git", branch: "main"
