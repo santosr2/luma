@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  luma:
+    build:
+      context: ../..
+      dockerfile: dist/docker/Dockerfile
+    image: luma/luma:latest
+    container_name: luma
+    volumes:
+      # Mount your templates directory
+      - ./templates:/templates
+      # Mount examples for testing
+      - ../../examples:/examples:ro
+    working_dir: /templates
+    # Override entrypoint for interactive use
+    # entrypoint: /bin/sh
+    # command: []
+
+  # Example: Web service using Luma for templating
+  luma-web:
+    build:
+      context: ../..
+      dockerfile: dist/docker/Dockerfile
+    image: luma/luma:latest
+    container_name: luma-web
+    volumes:
+      - ./templates:/templates
+    ports:
+      - "8080:8080"
+    # Custom entrypoint for web server (example)
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        # Example: Simple HTTP server serving rendered templates
+        while true; do
+          echo "Server ready at http://localhost:8080"
+          sleep 3600
+        done
+
+# Example usage:
+# docker-compose run luma render template.luma
+# docker-compose run luma render template.luma --data-file context.yaml
+# docker-compose run luma validate templates/*.luma
+# docker-compose run luma migrate template.j2 > template.luma
