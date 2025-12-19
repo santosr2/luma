@@ -615,9 +615,9 @@ This $variable will not be processed
 {% raw %}
 
 ```jinja
-{% raw %}
+&#123;% raw %&#125;
 {{ this }} will not be processed
-{% endraw %}
+&#123;% endraw %&#125;
 ```
 
 {% endraw %}
