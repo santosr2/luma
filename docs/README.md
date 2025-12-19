@@ -60,7 +60,7 @@ Visit `http://localhost:8000/` to preview (without Jekyll processing).
 1. Go to repository Settings
 2. Navigate to Pages section
 3. Set Source to "Deploy from a branch"
-4. Select branch: `main` or `master`
+4. Select branch: `main`
 5. Set folder: `/docs`
 6. Click Save
 

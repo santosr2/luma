@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
 
     steps:
       - uses: actions/checkout@v4
@@ -116,4 +116,5 @@ jobs:
       - name: Verify publication
         run: |
           sleep 30
-          pip install luma-template==${{ github.ref_name }}
+          VERSION=${GITHUB_REF_NAME#v}
+          pip install luma-template==${VERSION}

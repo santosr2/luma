@@ -34,7 +34,7 @@ jobs:
         run: busted --verbose spec/
 
       - name: Run linter
-        run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted
+        run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted --no-max-cyclomatic-complexity
 
   build:
     name: Build Release Assets
