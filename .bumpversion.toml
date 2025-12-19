@@ -47,12 +47,6 @@ filename = "luma/version.lua"
 search = "patch = {current_patch}"
 replace = "patch = {new_patch}"
 
-[[tool.bumpversion.files]]
-filename = "luma/version.lua"
-regex = true
-search = "pre = (nil|\"[^\"]*\")"
-replace = "pre = {new_pre_lua}"
-
 # Python bindings
 [[tool.bumpversion.files]]
 filename = "bindings/python/pyproject.toml"
@@ -86,12 +80,6 @@ filename = "bindings/go/lua/luma/version.lua"
 search = "patch = {current_patch}"
 replace = "patch = {new_patch}"
 
-[[tool.bumpversion.files]]
-filename = "bindings/go/lua/luma/version.lua"
-regex = true
-search = "pre = (nil|\"[^\"]*\")"
-replace = "pre = {new_pre_lua}"
-
 # Node.js bindings - embedded Lua version
 [[tool.bumpversion.files]]
 filename = "bindings/nodejs/lua/luma/version.lua"
@@ -107,12 +95,6 @@ replace = "minor = {new_minor}"
 filename = "bindings/nodejs/lua/luma/version.lua"
 search = "patch = {current_patch}"
 replace = "patch = {new_patch}"
-
-[[tool.bumpversion.files]]
-filename = "bindings/nodejs/lua/luma/version.lua"
-regex = true
-search = "pre = (nil|\"[^\"]*\")"
-replace = "pre = {new_pre_lua}"
 
 # Helm plugin
 [[tool.bumpversion.files]]
@@ -146,12 +128,3 @@ replace = "VERSION=\"${{1:-{new_version}}}\""
 # LuaRocks rockspec - handled separately due to -1 suffix
 # Use: bump-my-version bump <part> && mv luma-{old}-1.rockspec luma-{new}-1.rockspec
 # Then update version and tag fields in the rockspec manually
-
-# Custom pre_lua serialization for Lua files
-[tool.bumpversion.parts.pre_lua]
-values = [
-    "nil",
-    "\"alpha\"",
-    "\"beta\"",
-    "\"rc\""
-]
