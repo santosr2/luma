@@ -1,0 +1,29 @@
+# Source files
+src/
+tsconfig.json
+
+# Tests
+*.test.ts
+*.spec.ts
+jest.config.js
+coverage/
+
+# Development
+.eslintrc.js
+.prettierrc.json
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# CI/CD
+.github/
+
+# Docs (except README)
+docs/
+*.md
+!README.md
+
+# Examples (keep for reference)
+# examples/

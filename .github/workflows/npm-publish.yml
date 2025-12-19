@@ -1,0 +1,85 @@
+name: Publish Node.js Package
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v0.1.0)'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: bindings/nodejs/package-lock.json
+
+      - name: Install dependencies
+        working-directory: bindings/nodejs
+        run: npm ci
+
+      - name: Run linter
+        working-directory: bindings/nodejs
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: bindings/nodejs
+        run: npm test
+
+      - name: Build
+        working-directory: bindings/nodejs
+        run: npm run build
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org/'
+          cache: 'npm'
+          cache-dependency-path: bindings/nodejs/package-lock.json
+
+      - name: Install dependencies
+        working-directory: bindings/nodejs
+        run: npm ci
+
+      - name: Build
+        working-directory: bindings/nodejs
+        run: npm run build
+
+      - name: Verify package contents
+        working-directory: bindings/nodejs
+        run: npm pack --dry-run
+
+      - name: Publish to npm
+        working-directory: bindings/nodejs
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Verify publication
+        run: |
+          sleep 10
+          npm info @luma/templates
