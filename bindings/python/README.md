@@ -136,6 +136,83 @@ Jinja2:  1.245s
 Luma:    0.892s (1.4x faster)
 ```
 
+## Testing
+
+Run the test suite:
+
+```bash
+# Install development dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=luma --cov-report=html
+
+# Run specific test file
+pytest tests/test_template.py -v
+```
+
+## Running Examples
+
+See the [examples/](./examples/) directory for complete examples:
+
+- **basic.py** - Simple template rendering examples
+- **flask_app.py** - Flask web application integration
+- **kubernetes.py** - Kubernetes manifest generation
+
+Run examples:
+
+```bash
+# Basic examples
+python examples/basic.py
+
+# Flask app (requires: pip install flask)
+python examples/flask_app.py
+
+# Kubernetes manifests
+python examples/kubernetes.py
+```
+
+## Development
+
+```bash
+# Clone repository
+git clone https://github.com/santosr2/luma.git
+cd luma/bindings/python
+
+# Install in development mode
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Format code
+black luma tests
+
+# Type check
+mypy luma
+
+# Lint
+flake8 luma
+```
+
+## Publishing to PyPI
+
+See [PYPI.md](./PYPI.md) for publishing instructions.
+
+## Version
+
+Current version: **0.1.0**
+
 ## License
 
 MIT License - See LICENSE file for details.
+
+## Links
+
+- [Luma Project](https://github.com/santosr2/luma)
+- [Documentation](https://github.com/santosr2/luma/tree/main/docs)
+- [PyPI Package](https://pypi.org/project/luma-template/)
+- [Issue Tracker](https://github.com/santosr2/luma/issues)
