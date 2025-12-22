@@ -104,7 +104,7 @@ print(result)  # "Hello, World!"
 
 ### Core Features
 
-- ✅ **Variables**: `$var`, `${expression}`
+- ✅ **Variables**: `$var`, `$&#123;expression&#125;`
 - ✅ **Control Flow**: `@if`/`@elif`/`@else`, `@for`, `@while`
 - ✅ **Filters**: `$value | upper | truncate(20)`
 - ✅ **Tests**: `@if value is defined`, `@if x is even`
