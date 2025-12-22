@@ -1,3 +1,7 @@
+---
+render_with_liquid: false
+---
+
 # Luma API Documentation
 
 Complete API reference for the Luma template engine.
@@ -238,11 +242,11 @@ Create a mutable namespace object for templates.
 **Example (in template):**
 
 ```lua
-&#123;% set ns = namespace(count=0) %%}#125;
-&#123;% for item in items %%}#125;
-  &#123;% do ns.count = ns.count + 1 %%}#125;
-&#123;% endfor %%}#125;
-Total: &#123;{{#123; ns.count &#125;}}#125;
+{% set ns = namespace(count=0) %%}#125;
+{% for item in items %%}#125;
+  {% do ns.count = ns.count + 1 %%}#125;
+{% endfor %%}#125;
+Total: {{{#123; ns.count }}}#125;
 ```
 
 ---
@@ -256,44 +260,44 @@ Total: &#123;{{#123; ns.count &#125;}}#125;
 **`upper`** - Convert to uppercase
 
 ```lua
-&#123;{{#123; "hello" | upper &#125;}}#125;  -- "HELLO"
+{{{#123; "hello" | upper }}}#125;  -- "HELLO"
 ```
 
 **`lower`** - Convert to lowercase
 
 ```lua
-&#123;{{#123; "HELLO" | lower &#125;}}#125;  -- "hello"
+{{{#123; "HELLO" | lower }}}#125;  -- "hello"
 ```
 
 **`title`** - Title case
 
 ```lua
-&#123;{{#123; "hello world" | title &#125;}}#125;  -- "Hello World"
+{{{#123; "hello world" | title }}}#125;  -- "Hello World"
 ```
 
 **`capitalize`** - Capitalize first letter
 
 ```lua
-&#123;{{#123; "hello" | capitalize &#125;}}#125;  -- "Hello"
+{{{#123; "hello" | capitalize }}}#125;  -- "Hello"
 ```
 
 **`trim`** - Remove whitespace
 
 ```lua
-&#123;{{#123; "  hello  " | trim &#125;}}#125;  -- "hello"
+{{{#123; "  hello  " | trim }}}#125;  -- "hello"
 ```
 
 **`truncate(length, end)`** - Truncate string
 
 ```lua
-&#123;{{#123; "Long text" | truncate(5) &#125;}}#125;  -- "Long..."
-&#123;{{#123; "Long text" | truncate(5, "…") &#125;}}#125;  -- "Long…"
+{{{#123; "Long text" | truncate(5) }}}#125;  -- "Long..."
+{{{#123; "Long text" | truncate(5, "…") }}}#125;  -- "Long…"
 ```
 
 **`replace(old, new)`** - Replace substring
 
 ```lua
-&#123;{{#123; "hello world" | replace("world", "Lua") &#125;}}#125;  -- "hello Lua"
+{{{#123; "hello world" | replace("world", "Lua") }}}#125;  -- "hello Lua"
 ```
 
 #### List Filters
@@ -301,37 +305,37 @@ Total: &#123;{{#123; ns.count &#125;}}#125;
 **`length`** - Get length
 
 ```lua
-&#123;{{#123; items | length &#125;}}#125;  -- number of items
+{{{#123; items | length }}}#125;  -- number of items
 ```
 
 **`join(sep)`** - Join list elements
 
 ```lua
-&#123;{{#123; ["a", "b", "c"] | join(", ") &#125;}}#125;  -- "a, b, c"
+{{{#123; ["a", "b", "c"] | join(", ") }}}#125;  -- "a, b, c"
 ```
 
 **`first`** - First element
 
 ```lua
-&#123;{{#123; items | first &#125;}}#125;
+{{{#123; items | first }}}#125;
 ```
 
 **`last`** - Last element
 
 ```lua
-&#123;{{#123; items | last &#125;}}#125;
+{{{#123; items | last }}}#125;
 ```
 
 **`sort`** - Sort list
 
 ```lua
-&#123;{{#123; [3, 1, 2] | sort &#125;}}#125;  -- [1, 2, 3]
+{{{#123; [3, 1, 2] | sort }}}#125;  -- [1, 2, 3]
 ```
 
 **`reverse`** - Reverse list
 
 ```lua
-&#123;{{#123; [1, 2, 3] | reverse &#125;}}#125;  -- [3, 2, 1]
+{{{#123; [1, 2, 3] | reverse }}}#125;  -- [3, 2, 1]
 ```
 
 #### Numeric Filters
@@ -339,19 +343,19 @@ Total: &#123;{{#123; ns.count &#125;}}#125;
 **`abs`** - Absolute value
 
 ```lua
-&#123;{{#123; -5 | abs &#125;}}#125;  -- 5
+{{{#123; -5 | abs }}}#125;  -- 5
 ```
 
 **`round(precision)`** - Round number
 
 ```lua
-&#123;{{#123; 3.14159 | round(2) &#125;}}#125;  -- 3.14
+{{{#123; 3.14159 | round(2) }}}#125;  -- 3.14
 ```
 
 **`format(fmt)`** - Format number
 
 ```lua
-&#123;{{#123; 1234.5 | format("%.2f") &#125;}}#125;  -- "1234.50"
+{{{#123; 1234.5 | format("%.2f") }}}#125;  -- "1234.50"
 ```
 
 #### Date/Time Filters
@@ -359,7 +363,7 @@ Total: &#123;{{#123; ns.count &#125;}}#125;
 **`date(format)`** - Format timestamp
 
 ```lua
-&#123;{{#123; timestamp | date("%Y-%m-%d") &#125;}}#125;
+{{{#123; timestamp | date("%Y-%m-%d") }}}#125;
 ```
 
 #### Misc Filters
@@ -367,13 +371,13 @@ Total: &#123;{{#123; ns.count &#125;}}#125;
 **`default(value)`** - Default if nil/empty
 
 ```lua
-&#123;{{#123; var | default("N/A") &#125;}}#125;
+{{{#123; var | default("N/A") }}}#125;
 ```
 
 **`escape`** - HTML escape (alias: `e`)
 
 ```lua
-&#123;{{#123; "<script>" | escape &#125;}}#125;  -- "&lt;script&gt;"
+{{{#123; "<script>" | escape }}}#125;  -- "&lt;script&gt;"
 ```
 
 ### Custom Filters
@@ -396,9 +400,9 @@ end)
 **Use in template:**
 
 ```lua
-&#123;{{#123; 5 | double &#125;}}#125;  -- 10
-&#123;{{#123; "Alice" | greet &#125;}}#125;  -- "Hello, Alice!"
-&#123;{{#123; "Bob" | greet("Hi") &#125;}}#125;  -- "Hi, Bob!"
+{{{#123; 5 | double }}}#125;  -- 10
+{{{#123; "Alice" | greet }}}#125;  -- "Hello, Alice!"
+{{{#123; "Bob" | greet("Hi") }}}#125;  -- "Hi, Bob!"
 ```
 
 ---
@@ -411,7 +415,7 @@ end)
 from luma import Template
 
 # Create template
-template = Template("Hello, &#123;{{#123; name &#125;}}#125;!", syntax="jinja")
+template = Template("Hello, {{{#123; name }}}#125;!", syntax="jinja")
 
 # Render with kwargs
 result = template.render(name="World")
@@ -462,7 +466,7 @@ loader = FileSystemLoader("/templates", encoding="utf-8")
 from luma.loaders import DictLoader
 
 loader = DictLoader({
-    "index.html": "Hello, &#123;{{#123; name &#125;}}#125;!",
+    "index.html": "Hello, {{{#123; name }}}#125;!",
     "about.html": "About page",
 })
 ```
@@ -539,7 +543,7 @@ ParseError: Expected 'end' after 'for' block
   at template.luma:15:1
   
   13 | @for item in items
-  14 |   - &#123;{{#123; item &#125;}}#125;
+  14 |   - {{{#123; item }}}#125;
 > 15 | @if condition
 ```
 
