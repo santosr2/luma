@@ -14,9 +14,9 @@ readability and maintainability.
 
 | Aspect | Jinja2 | Luma |
 |--------|--------|------|
-| **Syntax Noise** | Heavy: `{{{#123; }}}#125;`, `{% %%}#125;` | Light: `$var`, `@if` |
+| **Syntax Noise** | Heavy: `{{ }}`, `{% %}` | Light: `$var`, `@if` |
 | **Readability** | More cluttered | Cleaner, shell-like |
-| **Whitespace** | Often needs `{%-` / `-%%}#125;` control | Smart preservation by default |
+| **Whitespace** | Often needs `{%-` / `-%}` control | Smart preservation by default |
 | **All File Types** | YAML struggles without trim | Works perfectly everywhere |
 | **Escaping** | Complex rules | Simple `$$` for literal `$` |
 
@@ -26,7 +26,7 @@ readability and maintainability.
 
 ```jinja
 {# Jinja2 #}
-Hello {{{#123; user.name }}}#125;!
+Hello {{ user.name }}!
 ```
 
 ```luma
@@ -38,11 +38,11 @@ Hello $user.name!
 
 ```jinja
 {# Jinja2 #}
-{% if user.is_admin %%}#125;
-  <p>Welcome, admin {{{#123; user.name }}}#125;!</p>
-{% else %%}#125;
-  <p>Welcome, {{{#123; user.name }}}#125;!</p>
-{% endif %%}#125;
+{% if user.is_admin %}
+  <p>Welcome, admin {{ user.name }}!</p>
+{% else %}
+  <p>Welcome, {{ user.name }}!</p>
+{% endif %}
 ```
 
 ```luma
@@ -58,9 +58,9 @@ Hello $user.name!
 
 ```jinja
 {# Jinja2 #}
-{% for item in items %%}#125;
-  <li>{{{#123; loop.index }}}#125;: {{{#123; item.name }}}#125;</li>
-{% endfor %%}#125;
+{% for item in items %}
+  <li>{{ loop.index }}: {{ item.name }}</li>
+{% endfor %}
 ```
 
 ```luma
@@ -109,26 +109,26 @@ luma migrate template.jinja --dry-run --diff
 
 | Jinja2 Syntax | Luma Syntax |
 |---------------|-------------|
-| `{{{#123; expr }}}#125;` | `${expr}` |
-| `{{{#123; var }}}#125;` | `$var` (simplified) |
-| `{{{#123; user.name }}}#125;` | `$user.name` |
-| `{% if x %%}#125;` | `@if x` |
-| `{% elif x %%}#125;` | `@elif x` |
-| `{% else %%}#125;` | `@else` |
-| `{% endif %%}#125;` | `@end` |
-| `{% for x in y %%}#125;` | `@for x in y` |
-| `{% endfor %%}#125;` | `@end` |
-| `{% set x = y %%}#125;` | `@let x = y` |
-| `{% macro name() %%}#125;` | `@macro name()` |
-| `{% endmacro %%}#125;` | `@end` |
-| `{% call name() %%}#125;` | `@call name()` |
-| `{% endcall %%}#125;` | `@end` |
-| `{% include "x" %%}#125;` | `@include "x"` |
-| `{% extends "x" %%}#125;` | `@extends "x"` |
-| `{% block name %%}#125;` | `@block name` |
-| `{% endblock %%}#125;` | `@end` |
-| `{% break %%}#125;` | `@break` |
-| `{% continue %%}#125;` | `@continue` |
+| `{{ expr }}` | `${expr}` |
+| `{{ var }}` | `$var` (simplified) |
+| `{{ user.name }}` | `$user.name` |
+| `{% if x %}` | `@if x` |
+| `{% elif x %}` | `@elif x` |
+| `{% else %}` | `@else` |
+| `{% endif %}` | `@end` |
+| `{% for x in y %}` | `@for x in y` |
+| `{% endfor %}` | `@end` |
+| `{% set x = y %}` | `@let x = y` |
+| `{% macro name() %}` | `@macro name()` |
+| `{% endmacro %}` | `@end` |
+| `{% call name() %}` | `@call name()` |
+| `{% endcall %}` | `@end` |
+| `{% include "x" %}` | `@include "x"` |
+| `{% extends "x" %}` | `@extends "x"` |
+| `{% block name %}` | `@block name` |
+| `{% endblock %}` | `@end` |
+| `{% break %}` | `@break` |
+| `{% continue %}` | `@continue` |
 | `{# comment #}` | `@# comment` |
 
 ---
@@ -159,7 +159,7 @@ These features will be added for full Jinja2 parity:
 - `super()` function (P1 priority)
 - Whitespace control (trim before: `{%-`) (P1)
 - Filter named arguments (P1)
-- Selective imports: `{% from "file" import macro %%}#125;` (P2)
+- Selective imports: `{% from "file" import macro %}` (P2)
 - Set block syntax (P2)
 - Call with caller pattern (P3)
 - Autoescape blocks (P3)
@@ -275,23 +275,23 @@ TEMPLATES = [{
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{{#123; app_name }}}#125;
+  name: {{ app_name }}
 spec:
-  replicas: {{{#123; replicas | default(3) }}}#125;
+  replicas: {{ replicas | default(3) }}
   template:
     spec:
       containers:
-      {% for container in containers %%}#125;
-        - name: {{{#123; container.name }}}#125;
-          image: {{{#123; container.image }}}#125;:{{{#123; container.tag | default('latest') }}}#125;
-          {% if container.env %%}#125;
+      {% for container in containers %}
+        - name: {{ container.name }}
+          image: {{ container.image }}:{{ container.tag | default('latest') }}
+          {% if container.env %}
           env:
-            {% for key, value in container.env.items() %%}#125;
-            - name: {{{#123; key }}}#125;
-              value: "{{{#123; value }}}#125;"
-            {% endfor %%}#125;
-          {% endif %%}#125;
-      {% endfor %%}#125;
+            {% for key, value in container.env.items() %}
+            - name: {{ key }}
+              value: "{{ value }}"
+            {% endfor %}
+          {% endif %}
+      {% endfor %}
 ```
 
 **After (Luma):**
@@ -324,13 +324,13 @@ spec:
 **Before (Jinja2):**
 
 ```html
-{% macro button(text, type='primary') %%}#125;
-  <button class="btn btn-{{{#123; type }}}#125;">
-    {{{#123; text | capitalize }}}#125;
+{% macro button(text, type='primary') %}
+  <button class="btn btn-{{ type }}">
+    {{ text | capitalize }}
   </button>
-{% endmacro %%}#125;
+{% endmacro %}
 
-{{{#123; button('submit', type='success') }}}#125;
+{{ button('submit', type='success') }}
 ```
 
 **After (Luma):**

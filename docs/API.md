@@ -242,11 +242,11 @@ Create a mutable namespace object for templates.
 **Example (in template):**
 
 ```lua
-{% set ns = namespace(count=0) %%}#125;
-{% for item in items %%}#125;
-  {% do ns.count = ns.count + 1 %%}#125;
-{% endfor %%}#125;
-Total: {{{#123; ns.count }}}#125;
+{% set ns = namespace(count=0) %}
+{% for item in items %}
+  {% do ns.count = ns.count + 1 %}
+{% endfor %}
+Total: {{ ns.count }}
 ```
 
 ---
@@ -260,44 +260,44 @@ Total: {{{#123; ns.count }}}#125;
 **`upper`** - Convert to uppercase
 
 ```lua
-{{{#123; "hello" | upper }}}#125;  -- "HELLO"
+{{ "hello" | upper }}  -- "HELLO"
 ```
 
 **`lower`** - Convert to lowercase
 
 ```lua
-{{{#123; "HELLO" | lower }}}#125;  -- "hello"
+{{ "HELLO" | lower }}  -- "hello"
 ```
 
 **`title`** - Title case
 
 ```lua
-{{{#123; "hello world" | title }}}#125;  -- "Hello World"
+{{ "hello world" | title }}  -- "Hello World"
 ```
 
 **`capitalize`** - Capitalize first letter
 
 ```lua
-{{{#123; "hello" | capitalize }}}#125;  -- "Hello"
+{{ "hello" | capitalize }}  -- "Hello"
 ```
 
 **`trim`** - Remove whitespace
 
 ```lua
-{{{#123; "  hello  " | trim }}}#125;  -- "hello"
+{{ "  hello  " | trim }}  -- "hello"
 ```
 
 **`truncate(length, end)`** - Truncate string
 
 ```lua
-{{{#123; "Long text" | truncate(5) }}}#125;  -- "Long..."
-{{{#123; "Long text" | truncate(5, "…") }}}#125;  -- "Long…"
+{{ "Long text" | truncate(5) }}  -- "Long..."
+{{ "Long text" | truncate(5, "…") }}  -- "Long…"
 ```
 
 **`replace(old, new)`** - Replace substring
 
 ```lua
-{{{#123; "hello world" | replace("world", "Lua") }}}#125;  -- "hello Lua"
+{{ "hello world" | replace("world", "Lua") }}  -- "hello Lua"
 ```
 
 #### List Filters
@@ -305,37 +305,37 @@ Total: {{{#123; ns.count }}}#125;
 **`length`** - Get length
 
 ```lua
-{{{#123; items | length }}}#125;  -- number of items
+{{ items | length }}  -- number of items
 ```
 
 **`join(sep)`** - Join list elements
 
 ```lua
-{{{#123; ["a", "b", "c"] | join(", ") }}}#125;  -- "a, b, c"
+{{ ["a", "b", "c"] | join(", ") }}  -- "a, b, c"
 ```
 
 **`first`** - First element
 
 ```lua
-{{{#123; items | first }}}#125;
+{{ items | first }}
 ```
 
 **`last`** - Last element
 
 ```lua
-{{{#123; items | last }}}#125;
+{{ items | last }}
 ```
 
 **`sort`** - Sort list
 
 ```lua
-{{{#123; [3, 1, 2] | sort }}}#125;  -- [1, 2, 3]
+{{ [3, 1, 2] | sort }}  -- [1, 2, 3]
 ```
 
 **`reverse`** - Reverse list
 
 ```lua
-{{{#123; [1, 2, 3] | reverse }}}#125;  -- [3, 2, 1]
+{{ [1, 2, 3] | reverse }}  -- [3, 2, 1]
 ```
 
 #### Numeric Filters
@@ -343,19 +343,19 @@ Total: {{{#123; ns.count }}}#125;
 **`abs`** - Absolute value
 
 ```lua
-{{{#123; -5 | abs }}}#125;  -- 5
+{{ -5 | abs }}  -- 5
 ```
 
 **`round(precision)`** - Round number
 
 ```lua
-{{{#123; 3.14159 | round(2) }}}#125;  -- 3.14
+{{ 3.14159 | round(2) }}  -- 3.14
 ```
 
 **`format(fmt)`** - Format number
 
 ```lua
-{{{#123; 1234.5 | format("%.2f") }}}#125;  -- "1234.50"
+{{ 1234.5 | format("%.2f") }}  -- "1234.50"
 ```
 
 #### Date/Time Filters
@@ -363,7 +363,7 @@ Total: {{{#123; ns.count }}}#125;
 **`date(format)`** - Format timestamp
 
 ```lua
-{{{#123; timestamp | date("%Y-%m-%d") }}}#125;
+{{ timestamp | date("%Y-%m-%d") }}
 ```
 
 #### Misc Filters
@@ -371,13 +371,13 @@ Total: {{{#123; ns.count }}}#125;
 **`default(value)`** - Default if nil/empty
 
 ```lua
-{{{#123; var | default("N/A") }}}#125;
+{{ var | default("N/A") }}
 ```
 
 **`escape`** - HTML escape (alias: `e`)
 
 ```lua
-{{{#123; "<script>" | escape }}}#125;  -- "&lt;script&gt;"
+{{ "<script>" | escape }}  -- "&lt;script&gt;"
 ```
 
 ### Custom Filters
@@ -400,9 +400,9 @@ end)
 **Use in template:**
 
 ```lua
-{{{#123; 5 | double }}}#125;  -- 10
-{{{#123; "Alice" | greet }}}#125;  -- "Hello, Alice!"
-{{{#123; "Bob" | greet("Hi") }}}#125;  -- "Hi, Bob!"
+{{ 5 | double }}  -- 10
+{{ "Alice" | greet }}  -- "Hello, Alice!"
+{{ "Bob" | greet("Hi") }}  -- "Hi, Bob!"
 ```
 
 ---
@@ -415,7 +415,7 @@ end)
 from luma import Template
 
 # Create template
-template = Template("Hello, {{{#123; name }}}#125;!", syntax="jinja")
+template = Template("Hello, {{ name }}!", syntax="jinja")
 
 # Render with kwargs
 result = template.render(name="World")
@@ -466,7 +466,7 @@ loader = FileSystemLoader("/templates", encoding="utf-8")
 from luma.loaders import DictLoader
 
 loader = DictLoader({
-    "index.html": "Hello, {{{#123; name }}}#125;!",
+    "index.html": "Hello, {{ name }}!",
     "about.html": "About page",
 })
 ```
@@ -543,7 +543,7 @@ ParseError: Expected 'end' after 'for' block
   at template.luma:15:1
   
   13 | @for item in items
-  14 |   - {{{#123; item }}}#125;
+  14 |   - {{ item }}
 > 15 | @if condition
 ```
 
