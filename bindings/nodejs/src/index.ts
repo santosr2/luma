@@ -25,11 +25,9 @@ const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
 const lualib = fengari.lualib;
 
-// Import interop functions - fengari-interop is CommonJS, needs require
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const fengari_interop = require('fengari-interop');
-const to_jsstring = fengari_interop.to_jsstring;
-const to_luastring = fengari_interop.to_luastring;
+// Import interop functions - use from fengari package (includes interop)
+const to_jsstring = fengari.to_jsstring;
+const to_luastring = fengari.to_luastring;
 
 /**
  * Context for template rendering
