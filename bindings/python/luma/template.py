@@ -48,6 +48,8 @@ class Template:
                 bindings_dir = os.path.dirname(os.path.abspath(__file__))
                 luma_root = os.path.join(bindings_dir, '../../..')
                 luma_root = os.path.abspath(luma_root)
+                # Convert to forward slashes for Lua (works on Windows too)
+                luma_root = luma_root.replace('\\', '/')
 
                 # Set up Lua package path to find Luma modules (prepend to take precedence)
                 package_path_setup = f"""
