@@ -4,8 +4,6 @@
  */
 
 declare module 'fengari-interop' {
-  import { lua_State } from 'fengari';
-
   /**
    * Convert JavaScript string to Lua string (Uint8Array)
    */
