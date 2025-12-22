@@ -29,11 +29,12 @@ kramdown:
   input: GFM
   syntax_highlighter: rouge  # noqa: codespell
 
-# Plugins
+# Plugins (these are included in github-pages gem)
 plugins:
   - jekyll-relative-links
   - jekyll-optional-front-matter
   - jekyll-titles-from-headings
+  - jekyll-default-layout
 
 relative_links:
   enabled: true
