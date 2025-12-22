@@ -114,7 +114,9 @@ ${loop.index}: ${key}
 	end)
 
 	describe("break directive", function()
-		pending("exits the loop early", function()
+		pending("exits the loop early")
+		--[[ Disabled due to codegen issues
+		it("exits the loop early", function()
 			local template = [[
 @for item in items
 @if item == "stop"
@@ -128,8 +130,11 @@ ${item}
 			assert.is_nil(result:match("c"))
 			assert.is_nil(result:match("d"))
 		end)
+		]]
 
-		pending("works with loop.index condition", function()
+		pending("works with loop.index condition")
+		--[[ Disabled due to codegen issues
+		it("works with loop.index condition", function()
 			local template = [[
 @for item in items
 @if loop.index > 2
@@ -142,10 +147,13 @@ ${item}
 			assert.matches("b", result)
 			assert.is_nil(result:match("c"))
 		end)
+		]]
 	end)
 
 	describe("continue directive", function()
-		pending("skips to next iteration", function()
+		pending("skips to next iteration")
+		--[[ Disabled due to codegen issues
+		it("skips to next iteration", function()
 			local template = [[
 @for item in items
 @if item == "skip"
@@ -164,8 +172,11 @@ ${item}
 			end
 			assert.equals(0, count)
 		end)
+		]]
 
-		pending("works with odd/even filtering", function()
+		pending("works with odd/even filtering")
+		--[[ Disabled due to codegen issues
+		it("works with odd/even filtering", function()
 			local template = [[
 @for num in nums
 @if num is even
@@ -179,10 +190,13 @@ ${num}
 			assert.matches("5", result)
 			-- Check that 2 and 4 are not there (tricky since they might be in other numbers)
 		end)
+		]]
 	end)
 
 	describe("nested loops with break/continue", function()
-		pending("break only affects innermost loop", function()
+		pending("break only affects innermost loop")
+		--[[ Disabled due to codegen issues
+		it("break only affects innermost loop", function()
 			local template = [[
 @for outer in outers
 Outer: ${outer}
@@ -204,5 +218,6 @@ Inner: ${inner}
 			assert.matches("Inner: 1", result)
 			assert.is_nil(result:match("Inner: 2"))
 		end)
+		]]
 	end)
 end)
