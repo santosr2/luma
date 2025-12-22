@@ -34,6 +34,10 @@ jobs:
           luarocks install luacov
           luarocks install luacov-coveralls
 
+      - name: Install Luma
+        run: |
+          luarocks make luma-0.1.0-1.rockspec
+
       - name: Run Luacheck
         run: luacheck luma/ cli/ benchmarks/ --std=lua51+busted --globals=describe,it,before_each,after_each,setup,teardown --no-max-cyclomatic-complexity
 
@@ -187,7 +191,7 @@ jobs:
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
         with:
-          luaVersion: "luajit"
+          luaVersion: "5.4"
 
       - name: Setup LuaRocks
         uses: leafo/gh-actions-luarocks@v4
@@ -202,8 +206,7 @@ jobs:
           for file in examples/*.luma; do
             if [ -f "$file" ]; then
               echo "Checking syntax: $file"
-              luajit -e "
-                package.path = package.path .. ';./?.lua;./?/init.lua'
+              lua -e "
                 local luma = require('luma')
                 local f = io.open('$file', 'r')
                 local source = f:read('*a')
@@ -227,7 +230,7 @@ jobs:
           for script in examples/run_*.lua; do
             if [ -f "$script" ]; then
               echo "Running: $script"
-              luajit "$script" > /dev/null && echo "  ✓ Success" || echo "  ✗ Failed"
+              lua "$script" > /dev/null && echo "  ✓ Success" || echo "  ✗ Failed"
             fi
           done
 

@@ -1,0 +1,121 @@
+name: Go Bindings CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'bindings/go/**'
+      - 'luma/**'
+      - '.github/workflows/go-bindings.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'bindings/go/**'
+      - 'luma/**'
+
+jobs:
+  test:
+    name: Test Go ${{ matrix.go-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        go-version: ['1.20', '1.21', '1.22', '1.23']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+          cache-dependency-path: bindings/go/go.sum
+
+      - name: Setup Lua
+        uses: leafo/gh-actions-lua@v10
+        with:
+          luaVersion: "5.4"
+
+      - name: Setup LuaRocks
+        uses: leafo/gh-actions-luarocks@v4
+
+      - name: Install Luma
+        run: |
+          luarocks make luma-0.1.0-1.rockspec
+
+      - name: Get dependencies
+        working-directory: bindings/go
+        run: go mod download
+
+      - name: Verify dependencies
+        working-directory: bindings/go
+        run: go mod verify
+
+      - name: Run go vet
+        working-directory: bindings/go
+        run: go vet ./...
+
+      - name: Run tests
+        working-directory: bindings/go
+        run: go test -v -race -coverprofile=coverage.out ./...
+
+      - name: Upload coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.go-version == '1.23'
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./bindings/go/coverage.out
+          flags: go-bindings
+        continue-on-error: true
+
+      - name: Run examples
+        working-directory: bindings/go
+        run: |
+          go run examples/basic/main.go
+          go run examples/kubernetes/main.go
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+          cache: false
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
+          working-directory: bindings/go
+          args: --timeout=5m
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build
+        working-directory: bindings/go
+        run: go build -v ./...
+
+      - name: Check go.mod tidiness
+        working-directory: bindings/go
+        run: |
+          go mod tidy
+          git diff --exit-code go.mod go.sum
+
