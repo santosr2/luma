@@ -114,110 +114,19 @@ ${loop.index}: ${key}
 	end)
 
 	describe("break directive", function()
+		-- Disabled due to codegen issues with break directive
 		pending("exits the loop early")
-		--[[ Disabled due to codegen issues
-		it("exits the loop early", function()
-			local template = [[
-@for item in items
-@if item == "stop"
-@break
-@end
-${item}
-@end]]
-			local result = luma.render(template, { items = { "a", "b", "stop", "c", "d" } })
-			assert.matches("a", result)
-			assert.matches("b", result)
-			assert.is_nil(result:match("c"))
-			assert.is_nil(result:match("d"))
-		end)
-		]]
-
 		pending("works with loop.index condition")
-		--[[ Disabled due to codegen issues
-		it("works with loop.index condition", function()
-			local template = [[
-@for item in items
-@if loop.index > 2
-@break
-@end
-${item}
-@end]]
-			local result = luma.render(template, { items = { "a", "b", "c", "d", "e" } })
-			assert.matches("a", result)
-			assert.matches("b", result)
-			assert.is_nil(result:match("c"))
-		end)
-		]]
 	end)
 
 	describe("continue directive", function()
+		-- Disabled due to codegen issues with continue directive
 		pending("skips to next iteration")
-		--[[ Disabled due to codegen issues
-		it("skips to next iteration", function()
-			local template = [[
-@for item in items
-@if item == "skip"
-@continue
-@end
-${item}
-@end]]
-			local result = luma.render(template, { items = { "a", "skip", "b", "skip", "c" } })
-			assert.matches("a", result)
-			assert.matches("b", result)
-			assert.matches("c", result)
-			-- "skip" should not appear in output
-			local count = 0
-			for _ in result:gmatch("skip") do
-				count = count + 1
-			end
-			assert.equals(0, count)
-		end)
-		]]
-
 		pending("works with odd/even filtering")
-		--[[ Disabled due to codegen issues
-		it("works with odd/even filtering", function()
-			local template = [[
-@for num in nums
-@if num is even
-@continue
-@end
-${num}
-@end]]
-			local result = luma.render(template, { nums = { 1, 2, 3, 4, 5 } })
-			assert.matches("1", result)
-			assert.matches("3", result)
-			assert.matches("5", result)
-			-- Check that 2 and 4 are not there (tricky since they might be in other numbers)
-		end)
-		]]
 	end)
 
 	describe("nested loops with break/continue", function()
+		-- Disabled due to codegen issues with break directive
 		pending("break only affects innermost loop")
-		--[[ Disabled due to codegen issues
-		it("break only affects innermost loop", function()
-			local template = [[
-@for outer in outers
-Outer: ${outer}
-@for inner in inners
-@if inner == "stop"
-@break
-@end
-Inner: ${inner}
-@end
-@end]]
-			local result = luma.render(template, {
-				outers = { "A", "B" },
-				inners = { "1", "stop", "2" },
-			})
-			-- Both outer iterations should complete
-			assert.matches("Outer: A", result)
-			assert.matches("Outer: B", result)
-			-- But inner loop should stop at "stop"
-			assert.matches("Inner: 1", result)
-			assert.is_nil(result:match("Inner: 2"))
-		end)
-		]]
 	end)
 end)
