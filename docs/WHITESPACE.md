@@ -340,7 +340,7 @@ local result = luma.render(template, context, {
 |---------|--------|------|
 | **Default behavior** | Can add unwanted newlines | Smart preservation everywhere |
 | **Inline mode** | Same syntax, needs trim control | Context-aware (automatic) |
-| **Whitespace control** | Required frequently (`{%-`, `-%}`) | Rarely needed (dash `-` for edge cases) |
+| **Whitespace control** | Required frequently (`&#123;%-`, `-%&#125;`) | Rarely needed (dash `-` for edge cases) |
 | **Learning curve** | Must understand trim rules | Works intuitively |
 | **Maintenance** | Explicit control everywhere | Clean, minimal templates |
 

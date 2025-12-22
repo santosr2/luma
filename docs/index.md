@@ -68,6 +68,7 @@ Hello, $name!
 **Jinja2 Syntax (also supported):**
 
 {% raw %}
+{% raw %}
 ```jinja
 {% set name = "World" %}
 Hello, {{ name }}!
@@ -76,6 +77,7 @@ Hello, {{ name }}!
   Welcome to Luma!
 {% endif %}
 ```
+{% endraw %}
 {% endraw %}
 
 ### Using in Code
