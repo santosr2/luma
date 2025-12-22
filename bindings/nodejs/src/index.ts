@@ -73,7 +73,7 @@ export class Template {
 /**
  * Initialize Lua state with Luma modules
  */
-function initLuaState(): fengari.lua.lua_State {
+function initLuaState(): any {
   const L = lauxlib.luaL_newstate();
   lualib.luaL_openlibs(L);
 
@@ -132,7 +132,7 @@ function initLuaState(): fengari.lua.lua_State {
 /**
  * Convert JavaScript value to Lua value
  */
-function jsToLua(L: fengari.lua.lua_State, value: any): void {
+function jsToLua(L: any, value: any): void {
   if (value === null || value === undefined) {
     lua.lua_pushnil(L);
   } else if (typeof value === 'boolean') {

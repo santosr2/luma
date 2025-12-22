@@ -214,7 +214,7 @@ spec:
     spec:
       containers:
         - name: $app_name
-          image: ${image}:${tag | default("latest")}
+          image: \${image}:\${tag | default("latest")}
           ports:
             - containerPort: $port`;
 
