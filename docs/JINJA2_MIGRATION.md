@@ -24,10 +24,12 @@ readability and maintainability.
 
 **Variable Interpolation:**
 
+{% raw %}
 ```jinja
 {# Jinja2 #}
 Hello {{ user.name }}!
 ```
+{% endraw %}
 
 ```luma
 @# Luma
@@ -36,6 +38,7 @@ Hello $user.name!
 
 **Control Flow:**
 
+{% raw %}
 ```jinja
 {# Jinja2 #}
 {% if user.is_admin %}
@@ -44,6 +47,7 @@ Hello $user.name!
   <p>Welcome, {{ user.name }}!</p>
 {% endif %}
 ```
+{% endraw %}
 
 ```luma
 @# Luma
@@ -56,12 +60,14 @@ Hello $user.name!
 
 **Loops:**
 
+{% raw %}
 ```jinja
 {# Jinja2 #}
 {% for item in items %}
   <li>{{ loop.index }}: {{ item.name }}</li>
 {% endfor %}
 ```
+{% endraw %}
 
 ```luma
 @# Luma
@@ -271,6 +277,7 @@ TEMPLATES = [{
 
 **Before (Jinja2):**
 
+{% raw %}
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -293,6 +300,7 @@ spec:
           {% endif %}
       {% endfor %}
 ```
+{% endraw %}
 
 **After (Luma):**
 
@@ -323,6 +331,7 @@ spec:
 
 **Before (Jinja2):**
 
+{% raw %}
 ```html
 {% macro button(text, type='primary') %}
   <button class="btn btn-{{ type }}">
@@ -332,6 +341,7 @@ spec:
 
 {{ button('submit', type='success') }}
 ```
+{% endraw %}
 
 **After (Luma):**
 

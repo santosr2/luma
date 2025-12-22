@@ -247,6 +247,7 @@ jobs:
 
 #### Example 2: Template Rendering in Workflow
 
+{% raw %}
 ```yaml
 - name: Render Kubernetes Manifests
   run: |
@@ -263,6 +264,7 @@ jobs:
 - name: Deploy
   run: kubectl apply -f k8s/deployment.yaml
 ```
+{% endraw %}
 
 ---
 
@@ -281,6 +283,7 @@ pip install .
 
 **Basic Usage:**
 
+{% raw %}
 ```python
 from luma import Template
 
@@ -289,9 +292,11 @@ template = Template("Hello, {{ name }}!")
 result = template.render(name="World")
 print(result)  # "Hello, World!"
 ```
+{% endraw %}
 
 **Flask Integration:**
 
+{% raw %}
 ```python
 from flask import Flask, render_template_string
 from luma import Template
@@ -310,9 +315,11 @@ def user_profile(username):
         user={"name": username, "email": f"{username}@example.com"}
     )
 ```
+{% endraw %}
 
 **Django Integration:**
 
+{% raw %}
 ```python
 from django.http import HttpResponse
 from luma import Template
@@ -332,6 +339,7 @@ def my_view(request):
     
     return HttpResponse(html)
 ```
+{% endraw %}
 
 ---
 

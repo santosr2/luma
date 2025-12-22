@@ -241,6 +241,7 @@ Create a mutable namespace object for templates.
 
 **Example (in template):**
 
+{% raw %}
 ```lua
 {% set ns = namespace(count=0) %}
 {% for item in items %}
@@ -248,6 +249,7 @@ Create a mutable namespace object for templates.
 {% endfor %}
 Total: {{ ns.count }}
 ```
+{% endraw %}
 
 ---
 
@@ -259,126 +261,164 @@ Total: {{ ns.count }}
 
 **`upper`** - Convert to uppercase
 
+{% raw %}
 ```lua
 {{ "hello" | upper }}  -- "HELLO"
 ```
+{% endraw %}
 
 **`lower`** - Convert to lowercase
 
+{% raw %}
 ```lua
 {{ "HELLO" | lower }}  -- "hello"
 ```
+{% endraw %}
 
 **`title`** - Title case
 
+{% raw %}
 ```lua
 {{ "hello world" | title }}  -- "Hello World"
 ```
+{% endraw %}
 
 **`capitalize`** - Capitalize first letter
 
+{% raw %}
 ```lua
 {{ "hello" | capitalize }}  -- "Hello"
 ```
+{% endraw %}
 
 **`trim`** - Remove whitespace
 
+{% raw %}
 ```lua
 {{ "  hello  " | trim }}  -- "hello"
 ```
+{% endraw %}
 
 **`truncate(length, end)`** - Truncate string
 
+{% raw %}
 ```lua
 {{ "Long text" | truncate(5) }}  -- "Long..."
 {{ "Long text" | truncate(5, "…") }}  -- "Long…"
 ```
+{% endraw %}
 
 **`replace(old, new)`** - Replace substring
 
+{% raw %}
 ```lua
 {{ "hello world" | replace("world", "Lua") }}  -- "hello Lua"
 ```
+{% endraw %}
 
 #### List Filters
 
 **`length`** - Get length
 
+{% raw %}
 ```lua
 {{ items | length }}  -- number of items
 ```
+{% endraw %}
 
 **`join(sep)`** - Join list elements
 
+{% raw %}
 ```lua
 {{ ["a", "b", "c"] | join(", ") }}  -- "a, b, c"
 ```
+{% endraw %}
 
 **`first`** - First element
 
+{% raw %}
 ```lua
 {{ items | first }}
 ```
+{% endraw %}
 
 **`last`** - Last element
 
+{% raw %}
 ```lua
 {{ items | last }}
 ```
+{% endraw %}
 
 **`sort`** - Sort list
 
+{% raw %}
 ```lua
 {{ [3, 1, 2] | sort }}  -- [1, 2, 3]
 ```
+{% endraw %}
 
 **`reverse`** - Reverse list
 
+{% raw %}
 ```lua
 {{ [1, 2, 3] | reverse }}  -- [3, 2, 1]
 ```
+{% endraw %}
 
 #### Numeric Filters
 
 **`abs`** - Absolute value
 
+{% raw %}
 ```lua
 {{ -5 | abs }}  -- 5
 ```
+{% endraw %}
 
 **`round(precision)`** - Round number
 
+{% raw %}
 ```lua
 {{ 3.14159 | round(2) }}  -- 3.14
 ```
+{% endraw %}
 
 **`format(fmt)`** - Format number
 
+{% raw %}
 ```lua
 {{ 1234.5 | format("%.2f") }}  -- "1234.50"
 ```
+{% endraw %}
 
 #### Date/Time Filters
 
 **`date(format)`** - Format timestamp
 
+{% raw %}
 ```lua
 {{ timestamp | date("%Y-%m-%d") }}
 ```
+{% endraw %}
 
 #### Misc Filters
 
 **`default(value)`** - Default if nil/empty
 
+{% raw %}
 ```lua
 {{ var | default("N/A") }}
 ```
+{% endraw %}
 
 **`escape`** - HTML escape (alias: `e`)
 
+{% raw %}
 ```lua
 {{ "<script>" | escape }}  -- "&lt;script&gt;"
 ```
+{% endraw %}
 
 ### Custom Filters
 
@@ -399,11 +439,13 @@ end)
 
 **Use in template:**
 
+{% raw %}
 ```lua
 {{ 5 | double }}  -- 10
 {{ "Alice" | greet }}  -- "Hello, Alice!"
 {{ "Bob" | greet("Hi") }}  -- "Hi, Bob!"
 ```
+{% endraw %}
 
 ---
 
@@ -411,6 +453,7 @@ end)
 
 ### Template Class
 
+{% raw %}
 ```python
 from luma import Template
 
@@ -426,6 +469,7 @@ result = template.render_dict({"name": "World"})
 # String representation
 print(repr(template))  # <Template source="...">
 ```
+{% endraw %}
 
 ### Environment Class
 
@@ -462,6 +506,7 @@ loader = FileSystemLoader("/templates", encoding="utf-8")
 
 **DictLoader:**
 
+{% raw %}
 ```python
 from luma.loaders import DictLoader
 
@@ -470,6 +515,7 @@ loader = DictLoader({
     "about.html": "About page",
 })
 ```
+{% endraw %}
 
 **PackageLoader:**
 
@@ -538,6 +584,7 @@ Luma provides detailed error messages with:
 
 Example error:
 
+{% raw %}
 ```text
 ParseError: Expected 'end' after 'for' block
   at template.luma:15:1
@@ -546,6 +593,7 @@ ParseError: Expected 'end' after 'for' block
   14 |   - {{ item }}
 > 15 | @if condition
 ```
+{% endraw %}
 
 ---
 
