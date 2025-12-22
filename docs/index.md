@@ -127,27 +127,27 @@ print(result)  # "Hello, World!"
 
 <div class="docs-grid" markdown="1">
 
-### [Getting Started](/getting-started)
+### [Getting Started](getting-started.html)
 
 Installation, first template, basic concepts
 
-### [Documentation](/documentation)
+### [Documentation](documentation.html)
 
 Complete language reference and guides
 
-### [Examples](/examples)
+### [Examples](examples.html)
 
 Real-world templates for K8s, Terraform, Ansible
 
-### [API Reference](/API)
+### [API Reference](API.html)
 
 Complete API documentation for all languages
 
-### [Jinja2 Migration](/JINJA2_MIGRATION)
+### [Jinja2 Migration](JINJA2_MIGRATION.html)
 
 Seamless migration from Jinja2 to Luma
 
-### [Integration Guides](/INTEGRATION_GUIDES)
+### [Integration Guides](INTEGRATION_GUIDES.html)
 
 Helm, Terraform, Ansible, Flask, and more
 

@@ -10,10 +10,10 @@ Complete reference for the Luma template engine.
 
 ## Quick Links
 
-- [API Reference](/API) - Complete API documentation
-- [Jinja2 Migration Guide](/JINJA2_MIGRATION) - Migrate from Jinja2
-- [Integration Guides](/INTEGRATION_GUIDES) - Framework integrations
-- [Whitespace Control](/WHITESPACE) - Smart whitespace handling
+- [API Reference](API.html) - Complete API documentation
+- [Jinja2 Migration Guide](JINJA2_MIGRATION.html) - Migrate from Jinja2
+- [Integration Guides](INTEGRATION_GUIDES.html) - Framework integrations
+- [Whitespace Control](WHITESPACE.html) - Smart whitespace handling
 
 ---
 
@@ -220,7 +220,7 @@ $text | wordwrap(width=80, break_long_words=false)
 $text | indent(width=4, first=false)
 ```
 
-See [API Reference - Filters](/API#filters) for complete list.
+See [API Reference - Filters](API.html#filters) for complete list.
 
 ---
 
@@ -255,7 +255,7 @@ Tests check conditions using `is`:
 @if x is not even
 ```
 
-See [API Reference - Tests](/API#tests) for complete list.
+See [API Reference - Tests](API.html#tests) for complete list.
 
 ---
 
@@ -569,7 +569,7 @@ Result: @for i in {1,2,3}; $i @end
 &#123;%- endif -%&#125;
 ```
 
-See [Whitespace Control Guide](/WHITESPACE) for details.
+See [Whitespace Control Guide](WHITESPACE.html) for details.
 
 ---
 
@@ -606,7 +606,7 @@ Hello, &#123;&#123; name &#125;&#125;!
 luma migrate template.j2 > template.luma
 ```
 
-See [Jinja2 Migration Guide](/JINJA2_MIGRATION).
+See [Jinja2 Migration Guide](JINJA2_MIGRATION.html).
 
 ---
 
@@ -781,7 +781,7 @@ luma validate templates/**/*.luma
 
 ## Next Steps
 
-- [API Reference](/API) - Detailed API documentation
-- [Examples](/examples) - Real-world examples
-- [Integration Guides](/INTEGRATION_GUIDES) - Framework integrations
+- [API Reference](API.html) - Detailed API documentation
+- [Examples](examples.html) - Real-world examples
+- [Integration Guides](INTEGRATION_GUIDES.html) - Framework integrations
 - [Contributing](https://github.com/santosr2/luma/blob/main/CONTRIBUTING.md) - Contribute to Luma

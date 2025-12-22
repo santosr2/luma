@@ -190,7 +190,7 @@ $tags | join(", ")
 $numbers | sort | first
 ```
 
-See [API Reference](/API#filters) for all available filters.
+See [API Reference](API.html#filters) for all available filters.
 
 ### Comments
 
@@ -230,7 +230,7 @@ Convert Jinja2 templates to native Luma syntax:
 luma migrate template.j2 > template.luma
 ```
 
-See [Jinja2 Migration Guide](/JINJA2_MIGRATION) for details.
+See [Jinja2 Migration Guide](JINJA2_MIGRATION.html) for details.
 
 ---
 
@@ -452,10 +452,10 @@ database:
 
 ### Learn More
 
-- **[Complete Documentation](/documentation)** - Full language reference
-- **[Examples](/examples)** - Real-world use cases
-- **[API Reference](/API)** - Detailed API documentation
-- **[Integration Guides](/INTEGRATION_GUIDES)** - Framework-specific guides
+- **[Complete Documentation](documentation.html)** - Full language reference
+- **[Examples](examples.html)** - Real-world use cases
+- **[API Reference](API.html)** - Detailed API documentation
+- **[Integration Guides](INTEGRATION_GUIDES.html)** - Framework-specific guides
 
 ### Try Examples
 
