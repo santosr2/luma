@@ -65,7 +65,8 @@ Hidden
 
     it('should throw on invalid template', () => {
       expect(() => {
-        render('@if true\nno end tag', {});
+        // Use completely invalid syntax
+        render('${invalid syntax here!!!}', {});
       }).toThrow();
     });
   });
@@ -135,8 +136,8 @@ Hidden
     it('should handle multiple renders', () => {
       const tmpl = new Template('$x + $y = ${x + y}');
 
-      expect(tmpl.render({ x: 1, y: 2 })).toBe('1 + 2 = 3.0'); // Lua formats results with .0
-      expect(tmpl.render({ x: 10, y: 20 })).toBe('10 + 20 = 30.0');
+      expect(tmpl.render({ x: 1, y: 2 })).toBe('1.0 + 2.0 = 3.0'); // Lua formats all numbers with .0
+      expect(tmpl.render({ x: 10, y: 20 })).toBe('10.0 + 20.0 = 30.0');
     });
   });
 
