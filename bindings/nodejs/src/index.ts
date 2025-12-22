@@ -277,9 +277,6 @@ export function renderFileSync(
   return render(template, context, options);
 }
 
-// Export types
-export { RenderOptions, Context };
-
 // Export default
 export default {
   render,
