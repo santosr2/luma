@@ -18,15 +18,17 @@
  */
 
 import * as fengari from 'fengari';
-import * as interop from 'fengari-interop';
 import * as fs from 'fs';
 import * as path from 'path';
 
 const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
 const lualib = fengari.lualib;
-const to_jsstring = interop.to_jsstring;
-const to_luastring = interop.to_luastring;
+
+// Import interop functions - fengari-interop is CommonJS, needs require
+const fengari_interop = require('fengari-interop');
+const to_jsstring = fengari_interop.to_jsstring;
+const to_luastring = fengari_interop.to_luastring;
 
 /**
  * Context for template rendering
