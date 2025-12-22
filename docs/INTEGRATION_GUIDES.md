@@ -250,8 +250,8 @@ jobs:
       local luma = require("luma")
       local template = io.open("k8s/deployment.luma"):read("*a")
       local result = luma.render(template, {
-        image = "${{ github.sha }}",
-        environment = "${{ github.ref_name }}",
+        image = "$&#123;{{#123; github.sha &#125;}}#125;",
+        environment = "$&#123;{{#123; github.ref_name &#125;}}#125;",
       })
       io.open("k8s/deployment.yaml", "w"):write(result)
     EOLUA
@@ -281,7 +281,7 @@ pip install .
 from luma import Template
 
 # Simple rendering
-template = Template("Hello, {{ name }}!")
+template = Template("Hello, &#123;{{#123; name &#125;}}#125;!")
 result = template.render(name="World")
 print(result)  # "Hello, World!"
 ```
@@ -297,8 +297,8 @@ app = Flask(__name__)
 @app.route("/user/<username>")
 def user_profile(username):
     template_str = """
-    <h1>Profile: {{ user.name }}</h1>
-    <p>Email: {{ user.email }}</p>
+    <h1>Profile: &#123;{{#123; user.name &#125;}}#125;</h1>
+    <p>Email: &#123;{{#123; user.email &#125;}}#125;</p>
     """
     
     template = Template(template_str, syntax="jinja")
@@ -315,10 +315,10 @@ from luma import Template
 
 def my_view(request):
     template = Template("""
-    <h1>{{ title }}</h1>
-    {% for item in items %}
-        <p>{{ item }}</p>
-    {% endfor %}
+    <h1>&#123;{{#123; title &#125;}}#125;</h1>
+    &#123;% for item in items %%}#125;
+        <p>&#123;{{#123; item &#125;}}#125;</p>
+    &#123;% endfor %%}#125;
     """, syntax="jinja")
     
     html = template.render(

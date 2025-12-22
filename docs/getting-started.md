@@ -210,16 +210,16 @@ Can span multiple lines
 If you're coming from Jinja2, you can use the familiar syntax:
 
 ```jinja
-{% set name = "World" %}
-Hello, {{ name }}!
+&#123;% set name = "World" %&#125;
+Hello, &#123;&#123; name &#125;&#125;!
 
-{% if condition %}
+&#123;% if condition %&#125;
   Do something
-{% endif %}
+&#123;% endif %&#125;
 
-{% for item in items %}
-  - {{ item }}
-{% endfor %}
+&#123;% for item in items %&#125;
+  - &#123;&#123; item &#125;&#125;
+&#123;% endfor %&#125;
 ```
 
 **Migration Tool:**
@@ -492,9 +492,9 @@ Native Luma syntax is cleaner and more readable:
 @end
 
 @# Instead of
-{% if condition %}
-  {{ value }}
-{% endif %}
+&#123;% if condition %&#125;
+  &#123;&#123; value &#125;&#125;
+&#123;% endif %&#125;
 ```
 
 ### 2. Leverage Smart Whitespace

@@ -67,12 +67,12 @@ Hello, $name!
 **Jinja2 Syntax (also supported):**
 
 ```jinja
-{% set name = "World" %}
-Hello, {{ name }}!
+&#123;% set name = "World" %%}#125;
+Hello, &#123;{{#123; name &#125;}}#125;!
 
-{% if name == "World" %}
+&#123;% if name == "World" %%}#125;
   Welcome to Luma!
-{% endif %}
+&#123;% endif %%}#125;
 ```
 
 ### Using in Code

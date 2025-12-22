@@ -36,7 +36,7 @@ jobs:
         if: runner.os != 'Windows'
         uses: leafo/gh-actions-lua@v10
         with:
-          luaVersion: "luajit"
+          luaVersion: "5.4"
 
       - name: Setup LuaRocks (Unix)
         if: runner.os != 'Windows'
