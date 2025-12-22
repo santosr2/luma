@@ -99,7 +99,7 @@ spec:
 			Content: `apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${Release.Name}-${Chart.Name}
+  name: ${Release.Name ~ "-" ~ Chart.Name}
 spec:
   replicas: ${Values.replicas | default(1)}`,
 		},

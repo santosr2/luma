@@ -18,13 +18,15 @@
  */
 
 import * as fengari from 'fengari';
-import { to_jsstring, to_luastring } from 'fengari-interop';
+import * as interop from 'fengari-interop';
 import * as fs from 'fs';
 import * as path from 'path';
 
 const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
 const lualib = fengari.lualib;
+const to_jsstring = interop.to_jsstring;
+const to_luastring = interop.to_luastring;
 
 /**
  * Context for template rendering
