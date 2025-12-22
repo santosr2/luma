@@ -1,7 +1,7 @@
 # Luma
 
 [![CI Status](https://github.com/santosr2/luma/workflows/CI/badge.svg)](https://github.com/santosr2/luma/actions)
-[![Coverage](https://img.shields.io/coveralls/github/santosr2/luma)](https://coveralls.io/github/santosr2/luma)
+[![codecov](https://codecov.io/gh/santosr2/luma/branch/main/graph/badge.svg)](https://codecov.io/gh/santosr2/luma)
 [![LuaRocks](https://img.shields.io/luarocks/v/santosr2/luma)](https://luarocks.org/modules/santosr2/luma)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Lua](https://img.shields.io/badge/lua-5.1%20%7C%205.2%20%7C%205.3%20%7C%205.4%20%7C%20JIT-blue)](https://www.lua.org)
