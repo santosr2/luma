@@ -486,9 +486,9 @@ This $variable will not be processed
 **Jinja2 syntax:**
 
 ```jinja
-{% raw %}
-{{ this }} will not be processed
-{% endraw %}
+&#123;% raw %&#125;
+&#123;&#123; this &#125;&#125; will not be processed
+&#123;% endraw %&#125;
 ```
 
 ---
@@ -564,9 +564,9 @@ Result: @for i in {1,2,3}; $i @end
 ### Jinja2 Trim Syntax
 
 ```jinja
-{%- if condition -%}
-  {{- value -}}
-{%- endif -%}
+&#123;%- if condition -%&#125;
+  &#123;&#123;- value -&#125;&#125;
+&#123;%- endif -%&#125;
 ```
 
 See [Whitespace Control Guide](/WHITESPACE) for details.
@@ -578,26 +578,26 @@ See [Whitespace Control Guide](/WHITESPACE) for details.
 Luma supports full Jinja2 syntax for compatibility:
 
 ```jinja
-{% set name = "World" %}
-Hello, {{ name }}!
+&#123;% set name = "World" %&#125;
+Hello, &#123;&#123; name &#125;&#125;!
 
-{% if condition %}
+&#123;% if condition %&#125;
   True
-{% elif other %}
+&#123;% elif other %&#125;
   Maybe
-{% else %}
+&#123;% else %&#125;
   False
-{% endif %}
+&#123;% endif %&#125;
 
-{% for item in items %}
-  - {{ item }}
-{% endfor %}
+&#123;% for item in items %&#125;
+  - &#123;&#123; item &#125;&#125;
+&#123;% endfor %&#125;
 
-{% macro button(text) %}
-  <button>{{ text }}</button>
-{% endmacro %}
+&#123;% macro button(text) %&#125;
+  <button>&#123;&#123; text &#125;&#125;</button>
+&#123;% endmacro %&#125;
 
-{{ button("Click") }}
+&#123;&#123; button("Click") &#125;&#125;
 ```
 
 **Migration:**
@@ -621,9 +621,9 @@ See [Jinja2 Migration Guide](/JINJA2_MIGRATION).
 @end
 
 @# Also works but less clean
-{% if condition %}
-  {{ value }}
-{% endif %}
+&#123;% if condition %&#125;
+  &#123;&#123; value &#125;&#125;
+&#123;% endif %&#125;
 ```
 
 ### 2. Leverage Smart Whitespace
