@@ -49,9 +49,9 @@ class Template:
                 luma_root = os.path.join(bindings_dir, '../../..')
                 luma_root = os.path.abspath(luma_root)
 
-                # Set up Lua package path to find Luma modules
+                # Set up Lua package path to find Luma modules (prepend to take precedence)
                 package_path_setup = f"""
-                    package.path = package.path .. ';{luma_root}/?.lua;{luma_root}/?/init.lua'
+                    package.path = '{luma_root}/?.lua;{luma_root}/?/init.lua;' .. package.path
                     luma = require('luma')
                     filters = require('luma.filters')
                     runtime = require('luma.runtime')

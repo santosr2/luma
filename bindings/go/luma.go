@@ -145,13 +145,22 @@ func loadLumaModules(L *lua.LState) error {
 	for name, code := range modules {
 		moduleName := name
 		moduleCode := code
-		L.PreloadModule(moduleName, func(L *lua.LState) int {
+		preloadFunc := func(L *lua.LState) int {
 			if err := L.DoString(moduleCode); err != nil {
 				L.RaiseError("failed to load module %s: %s", moduleName, err.Error())
 				return 0
 			}
 			return 1
-		})
+		}
+		
+		L.PreloadModule(moduleName, preloadFunc)
+		
+		// Also register without .init suffix for init.lua files
+		// So "luma.lexer.init" is also accessible as "luma.lexer"
+		if len(moduleName) > 5 && moduleName[len(moduleName)-5:] == ".init" {
+			shortName := moduleName[:len(moduleName)-5]
+			L.PreloadModule(shortName, preloadFunc)
+		}
 	}
 
 	return nil
