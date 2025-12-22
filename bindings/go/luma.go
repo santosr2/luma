@@ -42,6 +42,12 @@ var lumaLexerJinja string
 //go:embed lua/luma/lexer/tokens.lua
 var lumaLexerTokens string
 
+//go:embed lua/luma/lexer/inline_detector.lua
+var lumaLexerInlineDetector string
+
+//go:embed lua/luma/lexer/trim_processor.lua
+var lumaLexerTrimProcessor string
+
 //go:embed lua/luma/parser/init.lua
 var lumaParserInit string
 
@@ -54,6 +60,12 @@ var lumaParserExpressions string
 //go:embed lua/luma/runtime/init.lua
 var lumaRuntimeInit string
 
+//go:embed lua/luma/runtime/context.lua
+var lumaRuntimeContext string
+
+//go:embed lua/luma/runtime/sandbox.lua
+var lumaRuntimeSandbox string
+
 //go:embed lua/luma/filters/init.lua
 var lumaFiltersInit string
 
@@ -62,6 +74,12 @@ var lumaUtilsInit string
 
 //go:embed lua/luma/utils/errors.lua
 var lumaUtilsErrors string
+
+//go:embed lua/luma/utils/compat.lua
+var lumaUtilsCompat string
+
+//go:embed lua/luma/utils/warnings.lua
+var lumaUtilsWarnings string
 
 //go:embed lua/luma/version.lua
 var lumaVersion string
@@ -100,21 +118,27 @@ func Render(template string, context interface{}) (string, error) {
 // loadLumaModules loads all Luma Lua modules into the Lua state
 func loadLumaModules(L *lua.LState) error {
 	modules := map[string]string{
-		"luma":                      lumaInitCode,
-		"luma.version":              lumaVersion,
-		"luma.compiler.init":        lumaCompilerInit,
-		"luma.compiler.codegen":     lumaCompilerCodegen,
-		"luma.lexer.init":           lumaLexerInit,
-		"luma.lexer.native":         lumaLexerNative,
-		"luma.lexer.jinja":          lumaLexerJinja,
-		"luma.lexer.tokens":         lumaLexerTokens,
-		"luma.parser.init":          lumaParserInit,
-		"luma.parser.ast":           lumaParserAst,
-		"luma.parser.expressions":   lumaParserExpressions,
-		"luma.runtime.init":         lumaRuntimeInit,
-		"luma.filters.init":         lumaFiltersInit,
-		"luma.utils.init":           lumaUtilsInit,
-		"luma.utils.errors":         lumaUtilsErrors,
+		"luma":                         lumaInitCode,
+		"luma.version":                 lumaVersion,
+		"luma.compiler.init":           lumaCompilerInit,
+		"luma.compiler.codegen":        lumaCompilerCodegen,
+		"luma.lexer.init":              lumaLexerInit,
+		"luma.lexer.native":            lumaLexerNative,
+		"luma.lexer.jinja":             lumaLexerJinja,
+		"luma.lexer.tokens":            lumaLexerTokens,
+		"luma.lexer.inline_detector":   lumaLexerInlineDetector,
+		"luma.lexer.trim_processor":    lumaLexerTrimProcessor,
+		"luma.parser.init":             lumaParserInit,
+		"luma.parser.ast":              lumaParserAst,
+		"luma.parser.expressions":      lumaParserExpressions,
+		"luma.runtime.init":            lumaRuntimeInit,
+		"luma.runtime.context":         lumaRuntimeContext,
+		"luma.runtime.sandbox":         lumaRuntimeSandbox,
+		"luma.filters.init":            lumaFiltersInit,
+		"luma.utils.init":              lumaUtilsInit,
+		"luma.utils.errors":            lumaUtilsErrors,
+		"luma.utils.compat":            lumaUtilsCompat,
+		"luma.utils.warnings":          lumaUtilsWarnings,
 	}
 
 	// Register preload functions for each module

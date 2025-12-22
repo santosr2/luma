@@ -10,9 +10,8 @@ import (
 // Template represents a compiled Luma template.
 // Templates are safe for concurrent use after compilation.
 type Template struct {
-	source   string
-	compiled *lua.FunctionProto
-	mu       sync.RWMutex
+	source string
+	mu     sync.RWMutex
 }
 
 // Compile compiles a template string for later execution.

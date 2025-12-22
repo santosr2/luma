@@ -234,53 +234,6 @@ jobs:
             fi
           done
 
-  python-bindings:
-    name: Python Bindings
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Setup Lua
-        uses: leafo/gh-actions-lua@v10
-        with:
-          luaVersion: "luajit"
-
-      - name: Setup LuaRocks
-        uses: leafo/gh-actions-luarocks@v4
-
-      - name: Install Lua dependencies
-        run: |
-          # Install Luma package for Python bindings to use
-          luarocks make luma-0.1.0-1.rockspec || true
-
-      - name: Install Python dependencies
-        working-directory: bindings/python
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest lupa pytest-cov
-
-      - name: Run Python binding tests
-        working-directory: bindings/python
-        run: |
-          python -m pytest tests/ -v --tb=short
-        continue-on-error: false
-
-      - name: Test installation
-        working-directory: bindings/python
-        run: |
-          pip install .
-          python -c "from luma import Template; print(Template('Hello, \$name!').render(name='CI'))"
-
   benchmarks:
     name: Performance Benchmarks
     runs-on: ubuntu-latest

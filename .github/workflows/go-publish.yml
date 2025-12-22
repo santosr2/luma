@@ -1,0 +1,112 @@
+name: Publish Go Package
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v0.1.0)'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  tag-module:
+    name: Tag Go Module
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Verify module
+        working-directory: bindings/go
+        run: |
+          go mod verify
+          go mod tidy
+          git diff --exit-code go.mod go.sum || (echo "go.mod or go.sum is not tidy" && exit 1)
+
+      - name: Run tests
+        working-directory: bindings/go
+        run: go test -v ./...
+
+      - name: Create module tag
+        if: github.event_name == 'release'
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          MODULE_TAG="bindings/go/${VERSION}"
+          
+          echo "Creating Go module tag: ${MODULE_TAG}"
+          
+          # Note: Tags are created automatically by GitHub releases
+          # Go modules are accessed via: github.com/santosr2/luma/bindings/go@${VERSION}
+          
+          echo "Go module can be installed with:"
+          echo "go get github.com/santosr2/luma/bindings/go@${VERSION}"
+
+  publish-docs:
+    name: Publish Go Documentation
+    needs: tag-module
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Generate documentation
+        working-directory: bindings/go
+        run: |
+          go doc -all > /tmp/godoc.txt
+          echo "Generated Go documentation"
+          head -50 /tmp/godoc.txt
+
+      - name: Verify pkg.go.dev
+        run: |
+          VERSION=${{ github.event.release.tag_name || inputs.tag }}
+          echo "Package will be available at:"
+          echo "https://pkg.go.dev/github.com/santosr2/luma/bindings/go@${VERSION}"
+          echo ""
+          echo "Note: pkg.go.dev updates automatically when the module is first requested"
+          echo "Users can import with: go get github.com/santosr2/luma/bindings/go@${VERSION}"
+
+  create-summary:
+    name: Create Release Summary
+    needs: [tag-module, publish-docs]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+      - name: Create summary
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          
+          echo "## Go Module Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Go module is now available at:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "go get github.com/santosr2/luma/bindings/go@${VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Documentation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- [pkg.go.dev](https://pkg.go.dev/github.com/santosr2/luma/bindings/go@${VERSION})" >> $GITHUB_STEP_SUMMARY
+          echo "- [README](https://github.com/santosr2/luma/blob/${VERSION}/bindings/go/README.md)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Usage" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```go' >> $GITHUB_STEP_SUMMARY
+          echo 'import "github.com/santosr2/luma/bindings/go"' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo 'result, err := luma.Render(templateSource, data)' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
