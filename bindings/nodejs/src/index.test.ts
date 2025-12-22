@@ -203,7 +203,7 @@ kind: Deployment
 metadata:
   name: $app_name
 spec:
-  replicas: ${replicas | default(3)}
+  replicas: \${replicas | default(3)}
   selector:
     matchLabels:
       app: $app_name

@@ -1,15 +1,8 @@
 // Type declarations for fengari and fengari-interop
 declare module 'fengari' {
-  export namespace lua {
-    export const LUA_REGISTRYINDEX: number;
-    [key: string]: any;
-  }
-  export namespace lauxlib {
-    [key: string]: any;
-  }
-  export namespace lualib {
-    [key: string]: any;
-  }
+  export const lua: any;
+  export const lauxlib: any;
+  export const lualib: any;
 }
 
 declare module 'fengari-interop' {
