@@ -109,7 +109,7 @@ function initLuaState(): any {
       const code = fs.readFileSync(fullPath, 'utf8');
 
       // Load module into package.preload
-      lauxlib.luaL_getsubtable(L, lua.LUA_REGISTRYINDEX, lua.to_luastring('_PRELOAD'));
+      lauxlib.luaL_getsubtable(L, lua.LUA_REGISTRYINDEX, to_luastring('_PRELOAD'));
 
       if (lauxlib.luaL_loadstring(L, to_luastring(code)) !== lua.LUA_OK) {
         const error = to_jsstring(lua.lua_tostring(L, -1));
