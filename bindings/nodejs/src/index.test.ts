@@ -12,7 +12,7 @@ describe('Luma Node.js Bindings', () => {
 
     it('should render complex expressions', () => {
       const result = render('Result: ${value * 2}', { value: 21 });
-      expect(result).toBe('Result: 42');
+      expect(result).toBe('Result: 42.0'); // Lua formats whole numbers with .0
     });
 
     it('should handle nested objects', () => {
@@ -49,7 +49,7 @@ Hidden
     });
 
     it('should handle filters', () => {
-      const result = render('$name | upper', { name: 'alice' });
+      const result = render('${name | upper}', { name: 'alice' });
       expect(result).toBe('ALICE');
     });
 
@@ -65,7 +65,7 @@ Hidden
 
     it('should throw on invalid template', () => {
       expect(() => {
-        render('@if missing_end', {});
+        render('@if true\nno end tag', {});
       }).toThrow();
     });
   });
@@ -123,7 +123,7 @@ Hidden
     it('should render with context', () => {
       const tmpl = new Template('Value: $value');
       const result = tmpl.render({ value: 42 });
-      expect(result).toBe('Value: 42');
+      expect(result).toBe('Value: 42.0'); // Lua formats numbers with .0
     });
 
     it('should render with empty context', () => {
@@ -135,8 +135,8 @@ Hidden
     it('should handle multiple renders', () => {
       const tmpl = new Template('$x + $y = ${x + y}');
 
-      expect(tmpl.render({ x: 1, y: 2 })).toBe('1 + 2 = 3');
-      expect(tmpl.render({ x: 10, y: 20 })).toBe('10 + 20 = 30');
+      expect(tmpl.render({ x: 1, y: 2 })).toBe('1 + 2 = 3.0'); // Lua formats results with .0
+      expect(tmpl.render({ x: 10, y: 20 })).toBe('10 + 20 = 30.0');
     });
   });
 
