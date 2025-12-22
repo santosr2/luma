@@ -94,15 +94,15 @@ spec:
   ports:
     - port: $Values.port`,
 			},
-			{
-				Name: "templates/deployment.yaml",
-				Content: `apiVersion: apps/v1
+		{
+			Name: "templates/deployment.yaml",
+			Content: `apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${Release.Name}-$Chart.Name
+  name: $Release.Name-$Chart.Name
 spec:
   replicas: ${Values.replicas | default(1)}`,
-			},
+		},
 		},
 	}
 
@@ -144,10 +144,10 @@ spec:
 	// Check deployment template
 	if deployment, ok := rendered["templates/deployment.yaml"]; ok {
 		if !strings.Contains(deployment, "name: my-release-test-app") {
-			t.Errorf("Deployment template missing release name")
+			t.Errorf("Deployment template missing release name. Got:\n%s", deployment)
 		}
 		if !strings.Contains(deployment, "replicas: 3") {
-			t.Errorf("Deployment template missing replicas")
+			t.Errorf("Deployment template missing replicas. Got:\n%s", deployment)
 		}
 	} else {
 		t.Error("Deployment template not rendered")
