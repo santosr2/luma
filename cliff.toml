@@ -13,7 +13,6 @@ body = """
 {% if version and release.notes %}\
     {{ release.notes | trim }}
 {% endif %}\
-{%- if commit_parsers | filter(attribute="message", value="^feat") | length > 0 -%}
 {%- set breaking_commits = commits | filter(attribute="breaking", value=true) -%}
 {%- if breaking_commits | length > 0 %}
     ### ⚠️  BREAKING CHANGES
@@ -24,7 +23,6 @@ body = """
         {%- endif %}
     {% endfor %}
 {% endif %}\
-{%- endif %}
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | striptags | trim | upper_first }}
     {% for commit in commits -%}
@@ -58,11 +56,6 @@ conventional_commits = true
 filter_unconventional = false
 # Process each line of a commit as an individual commit
 split_commits = false
-
-[remote.github]
-# GitHub repository owner and name
-owner = "santosr2"
-repo = "luma"
 # Regex for parsing and grouping commits
 commit_parsers = [
   { message = "^feat", group = "<!-- 0 -->✨ Features" },
@@ -92,4 +85,9 @@ date_order = false
 sort_commits = "oldest"
 # Limit the number of commits included in the changelog
 # limit_commits = 42
+
+[remote.github]
+# GitHub repository owner and name
+owner = "santosr2"
+repo = "luma"
 
