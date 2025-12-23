@@ -123,20 +123,41 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e  # Exit on any error
+          
           # Install git-cliff for proper changelog generation
-          curl -fsSL https://github.com/orhun/git-cliff/releases/download/v2.4.0/git-cliff-2.4.0-x86_64-unknown-linux-gnu.tar.gz | sudo tar -xz -C /usr/local/bin
+          echo "📦 Installing git-cliff..."
+          if ! curl -fsSL https://github.com/orhun/git-cliff/releases/download/v2.4.0/git-cliff-2.4.0-x86_64-unknown-linux-gnu.tar.gz | sudo tar -xz -C /usr/local/bin; then
+            echo "❌ Failed to install git-cliff"
+            exit 1
+          fi
+          
+          # Verify git-cliff is installed
+          if ! command -v git-cliff &> /dev/null; then
+            echo "❌ git-cliff binary not found after installation"
+            exit 1
+          fi
+          
+          echo "✅ git-cliff installed successfully"
+          echo "📝 Generating changelog for ${{ steps.version.outputs.version }}..."
           
           # Generate changelog for the latest tag (the one we just pushed)
           # --latest generates changelog for the most recent tag
           # --github-token enables fetching GitHub usernames
-          git-cliff --latest --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md || {
-            # Fallback: Extract from CHANGELOG.md if git-cliff fails
-            if [ -f CHANGELOG.md ]; then
-              sed -n "/## \[${{ steps.version.outputs.version }}\]/,/## \[/p" CHANGELOG.md | head -n -1 > release_notes.md
-            else
-              echo "Release ${{ steps.version.outputs.version }}" > release_notes.md
-            fi
-          }
+          if ! git-cliff --latest --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md; then
+            echo "❌ git-cliff failed to generate changelog"
+            exit 1
+          fi
+          
+          # Verify release notes were created
+          if [ ! -f release_notes.md ] || [ ! -s release_notes.md ]; then
+            echo "❌ release_notes.md is missing or empty"
+            exit 1
+          fi
+          
+          echo "✅ Changelog generated successfully"
+          echo "📄 Release notes preview:"
+          head -n 20 release_notes.md
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
