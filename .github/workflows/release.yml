@@ -172,15 +172,26 @@ jobs:
           git-cliff --github-token "$GITHUB_TOKEN" --output CHANGELOG.md
           
           # Generate release notes for this specific version
-          # Use range from beginning (no previous tag) to current tag
+          # For first release: generate from all commits up to current tag
+          # For subsequent releases: --latest will work automatically
           echo "📝 Generating release notes for ${{ steps.version.outputs.tag }}..."
-          git-cliff --tag ${{ steps.version.outputs.tag }} --unreleased --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md
+          
+          # Check if there are previous tags
+          PREV_TAG=$(git describe --tags --abbrev=0 ${{ steps.version.outputs.tag }}^ 2>/dev/null || echo "")
+          
+          if [ -z "$PREV_TAG" ]; then
+            echo "ℹ️  First release detected, generating changelog from all commits"
+            # First release: from beginning to current tag
+            git-cliff --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md
+          else
+            echo "ℹ️  Previous tag found: $PREV_TAG, generating changelog for range"
+            # Subsequent releases: from previous tag to current tag  
+            git-cliff $PREV_TAG..${{ steps.version.outputs.tag }} --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md
+          fi
           
           # Verify release notes were created
           if [ ! -s release_notes.md ]; then
             echo "❌ release_notes.md is missing or empty"
-            echo "📄 Showing git-cliff debug output:"
-            git-cliff --tag ${{ steps.version.outputs.tag }} --unreleased --github-token "$GITHUB_TOKEN" --verbose
             exit 1
           fi
           
