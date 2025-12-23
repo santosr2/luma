@@ -120,12 +120,16 @@ jobs:
 
       - name: Generate changelog
         id: changelog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Install git-cliff for proper changelog generation
           curl -fsSL https://github.com/orhun/git-cliff/releases/download/v2.4.0/git-cliff-2.4.0-x86_64-unknown-linux-gnu.tar.gz | sudo tar -xz -C /usr/local/bin
           
-          # Generate changelog for this release
-          git-cliff --tag ${{ steps.version.outputs.tag }} --strip all --unreleased --output release_notes.md || {
+          # Generate changelog for the latest tag (the one we just pushed)
+          # --latest generates changelog for the most recent tag
+          # --github-token enables fetching GitHub usernames
+          git-cliff --latest --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md || {
             # Fallback: Extract from CHANGELOG.md if git-cliff fails
             if [ -f CHANGELOG.md ]; then
               sed -n "/## \[${{ steps.version.outputs.version }}\]/,/## \[/p" CHANGELOG.md | head -n -1 > release_notes.md

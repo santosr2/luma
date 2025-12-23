@@ -10,10 +10,32 @@ body = """
 {% else %}\
     ## [Unreleased]
 {% endif %}\
+{% if version and release.notes %}\
+    {{ release.notes | trim }}
+{% endif %}\
+{%- if commit_parsers | filter(attribute="message", value="^feat") | length > 0 -%}
+{%- set breaking_commits = commits | filter(attribute="breaking", value=true) -%}
+{%- if breaking_commits | length > 0 %}
+    ### ⚠️  BREAKING CHANGES
+    {% for commit in breaking_commits -%}
+        - {% if commit.scope %}**{{ commit.scope }}**: {% endif %}{{ commit.message | upper_first }} ([`{{ commit.id | truncate(length=7, end="") }}`](https://github.com/santosr2/luma/commit/{{ commit.id }})){% if commit.github.username %} by [@{{ commit.github.username }}](https://github.com/{{ commit.github.username }}){% endif %}
+        {%- if commit.breaking_description %}
+          {{ commit.breaking_description | indent(n=4) }}
+        {%- endif %}
+    {% endfor %}
+{% endif %}\
+{%- endif %}
 {% for group, commits in commits | group_by(attribute="group") %}
     ### {{ group | striptags | trim | upper_first }}
-    {% for commit in commits %}
-        - {% if commit.scope %}**{{ commit.scope }}**: {% endif %}{{ commit.message | upper_first }}\
+    {% for commit in commits -%}
+        {% if commit.scope -%}
+            - **{{ commit.scope }}**: {{ commit.message | upper_first }} ([`{{ commit.id | truncate(length=7, end="") }}`](https://github.com/santosr2/luma/commit/{{ commit.id }})){% if commit.github.username %} by [@{{ commit.github.username }}](https://github.com/{{ commit.github.username }}){% endif %}
+        {%- else -%}
+            - {{ commit.message | upper_first }} ([`{{ commit.id | truncate(length=7, end="") }}`](https://github.com/santosr2/luma/commit/{{ commit.id }})){% if commit.github.username %} by [@{{ commit.github.username }}](https://github.com/{{ commit.github.username }}){% endif %}
+        {%- endif %}
+        {%- if commit.body %}
+          {{ commit.body | indent(n=4) }}
+        {%- endif %}
     {% endfor %}
 {% endfor %}\n
 """
@@ -36,6 +58,11 @@ conventional_commits = true
 filter_unconventional = false
 # Process each line of a commit as an individual commit
 split_commits = false
+
+[remote.github]
+# GitHub repository owner and name
+owner = "santosr2"
+repo = "luma"
 # Regex for parsing and grouping commits
 commit_parsers = [
   { message = "^feat", group = "<!-- 0 -->✨ Features" },
