@@ -167,21 +167,43 @@ jobs:
           echo "✅ git-cliff installed successfully ($(git-cliff --version))"
           echo "📝 Generating changelog for ${{ steps.version.outputs.version }}..."
           
-          # Generate changelog with git-cliff
-          # For tag-based releases, generate from all commits up to this tag
-          git-cliff --tag ${{ steps.version.outputs.tag }} --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md
+          # Update CHANGELOG.md with full history
+          echo "📄 Updating CHANGELOG.md..."
+          git-cliff --github-token "$GITHUB_TOKEN" --output CHANGELOG.md
+          
+          # Generate release notes for this specific version
+          # Use range from beginning (no previous tag) to current tag
+          echo "📝 Generating release notes for ${{ steps.version.outputs.tag }}..."
+          git-cliff --tag ${{ steps.version.outputs.tag }} --unreleased --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md
           
           # Verify release notes were created
           if [ ! -s release_notes.md ]; then
             echo "❌ release_notes.md is missing or empty"
             echo "📄 Showing git-cliff debug output:"
-            git-cliff --tag ${{ steps.version.outputs.tag }} --strip all --github-token "$GITHUB_TOKEN" --verbose
+            git-cliff --tag ${{ steps.version.outputs.tag }} --unreleased --github-token "$GITHUB_TOKEN" --verbose
             exit 1
           fi
           
           echo "✅ Changelog generated successfully"
           echo "📄 Release notes preview:"
-          head -n 20 release_notes.md
+          head -n 30 release_notes.md
+
+      - name: Commit updated CHANGELOG.md
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if CHANGELOG.md was modified
+          if git diff --quiet CHANGELOG.md; then
+            echo "ℹ️  CHANGELOG.md unchanged, skipping commit"
+          else
+            echo "📝 Committing updated CHANGELOG.md..."
+            git add CHANGELOG.md
+            git commit --signoff -m "chore(release): update CHANGELOG.md for ${{ steps.version.outputs.tag }}"
+            git push origin HEAD:main
+            echo "✅ CHANGELOG.md committed and pushed"
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
