@@ -113,10 +113,10 @@ jobs:
       - name: Create source tarball
         run: |
           tar czf luma-${{ steps.version.outputs.version }}.tar.gz \
-            luma/ cli/ spec/ examples/ benchmarks/ docs/ bindings/ bin/ \
-            README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md \
             --exclude='*.swp' --exclude='.git*' --exclude='__pycache__' \
-            --exclude='.venv' --exclude='*.pyc'
+            --exclude='.venv' --exclude='*.pyc' \
+            luma/ cli/ spec/ examples/ benchmarks/ docs/ bindings/ bin/ \
+            README.md LICENSE CHANGELOG.md CONTRIBUTING.md SECURITY.md
 
       - name: Generate changelog
         id: changelog
