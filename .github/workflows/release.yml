@@ -44,6 +44,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for complete changelog generation
 
       - name: Setup Lua
         uses: leafo/gh-actions-lua@v10
