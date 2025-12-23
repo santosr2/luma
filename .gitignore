@@ -2,6 +2,9 @@ IDEA.md
 .busted
 luacov*
 
+# Generated during release
+luma-*.rockspec
+
 # Internal work files - not for commit
 .cursorrules
 CLAUDE.md

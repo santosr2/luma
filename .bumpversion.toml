@@ -112,6 +112,6 @@ filename = "dist/docker/build.sh"
 search = "VERSION=\"${{1:-{current_version}}}\""
 replace = "VERSION=\"${{1:-{new_version}}}\""
 
-# LuaRocks rockspec - handled separately due to -1 suffix
-# Use: bump-my-version bump <part> && mv luma-{old}-1.rockspec luma-{new}-1.rockspec
-# Then update version and tag fields in the rockspec manually
+# LuaRocks rockspec - generated during release workflow
+# The rockspec is dynamically created with correct version and git tag
+# No need to version control the rockspec file
