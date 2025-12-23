@@ -167,16 +167,14 @@ jobs:
           echo "✅ git-cliff installed successfully ($(git-cliff --version))"
           echo "📝 Generating changelog for ${{ steps.version.outputs.version }}..."
           
-          # Generate changelog for the current tag
-          # Use --current to get changelog for the tag we just pushed
+          # For first release, generate changelog from all commits up to current tag
+          # Use --tag to specify which tag we're generating for
           # --github-token enables fetching GitHub usernames  
-          if ! git-cliff --current --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md; then
-            echo "⚠️  git-cliff --current failed, trying with tag range..."
-            # Fallback: generate from beginning if this is the first release
-            if ! git-cliff ${{ steps.version.outputs.tag }} --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md; then
-              echo "❌ git-cliff failed to generate changelog"
-              exit 1
-            fi
+          if ! git-cliff --tag ${{ steps.version.outputs.tag }} --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md; then
+            echo "❌ git-cliff failed to generate changelog"
+            # Show git-cliff error output for debugging
+            git-cliff --tag ${{ steps.version.outputs.tag }} --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md 2>&1 || true
+            exit 1
           fi
           
           # Verify release notes were created
