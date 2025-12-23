@@ -181,13 +181,15 @@ jobs:
           
           if [ -z "$PREV_TAG" ]; then
             echo "ℹ️  First release detected, generating changelog from all commits"
-            # First release: from beginning of repo to current tag
-            # Get the first commit in the repository (oldest commit across all history)
-            FIRST_COMMIT=$(git rev-list --max-parents=0 --all | head -n 1)
-            echo "📍 First commit: $FIRST_COMMIT"
-            echo "📍 Current tag: ${{ steps.version.outputs.tag }}"
-            # Generate from first commit to current tag (inclusive of all commits)
-            git-cliff --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md
+            # For first release, we need to include ALL commits from repo start
+            # Get the first commit (root of the repository)
+            FIRST_COMMIT=$(git rev-list --max-parents=0 HEAD)
+            echo "📍 Repository root commit: $FIRST_COMMIT"
+            echo "📍 Current HEAD: $(git rev-parse HEAD)"
+            echo "📍 Total commits: $(git rev-list --count HEAD)"
+            
+            # Generate changelog from root to HEAD (includes all commits)
+            git-cliff ${FIRST_COMMIT}..HEAD --strip all --github-token "$GITHUB_TOKEN" --output release_notes.md
           else
             echo "ℹ️  Previous tag found: $PREV_TAG, generating changelog for range"
             # Subsequent releases: from previous tag to current tag  
