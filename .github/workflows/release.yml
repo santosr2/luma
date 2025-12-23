@@ -127,18 +127,44 @@ jobs:
           
           # Install git-cliff for proper changelog generation
           echo "📦 Installing git-cliff..."
-          if ! curl -fsSL https://github.com/orhun/git-cliff/releases/download/v2.4.0/git-cliff-2.4.0-x86_64-unknown-linux-gnu.tar.gz | sudo tar -xz -C /usr/local/bin; then
-            echo "❌ Failed to install git-cliff"
+          
+          # Download and extract to temp directory
+          TEMP_DIR=$(mktemp -d)
+          if ! curl -fsSL https://github.com/orhun/git-cliff/releases/download/v2.4.0/git-cliff-2.4.0-x86_64-unknown-linux-gnu.tar.gz -o "$TEMP_DIR/git-cliff.tar.gz"; then
+            echo "❌ Failed to download git-cliff"
+            rm -rf "$TEMP_DIR"
             exit 1
           fi
+          
+          # Extract the tarball
+          if ! tar -xzf "$TEMP_DIR/git-cliff.tar.gz" -C "$TEMP_DIR"; then
+            echo "❌ Failed to extract git-cliff"
+            rm -rf "$TEMP_DIR"
+            exit 1
+          fi
+          
+          # Find the binary (it might be in a subdirectory)
+          CLIFF_BIN=$(find "$TEMP_DIR" -name "git-cliff" -type f | head -n 1)
+          if [ -z "$CLIFF_BIN" ]; then
+            echo "❌ git-cliff binary not found in tarball"
+            echo "Tarball contents:"
+            ls -la "$TEMP_DIR"
+            rm -rf "$TEMP_DIR"
+            exit 1
+          fi
+          
+          # Move to /usr/local/bin and make executable
+          sudo mv "$CLIFF_BIN" /usr/local/bin/git-cliff
+          sudo chmod +x /usr/local/bin/git-cliff
+          rm -rf "$TEMP_DIR"
           
           # Verify git-cliff is installed
           if ! command -v git-cliff &> /dev/null; then
-            echo "❌ git-cliff binary not found after installation"
+            echo "❌ git-cliff command not available"
             exit 1
           fi
           
-          echo "✅ git-cliff installed successfully"
+          echo "✅ git-cliff installed successfully ($(git-cliff --version))"
           echo "📝 Generating changelog for ${{ steps.version.outputs.version }}..."
           
           # Generate changelog for the latest tag (the one we just pushed)
