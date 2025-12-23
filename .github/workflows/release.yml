@@ -198,9 +198,23 @@ jobs:
           echo "✅ Changelog generated successfully"
           echo "📄 Release notes preview:"
           head -n 30 release_notes.md
+
+      - name: Commit updated CHANGELOG.md
+        run: |
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Note: CHANGELOG.md is generated but not committed back due to branch protection
-          # Update CHANGELOG.md manually before releases if needed
+          # Check if CHANGELOG.md was modified
+          if git diff --quiet CHANGELOG.md; then
+            echo "ℹ️  CHANGELOG.md unchanged, skipping commit"
+          else
+            echo "📝 Committing updated CHANGELOG.md..."
+            git add CHANGELOG.md
+            git commit --signoff -m "chore(release): update CHANGELOG.md for ${{ steps.version.outputs.tag }}"
+            git push origin HEAD:main
+            echo "✅ CHANGELOG.md committed and pushed"
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
