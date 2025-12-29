@@ -114,19 +114,93 @@ ${loop.index}: ${key}
 	end)
 
 	describe("break directive", function()
-		-- Disabled due to codegen issues with break directive
-		pending("exits the loop early")
-		pending("works with loop.index condition")
+		it("exits the loop early", function()
+			local template = [[
+@for i in items
+  @if i == 3
+    @break
+  @end
+  $i
+@end]]
+			local result = luma.render(template, { items = { 1, 2, 3, 4, 5 } })
+			assert.matches("1", result)
+			assert.matches("2", result)
+			assert.not_matches("3", result)
+			assert.not_matches("4", result)
+			assert.not_matches("5", result)
+		end)
+
+		it("works with loop.index condition", function()
+			local template = [[
+@for item in items
+  @if loop.index > 2
+    @break
+  @end
+  ${loop.index}: $item
+@end]]
+			local result = luma.render(template, { items = { "a", "b", "c", "d" } })
+			assert.matches("1: a", result)
+			assert.matches("2: b", result)
+			assert.not_matches("3:", result)
+			assert.not_matches("4:", result)
+		end)
 	end)
 
 	describe("continue directive", function()
-		-- Disabled due to codegen issues with continue directive
-		pending("skips to next iteration")
-		pending("works with odd/even filtering")
+		it("skips to next iteration", function()
+			local template = [[
+@for i in items
+  @if i == 3
+    @continue
+  @end
+  $i
+@end]]
+			local result = luma.render(template, { items = { 1, 2, 3, 4, 5 } })
+			assert.matches("1", result)
+			assert.matches("2", result)
+			assert.not_matches("3", result)
+			assert.matches("4", result)
+			assert.matches("5", result)
+		end)
+
+		it("works with odd/even filtering", function()
+			local template = [[
+@for i in items
+  @if i % 2 == 0
+    @continue
+  @end
+  $i
+@end]]
+			local result = luma.render(template, { items = { 1, 2, 3, 4, 5 } })
+			assert.matches("1", result)
+			assert.not_matches("2", result)
+			assert.matches("3", result)
+			assert.not_matches("4", result)
+			assert.matches("5", result)
+		end)
 	end)
 
 	describe("nested loops with break/continue", function()
-		-- Disabled due to codegen issues with break directive
-		pending("break only affects innermost loop")
+		it("break only affects innermost loop", function()
+			local template = [[
+@for outer in outers
+  Outer: $outer
+  @for inner in inners
+    @if inner == 2
+      @break
+    @end
+    Inner: $inner
+  @end
+@end]]
+			local result = luma.render(template, { outers = { 1, 2 }, inners = { 1, 2, 3 } })
+			-- Both outer iterations should run
+			assert.matches("Outer: 1", result)
+			assert.matches("Outer: 2", result)
+			-- Inner loop should break at 2 (so only 1 is printed, twice - once per outer)
+			local inner_1_count = select(2, result:gsub("Inner: 1", ""))
+			assert.equals(2, inner_1_count)
+			assert.not_matches("Inner: 2", result)
+			assert.not_matches("Inner: 3", result)
+		end)
 	end)
 end)
