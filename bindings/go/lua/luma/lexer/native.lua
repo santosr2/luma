@@ -568,22 +568,25 @@ function native:scan_text()
 		local c = self:peek()
 
 		-- Check for - followed by $ or @ (dash trimming)
-		-- Treat as trim directive if we have accumulated text
+		-- Treat as trim directive if we have accumulated text (in parts or line_whitespace)
 		-- Otherwise it's literal text (e.g., ${a}-${b} where parts is empty after ${a})
 		if c == "-" then
 			local next_c = self:peek(1)
 			local next_next_c = self:peek(2)
 			local is_trim_directive = false
+			
+			-- Check if we have accumulated any content (in parts OR in line_whitespace)
+			local has_content = #parts > 0 or #line_whitespace > 0
 
 			-- Check for -$ (dash trim before interpolation)
-			-- This is a trim directive if parts has any content (we're not right after an interpolation)
-			if next_c == "$" and #parts > 0 then
+			-- This is a trim directive if we have any accumulated content
+			if next_c == "$" and has_content then
 				is_trim_directive = true
 			end
 
 			-- Check for -@ (dash trim before directive)
 			if not is_trim_directive and next_c == "@" and next_next_c and is_alpha(next_next_c) then
-				if self.at_line_start or (#parts > 0 and (parts[#parts] == " " or parts[#parts] == "\t")) then
+				if self.at_line_start or has_content then
 					is_trim_directive = true
 				end
 			end
