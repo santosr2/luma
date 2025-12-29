@@ -1,0 +1,22 @@
+@# Nginx Configuration
+worker_processes $workers;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen $port;
+        server_name $server_name;
+
+@for location in locations
+        location ${location.path} {
+            proxy_pass ${location.proxy_pass};
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+@end
+    }
+}
+
