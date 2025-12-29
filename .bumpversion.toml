@@ -119,11 +119,6 @@ filename = "dist/docker/build.sh"
 search = "VERSION=\"${{1:-{current_version}}}\""
 replace = "VERSION=\"${{1:-{new_version}}}\""
 
-[[tool.bumpversion.files]]
-filename = "dist/docker/build.sh"
-search = "default to ${{1:-{current_version}}}"
-replace = "default to ${{1:-{new_version}}}"
-
 # LuaRocks rockspec - generated during release workflow
 # The rockspec is dynamically created with correct version and git tag
 # No need to version control the rockspec file
