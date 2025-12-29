@@ -442,6 +442,16 @@ jobs:
         working-directory: bindings/go
         run: go test -v ./...
 
+      - name: Generate documentation
+        working-directory: bindings/go
+        run: |
+          echo "Generating Go documentation..."
+          go doc -all > /tmp/godoc.txt
+          echo "✅ Generated Go documentation"
+          echo ""
+          echo "Documentation preview (first 30 lines):"
+          head -30 /tmp/godoc.txt
+
       - name: Trigger pkg.go.dev indexing
         run: |
           # Notify Go proxy to fetch the new version
@@ -452,32 +462,50 @@ jobs:
           echo "Requesting module info from Go proxy..."
           curl -sf "https://proxy.golang.org/${MODULE_PATH}/@v/${VERSION}.info" > /dev/null || true
           
+          echo ""
           echo "✅ Go module available via git tag: ${VERSION}"
           echo "   Module path: ${MODULE_PATH}"
           echo ""
+          echo "📦 Package will be available at:"
+          echo "   https://pkg.go.dev/${MODULE_PATH}@${VERSION}"
+          echo ""
           echo "Note: Go modules are published automatically via git tags."
-          echo "      pkg.go.dev may take a few minutes to index the new version."
+          echo "      pkg.go.dev updates automatically when the module is first requested."
+          echo "      Full documentation indexing may take 5-10 minutes."
 
       - name: Create summary
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
           MODULE_PATH="github.com/${{ github.repository }}/bindings/go"
           
-          echo "## Go Module Available" >> $GITHUB_STEP_SUMMARY
+          echo "## Go Module Published" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Go modules are published automatically via git tags." >> $GITHUB_STEP_SUMMARY
+          echo "✅ The Go module is now available!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Installation" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
           echo "go get ${MODULE_PATH}@${GITHUB_REF_NAME}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Usage" >> $GITHUB_STEP_SUMMARY
+          echo '```go' >> $GITHUB_STEP_SUMMARY
+          echo 'import "github.com/${{ github.repository }}/bindings/go"' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo 'result, err := luma.Render(templateSource, data)' >> $GITHUB_STEP_SUMMARY
+          echo 'if err != nil {' >> $GITHUB_STEP_SUMMARY
+          echo '    log.Fatal(err)' >> $GITHUB_STEP_SUMMARY
+          echo '}' >> $GITHUB_STEP_SUMMARY
+          echo 'fmt.Println(result)' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Documentation" >> $GITHUB_STEP_SUMMARY
-          echo "- [pkg.go.dev](https://pkg.go.dev/${MODULE_PATH}@${GITHUB_REF_NAME}) (may take a few minutes to index)" >> $GITHUB_STEP_SUMMARY
+          echo "- [pkg.go.dev](https://pkg.go.dev/${MODULE_PATH}@${GITHUB_REF_NAME})" >> $GITHUB_STEP_SUMMARY
           echo "- [README](https://github.com/${{ github.repository }}/blob/${GITHUB_REF_NAME}/bindings/go/README.md)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Note" >> $GITHUB_STEP_SUMMARY
-          echo "The module is available immediately via git. pkg.go.dev indexing may take 5-10 minutes." >> $GITHUB_STEP_SUMMARY
+          echo "- Go modules are published automatically via git tags" >> $GITHUB_STEP_SUMMARY
+          echo "- The module is available immediately" >> $GITHUB_STEP_SUMMARY
+          echo "- pkg.go.dev documentation indexing may take 5-10 minutes" >> $GITHUB_STEP_SUMMARY
 
   docker:
     name: Publish to Docker
