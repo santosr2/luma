@@ -2,7 +2,7 @@ name: Publish Go Package
 
 on:
   release:
-    types: [created]
+    types: [published, created]
   workflow_dispatch:
     inputs:
       tag:

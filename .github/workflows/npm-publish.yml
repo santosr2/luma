@@ -2,7 +2,7 @@ name: Publish Node.js Package
 
 on:
   release:
-    types: [created]
+    types: [published, created]
   workflow_dispatch:
     inputs:
       tag:
@@ -73,9 +73,19 @@ jobs:
         working-directory: bindings/nodejs
         run: npm pack --dry-run
 
+      - name: Determine npm tag
+        id: npm-tag
+        run: |
+          VERSION=$(node -p "require('./bindings/nodejs/package.json').version")
+          if [[ "$VERSION" =~ (alpha|beta|rc) ]]; then
+            echo "tag=next" >> $GITHUB_OUTPUT
+          else
+            echo "tag=latest" >> $GITHUB_OUTPUT
+          fi
+
       - name: Publish to npm
         working-directory: bindings/nodejs
-        run: npm publish --access public
+        run: npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
