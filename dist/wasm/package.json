@@ -14,7 +14,7 @@
     "build:prod": "NODE_ENV=production rollup -c",
     "dev": "rollup -c -w",
     "serve": "python3 -m http.server 8080",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "test:watch": "jest --watch",
     "clean": "rm -rf dist"
   },

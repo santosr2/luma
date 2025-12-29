@@ -55,7 +55,7 @@ describe('Luma WASM', () => {
     it('should handle loop variables', async () => {
       const template = `
 @for item in items
-  ${loop.index}: $item
+  \${loop.index}: $item
 @end`;
       const result = await render(template, { items: ['x', 'y'] });
       expect(result).toContain('1: x');
@@ -71,7 +71,7 @@ describe('Luma WASM', () => {
       const template = `
 @let x = 10
 @let y = 20
-Result: ${x + y}`;
+Result: \${x + y}`;
       const result = await render(template, {});
       expect(result.trim()).toContain('Result: 30.0');
     });
@@ -172,7 +172,7 @@ Result: ${x + y}`;
 @macro greet(name)
   Hello, $name!
 @end
-${greet("World")}`;
+\${greet("World")}`;
       const result = await render(template, {});
       expect(result.trim()).toContain('Hello, World!');
     });

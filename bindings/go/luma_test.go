@@ -173,7 +173,7 @@ func TestRenderWithFilters(t *testing.T) {
 	}{
 		{
 			name:     "upper filter",
-			template: "$name | upper",
+			template: "${name | upper}",
 			context:  map[string]interface{}{"name": "hello"},
 			want:     "HELLO",
 		},

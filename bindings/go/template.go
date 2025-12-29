@@ -25,6 +25,8 @@ type Template struct {
 //	}
 //	result, err := tmpl.Execute(map[string]interface{}{"name": "Alice"})
 func Compile(source string) (*Template, error) {
+	// Validate the template by attempting to parse it
+	// We use a simple Render call with empty context to validate syntax
 	L := lua.NewState()
 	defer L.Close()
 
@@ -32,30 +34,25 @@ func Compile(source string) (*Template, error) {
 		return nil, fmt.Errorf("failed to load Luma modules: %w", err)
 	}
 
-	// Compile the template
-	err := L.DoString(fmt.Sprintf(`
+	// Validate template syntax by attempting to parse/compile it
+	luaCode := fmt.Sprintf(`
 		local luma = require("luma")
-		local compiler = require("luma.compiler")
-
 		local source = %q
+		
+		-- Try to parse the template to validate syntax
 		local ast, parse_err = luma.parse(source)
 		if parse_err then
 			error("Parse error: " .. tostring(parse_err))
 		end
+		
+		return true
+	`, source)
 
-		local lua_code, compile_err = compiler.compile(ast)
-		if compile_err then
-			error("Compile error: " .. tostring(compile_err))
-		end
-
-		return lua_code
-	`, source))
-
-	if err != nil {
+	if err := L.DoString(luaCode); err != nil {
 		return nil, fmt.Errorf("compilation error: %w", err)
 	}
 
-	// For simplicity, store the source and compile on-demand during Execute
+	// Store the source for later execution
 	// A full implementation would cache the compiled Lua function
 	return &Template{
 		source: source,

@@ -143,7 +143,8 @@ spec:
 
 	// Check deployment template
 	if deployment, ok := rendered["templates/deployment.yaml"]; ok {
-		if !strings.Contains(deployment, `name: my-release-test-app`) {
+		// The template uses "${Release.Name}-${Chart.Name}" which produces quoted output in YAML
+		if !strings.Contains(deployment, `name: "my-release-test-app"`) {
 			t.Errorf("Deployment template missing release name. Got:\n%s", deployment)
 		}
 		if !strings.Contains(deployment, "replicas: 3") {

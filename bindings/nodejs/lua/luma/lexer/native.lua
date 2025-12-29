@@ -46,6 +46,7 @@ function native.new(source, source_name)
 		last_expr_token = nil, -- Track last token in directive for continuation detection
 		directive_first_newline = false, -- Track if we've seen the first newline in directive
 		directive_has_content = false, -- Track if directive has any content beyond keyword
+		last_token_type = nil, -- Track last emitted token type (for hyphen handling)
 	}
 	setmetatable(self, { __index = native })
 	return self
@@ -218,6 +219,8 @@ function native:make_token(token_type, value, start_line, start_col)
 			self.directive_has_content = true
 		end
 	end
+	-- Track last token type for hyphen handling
+	self.last_token_type = token_type
 	return token
 end
 
@@ -240,8 +243,9 @@ function native:scan_expression_token()
 			self:advance() -- skip }
 			self.in_expression = false
 			local token = self:make_token(T.INTERP_END, nil, start_line, start_col)
-			-- Check for trailing dash: }-
-			if self:peek() == "-" then
+			-- Check for trailing dash: }- but NOT if followed by $ (another interpolation)
+			-- This prevents consuming hyphens in patterns like ${a}-${b}
+			if self:peek() == "-" and self:peek(1) ~= "$" then
 				self:advance() -- skip -
 				token.trim_next = true
 			end
@@ -564,28 +568,40 @@ function native:scan_text()
 		local c = self:peek()
 
 		-- Check for - followed by $ or @ (dash trimming)
+		-- Treat as trim directive if we have accumulated text
+		-- Otherwise it's literal text (e.g., ${a}-${b} where parts is empty after ${a})
 		if c == "-" then
 			local next_c = self:peek(1)
 			local next_next_c = self:peek(2)
+			local is_trim_directive = false
+
 			-- Check for -$ (dash trim before interpolation)
-			if next_c == "$" then
-				break
+			-- This is a trim directive if parts has any content (we're not right after an interpolation)
+			if next_c == "$" and #parts > 0 then
+				is_trim_directive = true
 			end
+
 			-- Check for -@ (dash trim before directive)
-			-- Can be at line start OR preceded by space (inline mode)
-			if next_c == "@" and next_next_c and is_alpha(next_next_c) then
-				if self.at_line_start then
-					-- Block mode: at line start
-					break
-				elseif #parts > 0 and (parts[#parts] == " " or parts[#parts] == "\t") then
-					-- Inline mode: preceded by space
-					break
+			if not is_trim_directive and next_c == "@" and next_next_c and is_alpha(next_next_c) then
+				if self.at_line_start or (#parts > 0 and (parts[#parts] == " " or parts[#parts] == "\t")) then
+					is_trim_directive = true
 				end
 			end
-		end
 
+			if is_trim_directive then
+				break
+			end
+
+			-- Not a trim directive - add hyphen as literal text and continue
+			for _, ws in ipairs(line_whitespace) do
+				table.insert(parts, ws)
+			end
+			line_whitespace = {}
+			on_line_start = false
+			table.insert(parts, c)
+			self:advance()
 		-- Check for $ (interpolation)
-		if c == "$" then
+		elseif c == "$" then
 			local next_c = self:peek(1)
 			if next_c == "$" then
 				-- Escaped $$ -> literal $
@@ -756,7 +772,16 @@ function native:next_token()
 	end
 
 	-- Check for dash trimming before interpolation: -$
+	-- This handles trim directives like "text -$var" -> trim space before var
+	-- BUT NOT when the hyphen is literal text between interpolations like ${a}-${b}
 	if c == "-" and self:peek(1) == "$" then
+		-- Don't treat as trim directive if we just finished an interpolation
+		-- In that case, the hyphen is literal text: ${a}-${b}
+		if self.last_token_type == T.INTERP_END or self.last_token_type == T.INTERP_SIMPLE then
+			-- Let scan_text handle the literal hyphen
+			return self:scan_text()
+		end
+
 		self:advance() -- skip -
 		c = self:peek() -- now at $
 		local next_c = self:peek(1)
@@ -780,7 +805,7 @@ function native:next_token()
 			local token = self:make_token(T.INTERP_SIMPLE, path, start_line, start_col)
 			token.trim_prev = true
 			-- Check for trailing dash: -$var-
-			if self:peek() == "-" then
+			if self:peek() == "-" and self:peek(1) ~= "$" then
 				self:advance() -- skip -
 				token.trim_next = true
 			end
@@ -803,16 +828,17 @@ function native:next_token()
 			self.brace_depth = 1
 			return self:make_token(T.INTERP_START, nil, start_line, start_col)
 		elseif next_c and is_alpha(next_c) then
-			-- Simple interpolation $var or $foo.bar
-			self:advance() -- skip $
-			local path = self:read_simple_path()
-			local token = self:make_token(T.INTERP_SIMPLE, path, start_line, start_col)
-			-- Check for trailing dash: $var-
-			if self:peek() == "-" then
-				self:advance() -- skip -
-				token.trim_next = true
-			end
-			return token
+		-- Simple interpolation $var or $foo.bar
+		self:advance() -- skip $
+		local path = self:read_simple_path()
+		local token = self:make_token(T.INTERP_SIMPLE, path, start_line, start_col)
+		-- Check for trailing dash: $var- but NOT if followed by $ (another interpolation)
+		-- This prevents consuming hyphens in patterns like $a-$b
+		if self:peek() == "-" and self:peek(1) ~= "$" then
+			self:advance() -- skip -
+			token.trim_next = true
+		end
+		return token
 		end
 	end
 
