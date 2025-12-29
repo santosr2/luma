@@ -98,9 +98,11 @@ RUN ROCKSPEC_VERSION=$(echo "${VERSION}" | grep -q -E '(alpha|beta|rc)' && echo 
     sed -i "s/ROCKSPEC_VERSION_PLACEHOLDER/${ROCKSPEC_VERSION}/g" /app/luma-${ROCKSPEC_VERSION}.rockspec && \
     sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" /app/luma-${ROCKSPEC_VERSION}.rockspec
 
-# Install Luma
-RUN ROCKSPEC_VERSION=$(echo "${VERSION}" | grep -q -E '(alpha|beta|rc)' && echo "scm-1" || echo "${VERSION}-1") && \
-    luarocks-5.1 make /app/luma-${ROCKSPEC_VERSION}.rockspec
+# Install Luma manually (pure Lua, no compilation needed)
+# Copy Lua modules to luarocks path
+RUN mkdir -p /usr/local/share/lua/5.1 && \
+    cp -r /app/luma /usr/local/share/lua/5.1/ && \
+    cp -r /app/cli /usr/local/share/lua/5.1/lumacli
 
 # Add luma CLI to PATH
 RUN ln -s /app/bin/luma /usr/local/bin/luma \
