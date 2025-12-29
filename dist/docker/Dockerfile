@@ -34,13 +34,14 @@ COPY cli/ /app/cli/
 COPY LICENSE /app/
 COPY README.md /app/
 
-# Generate rockspec dynamically
-RUN cat > /app/luma-${VERSION}-1.rockspec <<'EOF'
+# Generate rockspec dynamically (use scm-1 for pre-releases, VERSION-1 for stable)
+RUN ROCKSPEC_VERSION=$(echo "${VERSION}" | grep -q -E '(alpha|beta|rc)' && echo "scm-1" || echo "${VERSION}-1") && \
+    cat > /app/luma-${ROCKSPEC_VERSION}.rockspec <<'EOF'
 package = "luma"
-version = "${VERSION}-1"
+version = "ROCKSPEC_VERSION_PLACEHOLDER"
 source = {
    url = "git+https://github.com/santosr2/luma.git",
-   tag = "v${VERSION}"
+   tag = "vVERSION_PLACEHOLDER"
 }
 description = {
    summary = "A modern template engine for Lua with Jinja2 compatibility",
@@ -93,12 +94,12 @@ build = {
    }
 }
 EOF
-
-# Substitute VERSION in rockspec
-RUN sed -i "s/\${VERSION}/${VERSION}/g" /app/luma-${VERSION}-1.rockspec
+    sed -i "s/ROCKSPEC_VERSION_PLACEHOLDER/${ROCKSPEC_VERSION}/g" /app/luma-${ROCKSPEC_VERSION}.rockspec && \
+    sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" /app/luma-${ROCKSPEC_VERSION}.rockspec
 
 # Install Luma
-RUN luarocks-5.1 make /app/luma-${VERSION}-1.rockspec
+RUN ROCKSPEC_VERSION=$(echo "${VERSION}" | grep -q -E '(alpha|beta|rc)' && echo "scm-1" || echo "${VERSION}-1") && \
+    luarocks-5.1 make /app/luma-${ROCKSPEC_VERSION}.rockspec
 
 # Add luma CLI to PATH
 RUN ln -s /app/bin/luma /usr/local/bin/luma \
