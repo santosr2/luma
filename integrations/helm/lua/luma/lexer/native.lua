@@ -571,12 +571,12 @@ function native:scan_text()
 		-- Treat as trim directive if we have accumulated text (in parts or line_whitespace)
 		-- Otherwise it's literal text (e.g., ${a}-${b} where parts is empty after ${a})
 		if c == "-" then
-			local next_c = self:peek(1)
-			local next_next_c = self:peek(2)
-			local is_trim_directive = false
-			
-			-- Check if we have accumulated any content (in parts OR in line_whitespace)
-			local has_content = #parts > 0 or #line_whitespace > 0
+		local next_c = self:peek(1)
+		local next_next_c = self:peek(2)
+		local is_trim_directive = false
+
+		-- Check if we have accumulated any content (in parts OR in line_whitespace)
+		local has_content = #parts > 0 or #line_whitespace > 0
 
 			-- Check for -$ (dash trim before interpolation)
 			-- This is a trim directive if we have any accumulated content
