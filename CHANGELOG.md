@@ -10,6 +10,8 @@
 - **cli**: Use correct version field in --version output ([`78331ec`](https://github.com/santosr2/luma/commit/78331ec47d05881a54368fbe448cfe86c5d1285f)) by [@santosr2](https://github.com/santosr2)
 - **bumpversion**: Remove Dockerfile from version bump config ([`a0c5f79`](https://github.com/santosr2/luma/commit/a0c5f7957c5ddef996d47ce5e9ff742b21080022)) by [@santosr2](https://github.com/santosr2)
 - **release**: Consolidate publishing into release workflow ([`5fe0c40`](https://github.com/santosr2/luma/commit/5fe0c40819969cbacfd38f5f6fbd0ce086e27cc9)) by [@santosr2](https://github.com/santosr2)
+- **release**: Remove false positives and consolidate all publishing ([`ae0d03f`](https://github.com/santosr2/luma/commit/ae0d03f352b0d73c6b35b45ef7d6da79d851c5eb)) by [@santosr2](https://github.com/santosr2)
+- **release**: Create rockspec in luarocks job ([`0e3a792`](https://github.com/santosr2/luma/commit/0e3a792fdd6d09347de25076aaf4952e3ee010bd)) by [@santosr2](https://github.com/santosr2)
 
 
 ### ♻️  Refactor
@@ -20,6 +22,7 @@
 - **release**: Update CHANGELOG.md for v0.1.0-rc.2 ([`220cc06`](https://github.com/santosr2/luma/commit/220cc06a9edf7ecb0d652672b8db1bb6d3df7074)) by [@github-actions[bot]](https://github.com/github-actions[bot])
 - Bump version 0.1.0-rc.2 → 0.1.0-rc.3 ([`6988661`](https://github.com/santosr2/luma/commit/6988661827b259e32d2b37b35f3d90ba70fc91b5)) by [@santosr2](https://github.com/santosr2)
 - **release**: Update CHANGELOG.md for v0.1.0-rc.3 ([`fcbf3ca`](https://github.com/santosr2/luma/commit/fcbf3cafb9d9f1dcdb774a010cda59c56c4e82cd)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- **release**: Update CHANGELOG.md for v0.1.0-rc.3 ([`94cf1c2`](https://github.com/santosr2/luma/commit/94cf1c2f853922073e529ba35874361237ff6533)) by [@github-actions[bot]](https://github.com/github-actions[bot])
 
 
 ## [0.1.0-rc.2] - 2025-12-29
