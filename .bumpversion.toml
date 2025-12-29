@@ -119,16 +119,13 @@ filename = "ECOSYSTEM.md"
 search = "## Current Status (v{current_version})"
 replace = "## Current Status (v{new_version})"
 
-# Docker
-[[tool.bumpversion.files]]
-filename = "dist/docker/Dockerfile"
-search = "LABEL version=\"{current_version}\""
-replace = "LABEL version=\"{new_version}\""
-
+# Docker build script
 [[tool.bumpversion.files]]
 filename = "dist/docker/build.sh"
 search = "VERSION=\"${{1:-{current_version}}}\""
 replace = "VERSION=\"${{1:-{new_version}}}\""
+
+# Note: Dockerfile uses ARG VERSION passed at build time, not hardcoded
 
 # LuaRocks rockspec - generated during release workflow
 # The rockspec is dynamically created with correct version and git tag
