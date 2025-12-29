@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/santosr2/luma-go"
+	"github.com/santosr2/luma/bindings/go"
 )
 
 func TestRenderSimple(t *testing.T) {

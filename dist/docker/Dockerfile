@@ -2,14 +2,17 @@
 # Official Docker image for Luma
 #
 # Usage:
-#   docker build -t luma/luma:latest -f dist/docker/Dockerfile .
+#   docker build --build-arg VERSION=0.1.0 -t luma/luma:latest -f dist/docker/Dockerfile .
 #   docker run luma/luma render template.luma --data-file context.yaml
 
 FROM alpine:3.19
 
+# Build argument for version
+ARG VERSION=0.1.0-rc.2
+
 LABEL maintainer="Rubens Santos <rubens@example.com>"
 LABEL description="Luma Template Engine - Fast, clean templating with Jinja2 compatibility"
-LABEL version="0.1.0-rc.2"
+LABEL version="${VERSION}"
 
 # Install dependencies
 RUN apk add --no-cache \
@@ -28,12 +31,74 @@ WORKDIR /app
 COPY luma/ /app/luma/
 COPY bin/ /app/bin/
 COPY cli/ /app/cli/
-COPY luma-0.1.0.rockspec /app/
-COPY README.md /app/
 COPY LICENSE /app/
+COPY README.md /app/
+
+# Generate rockspec dynamically
+RUN cat > /app/luma-${VERSION}-1.rockspec <<'EOF'
+package = "luma"
+version = "${VERSION}-1"
+source = {
+   url = "git+https://github.com/santosr2/luma.git",
+   tag = "v${VERSION}"
+}
+description = {
+   summary = "A modern template engine for Lua with Jinja2 compatibility",
+   detailed = [[
+      Luma is a powerful template engine that combines the best of Jinja2's
+      syntax with Lua's simplicity and performance. Features include template
+      inheritance, filters, macros, loops, and full Jinja2 compatibility mode.
+   ]],
+   homepage = "https://github.com/santosr2/luma",
+   license = "MIT"
+}
+dependencies = {
+   "lua >= 5.1"
+}
+build = {
+   type = "builtin",
+   modules = {
+      ["luma.init"] = "luma/init.lua",
+      ["luma.version"] = "luma/version.lua",
+      ["luma.lexer.init"] = "luma/lexer/init.lua",
+      ["luma.lexer.inline_detector"] = "luma/lexer/inline_detector.lua",
+      ["luma.lexer.jinja"] = "luma/lexer/jinja.lua",
+      ["luma.lexer.native"] = "luma/lexer/native.lua",
+      ["luma.lexer.tokens"] = "luma/lexer/tokens.lua",
+      ["luma.lexer.trim_processor"] = "luma/lexer/trim_processor.lua",
+      ["luma.parser.ast"] = "luma/parser/ast.lua",
+      ["luma.parser.expressions"] = "luma/parser/expressions.lua",
+      ["luma.parser.init"] = "luma/parser/init.lua",
+      ["luma.compiler.codegen"] = "luma/compiler/codegen.lua",
+      ["luma.compiler.init"] = "luma/compiler/init.lua",
+      ["luma.runtime.context"] = "luma/runtime/context.lua",
+      ["luma.runtime.init"] = "luma/runtime/init.lua",
+      ["luma.runtime.sandbox"] = "luma/runtime/sandbox.lua",
+      ["luma.filters.init"] = "luma/filters/init.lua",
+      ["luma.utils.compat"] = "luma/utils/compat.lua",
+      ["luma.utils.errors"] = "luma/utils/errors.lua",
+      ["luma.utils.init"] = "luma/utils/init.lua",
+      ["luma.utils.warnings"] = "luma/utils/warnings.lua",
+      ["lumacli.init"] = "cli/init.lua",
+      ["lumacli.commands.render"] = "cli/commands/render.lua",
+      ["lumacli.commands.validate"] = "cli/commands/validate.lua",
+      ["lumacli.commands.migrate"] = "cli/commands/migrate.lua",
+      ["lumacli.commands.watch"] = "cli/commands/watch.lua",
+      ["lumacli.commands.bench"] = "cli/commands/bench.lua"
+   },
+   install = {
+      bin = {
+         luma = "bin/luma"
+      }
+   }
+}
+EOF
+
+# Substitute VERSION in rockspec
+RUN sed -i "s/\${VERSION}/${VERSION}/g" /app/luma-${VERSION}-1.rockspec
 
 # Install Luma
-RUN luarocks-5.1 make luma-0.1.0.rockspec
+RUN luarocks-5.1 make /app/luma-${VERSION}-1.rockspec
 
 # Add luma CLI to PATH
 RUN ln -s /app/bin/luma /usr/local/bin/luma \

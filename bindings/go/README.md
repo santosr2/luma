@@ -9,7 +9,7 @@ Go bindings for the Luma templating engine using gopher-lua.
 ## Installation
 
 ```bash
-go get github.com/santosr2/luma-go
+go get github.com/santosr2/luma/bindings/go
 ```
 
 ## Quick Start
@@ -19,7 +19,7 @@ package main
 
 import (
     "fmt"
-    "github.com/santosr2/luma-go"
+    "github.com/santosr2/luma/bindings/go"
 )
 
 func main() {
@@ -228,7 +228,7 @@ go tool cover -html=coverage.out
 
    ```bash
    cd bindings/go
-   go mod init github.com/santosr2/luma-go
+   go mod init github.com/santosr2/luma/bindings/go
    go get github.com/yuin/gopher-lua
    ```
 

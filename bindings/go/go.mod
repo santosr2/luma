@@ -1,4 +1,4 @@
-module github.com/santosr2/luma-go
+module github.com/santosr2/luma/bindings/go
 
 go 1.21
 

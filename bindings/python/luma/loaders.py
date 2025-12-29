@@ -111,6 +111,8 @@ class PackageLoader(BaseLoader):
         import importlib
         try:
             package = importlib.import_module(package_name)
+            if package.__file__ is None:
+                raise ValueError(f"Package {package_name} has no __file__ attribute (possibly a namespace package)")
             self.search_path = os.path.join(
                 os.path.dirname(package.__file__),
                 package_path

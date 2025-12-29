@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/santosr2/luma-go"
+	"github.com/santosr2/luma/bindings/go"
 )
 
 func main() {
