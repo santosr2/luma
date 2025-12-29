@@ -1,6 +1,6 @@
 # Publishing Luma to PyPI
 
-Complete guide for publishing luma-template to the Python Package Index.
+Complete guide for publishing luma-py to the Python Package Index.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ python -m build
 
 This creates:
 
-- `dist/luma-template-0.1.0.tar.gz` (source distribution)
+- `dist/luma-py-0.1.0.tar.gz` (source distribution)
 - `dist/luma_template-0.1.0-py3-none-any.whl` (wheel)
 
 ### 3. Verify the Build
@@ -83,7 +83,7 @@ twine upload --repository testpypi dist/*
 ### 2. Install from TestPyPI
 
 ```bash
-pip install --index-url https://test.pypi.org/simple/ --no-deps luma-template
+pip install --index-url https://test.pypi.org/simple/ --no-deps luma-py
 ```
 
 ### 3. Test Installation
@@ -111,7 +111,7 @@ twine upload dist/*
 ### 3. Verify Installation
 
 ```bash
-pip install luma-template
+pip install luma-py
 python3 -c "from luma import Template; print('Success!')"
 ```
 
@@ -156,7 +156,7 @@ Follow SemVer: `MAJOR.MINOR.PATCH`
 
 ### 1. Verify Package Page
 
-Visit: <https://pypi.org/project/luma-template/>
+Visit: <https://pypi.org/project/luma-py/>
 
 Check:
 
@@ -171,7 +171,7 @@ Check:
 # Create fresh venv
 python3 -m venv test-env
 source test-env/bin/activate
-pip install luma-template
+pip install luma-py
 python3 -c "from luma import Template; print(Template('$x').render(x=42))"
 deactivate
 rm -rf test-env
@@ -212,7 +212,7 @@ twine upload --repository testpypi dist/*
 python -m build --verbose
 
 # Check installed files
-pip show -f luma-template
+pip show -f luma-py
 ```
 
 ## Maintenance

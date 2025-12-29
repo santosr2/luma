@@ -117,4 +117,4 @@ jobs:
         run: |
           sleep 30
           VERSION=${GITHUB_REF_NAME#v}
-          pip install luma-template==${VERSION}
+          pip install luma-py==${VERSION}

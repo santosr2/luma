@@ -92,4 +92,4 @@ jobs:
       - name: Verify publication
         run: |
           sleep 10
-          npm info @luma/templates
+          npm info luma

@@ -81,7 +81,7 @@ python examples/kubernetes.py > manifests.yaml
 
 ```bash
 # From PyPI
-pip install luma-template
+pip install luma-py
 
 # From source
 cd bindings/python

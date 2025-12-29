@@ -1,5 +1,5 @@
 /**
- * Basic usage example for @luma/templates
+ * Basic usage example for luma
  */
 
 const { render, compile } = require('../dist/index');

@@ -103,7 +103,7 @@ luma migrate template.jinja > template.luma
 luma migrate template.jinja --in-place
 
 # Convert entire directory
-luma migrate templates/ --output luma-templates/
+luma migrate templates/ --output luma-pys/
 
 # Preview changes with diff
 luma migrate template.jinja --dry-run --diff
@@ -183,7 +183,7 @@ Start with the automated migration tool:
 cp -r templates templates.backup
 
 # Migrate entire directory
-luma migrate templates/ --output luma-templates/
+luma migrate templates/ --output luma-pys/
 ```
 
 ### 2. **Review & Test**

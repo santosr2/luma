@@ -73,7 +73,7 @@ GitHub Pages will automatically rebuild and publish when you push changes to the
 1. Add a `CNAME` file with your domain:
 
    ```text
-   docs.luma-templates.org
+   docs.luma-pys.org
    ```
 
 2. Configure DNS with your domain registrar

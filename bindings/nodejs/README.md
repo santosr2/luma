@@ -1,4 +1,4 @@
-# @luma/templates
+# luma
 
 TypeScript/JavaScript bindings for the Luma template engine.
 
@@ -23,11 +23,11 @@ Fast, clean templating with full Jinja2 compatibility for Node.js applications.
 ## Installation
 
 ```bash
-npm install @luma/templates
+npm install luma
 # or
-yarn add @luma/templates
+yarn add luma
 # or
-pnpm add @luma/templates
+pnpm add luma
 ```
 
 ## Quick Start
@@ -35,7 +35,7 @@ pnpm add @luma/templates
 ### JavaScript
 
 ```javascript
-const { render, compile } = require('@luma/templates');
+const { render, compile } = require('luma');
 
 // Simple rendering
 const result = render('Hello, $name!', { name: 'World' });
@@ -50,7 +50,7 @@ console.log(tmpl.render({ name: 'Bob' }));
 ### TypeScript
 
 ```typescript
-import { render, compile, Template } from '@luma/templates';
+import { render, compile, Template } from 'luma';
 
 // With type safety
 interface Context {
@@ -346,7 +346,7 @@ Comprehensive test suite with 50+ tests covering:
 
 ## Comparison
 
-| Feature | @luma/templates | Nunjucks | EJS |
+| Feature | luma | Nunjucks | EJS |
 |---------|----------------|----------|-----|
 | Jinja2 Compatible | ✅ | ✅ | ❌ |
 | Native Syntax | ✅ | ❌ | ❌ |
@@ -364,4 +364,4 @@ MIT
 - [Luma Project](https://github.com/santosr2/luma)
 - [Documentation](https://github.com/santosr2/luma/tree/main/docs)
 - [Examples](./examples/)
-- [npm Package](https://www.npmjs.com/package/@luma/templates)
+- [npm Package](https://www.npmjs.com/package/luma)

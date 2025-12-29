@@ -17,14 +17,14 @@ Complete overview of Luma's multi-language bindings, integrations, and tooling e
 
 ### Language Bindings
 
-#### ✅ Python (`luma-template`)
+#### ✅ Python (`luma-py`)
 
 **Status**: Complete, ready for PyPI  
 **Priority**: P0  
 **Location**: `bindings/python/`
 
 ```bash
-pip install luma-template
+pip install luma-py
 ```
 
 **Features**:
@@ -55,14 +55,14 @@ go get github.com/santosr2/luma-go
 
 **Docs**: [Go Bindings README](bindings/go/README.md)
 
-#### ✅ Node.js (`@luma/templates`)
+#### ✅ Node.js (`luma`)
 
 **Status**: Complete, ready for npm  
 **Priority**: P0  
 **Location**: `bindings/nodejs/`
 
 ```bash
-npm install @luma/templates
+npm install luma
 ```
 
 **Features**:
@@ -221,8 +221,8 @@ terraform {
 | **LuaRocks** | ✅ Live | `luma` | `luarocks install luma` |
 | **Homebrew** | ✅ Formula ready | `luma` | `brew install luma` (tap pending) |
 | **Docker** | ✅ GHCR | `ghcr.io/santosr2/luma` | `docker pull ghcr.io/santosr2/luma:latest` |
-| **PyPI** | 🚀 Ready | `luma-template` | `pip install luma-template` |
-| **npm** | 🚀 Ready | `@luma/templates` | `npm install @luma/templates` |
+| **PyPI** | 🚀 Ready | `luma-py` | `pip install luma-py` |
+| **npm** | 🚀 Ready | `luma` | `npm install luma` |
 | **pkg.go.dev** | 🚀 Ready | `luma-go` | `go get github.com/santosr2/luma-go` |
 
 ### Build Tools

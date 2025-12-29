@@ -5,7 +5,7 @@ Python bindings for Luma templating engine, providing a drop-in replacement for 
 ## Installation
 
 ```bash
-pip install luma-template
+pip install luma-py
 ```
 
 ## Quick Start
@@ -214,5 +214,5 @@ MIT License - See LICENSE file for details.
 
 - [Luma Project](https://github.com/santosr2/luma)
 - [Documentation](https://github.com/santosr2/luma/tree/main/docs)
-- [PyPI Package](https://pypi.org/project/luma-template/)
+- [PyPI Package](https://pypi.org/project/luma-py/)
 - [Issue Tracker](https://github.com/santosr2/luma/issues)

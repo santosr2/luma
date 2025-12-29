@@ -1,11 +1,11 @@
 /**
- * @luma/templates - Luma template engine for Node.js
+ * luma - Luma template engine for Node.js
  *
  * Fast, clean templating with full Jinja2 compatibility.
  *
  * @example
  * ```typescript
- * import { render, compile } from '@luma/templates';
+ * import { render, compile } from 'luma';
  *
  * // Simple rendering
  * const result = render('Hello, $name!', { name: 'World' });
