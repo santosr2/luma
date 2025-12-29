@@ -1,6 +1,6 @@
 # Publishing to npm
 
-This guide explains how to publish `luma` to npm.
+This guide explains how to publish `luma-js` to npm.
 
 ## Prerequisites
 
@@ -46,7 +46,7 @@ npm publish
 ### 5. Verify
 
 ```bash
-npm info luma
+npm info luma-js
 ```
 
 ## Automated Publishing (GitHub Actions)
@@ -114,15 +114,14 @@ npm publish --tag beta
 Users can install with:
 
 ```bash
-npm install luma@beta
+npm install luma-js@beta
 ```
 
-## Package Scope
+## Package Name
 
-The package is published under the `@luma` scope:
+The package is published as:
 
-- **Package Name**: `luma`
-- **Scope**: `@luma`
+- **Package Name**: `luma-js`
 - **Public**: Yes (use `--access public` on first publish)
 
 ## Unpublishing
@@ -131,10 +130,10 @@ The package is published under the `@luma` scope:
 
 ```bash
 # Unpublish a specific version
-npm unpublish luma@0.1.0
+npm unpublish luma-js@0.1.0
 
 # Unpublish entire package (not recommended)
-npm unpublish luma --force
+npm unpublish luma-js --force
 ```
 
 **npm Policy**: Packages cannot be unpublished after 72 hours if downloaded.
@@ -144,13 +143,13 @@ npm unpublish luma --force
 Instead of unpublishing, deprecate old versions:
 
 ```bash
-npm deprecate luma@0.1.0 "Please upgrade to 0.2.0"
+npm deprecate luma-js@0.1.0 "Please upgrade to 0.2.0"
 ```
 
 ## Post-Publishing Checklist
 
-- [ ] Verify package on [npmjs.com](https://www.npmjs.com/package/luma)
-- [ ] Test installation: `npm install luma`
+- [ ] Verify package on [npmjs.com](https://www.npmjs.com/package/luma-js)
+- [ ] Test installation: `npm install luma-js`
 - [ ] Update main README with npm badge
 - [ ] Announce release on GitHub
 - [ ] Update changelog
@@ -160,8 +159,7 @@ npm deprecate luma@0.1.0 "Please upgrade to 0.2.0"
 ### "You do not have permission to publish"
 
 - Verify you're logged in: `npm whoami`
-- Request access to `@luma` scope
-- Use `--access public` for scoped packages
+- Use `--access public` for first publish
 
 ### "Version already exists"
 

@@ -64,6 +64,11 @@ filename = "bindings/nodejs/package.json"
 search = "\"version\": \"{current_version}\""
 replace = "\"version\": \"{new_version}\""
 
+[[tool.bumpversion.files]]
+filename = "bindings/nodejs/package-lock.json"
+search = "\"version\": \"{current_version}\""
+replace = "\"version\": \"{new_version}\""
+
 # Go bindings - embedded Lua version
 [[tool.bumpversion.files]]
 filename = "bindings/go/lua/luma/version.lua"
