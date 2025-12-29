@@ -144,13 +144,37 @@ helm luma template mychart -f values.yaml
 
 **Docs**: [Helm Integration README](integrations/helm/README.md)
 
-#### ❌ Terraform Provider
+#### ✅ Terraform Provider
 
-**Status**: Not started  
-**Priority**: P3 (low demand)  
+**Status**: Complete, ready for Terraform Registry  
+**Priority**: P1  
 **Location**: `integrations/terraform/`
 
-**Use Case**: Template rendering for Terraform (if needed)
+```hcl
+terraform {
+  required_providers {
+    luma = {
+      source = "registry.terraform.io/santosr2/luma"
+    }
+  }
+}
+```
+
+**Features**:
+- Data source: `luma_template` for inline rendering
+- Resource: `luma_template_file` for file generation
+- Full Luma syntax support (loops, conditionals, filters, macros)
+- Jinja2 compatibility mode
+- JSON-encoded complex variables
+- File permission control
+
+**Use Cases**:
+- Kubernetes manifest generation
+- Cloud-init user data
+- Nginx/Apache configuration
+- Infrastructure configuration files
+
+**Docs**: [Terraform Provider README](integrations/terraform/README.md)
 
 #### ❌ Ansible Plugin
 
@@ -249,9 +273,9 @@ ${name}-${version}  # Produces: "name1.0" (hyphen lost)
 | **Node.js Bindings** | Medium | High | P0 | ✅ Complete |
 | **Helm Plugin** | Medium | High | P0 | ✅ Complete |
 | **Lumalint** | Medium | Medium | P1 | ✅ Complete |
-| **VSCode Extension** | Medium | Medium | P1 | ⚠️ Partial |
-| **WASM Build** | Medium | Medium | P1 | ⚠️ Partial |
-| **Terraform Provider** | High | Low | P3 | ❌ Not started |
+| **VSCode Extension** | Medium | Medium | P1 | ✅ Complete |
+| **WASM Build** | Medium | Medium | P1 | ✅ Complete |
+| **Terraform Provider** | Medium | Medium | P1 | ✅ Complete |
 | **Ansible Plugin** | Medium | Low | P3 | ❌ Not started |
 
 ## Roadmap
