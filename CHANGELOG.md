@@ -1,3 +1,25 @@
+## [0.1.0-rc.3] - 2025-12-29
+
+### 🐛 Bug Fixes
+- **ci**: Enable publishing for pre-releases ([`723b63a`](https://github.com/santosr2/luma/commit/723b63a2217d31980126eaa6fa4cb3f234ba35c5)) by [@santosr2](https://github.com/santosr2)
+- **publishing**: Resolve all publishing blockers for registries ([`1f5f7bd`](https://github.com/santosr2/luma/commit/1f5f7bd0f598f81e6a5a5a8ad550e42aa4d65d79)) by [@santosr2](https://github.com/santosr2)
+- **release**: Enable LuaRocks publishing for pre-releases ([`e8cc16f`](https://github.com/santosr2/luma/commit/e8cc16f395e71331815dc4604c4e09823fd72562)) by [@santosr2](https://github.com/santosr2)
+- **docker**: Use scm-1 rockspec for pre-releases ([`41aa23d`](https://github.com/santosr2/luma/commit/41aa23dafc0e87f5efa7c5b84d7014e580873981)) by [@santosr2](https://github.com/santosr2)
+- **docker**: Correct Dockerfile syntax for sed commands ([`23db2e9`](https://github.com/santosr2/luma/commit/23db2e960b8da400a3779397fd76a28e1104191f)) by [@santosr2](https://github.com/santosr2)
+- **docker**: Install Luma modules directly without luarocks ([`89ed450`](https://github.com/santosr2/luma/commit/89ed4508df42c9cc56bbe3fe5d00e01b861d07cb)) by [@santosr2](https://github.com/santosr2)
+- **cli**: Use correct version field in --version output ([`78331ec`](https://github.com/santosr2/luma/commit/78331ec47d05881a54368fbe448cfe86c5d1285f)) by [@santosr2](https://github.com/santosr2)
+- **bumpversion**: Remove Dockerfile from version bump config ([`a0c5f79`](https://github.com/santosr2/luma/commit/a0c5f7957c5ddef996d47ce5e9ff742b21080022)) by [@santosr2](https://github.com/santosr2)
+
+
+### ♻️  Refactor
+- **naming**: Standardize package names across registries ([`a7c16da`](https://github.com/santosr2/luma/commit/a7c16da7797712355001c6154b0ee537879ce198)) by [@santosr2](https://github.com/santosr2)
+
+
+### ⚙️  Miscellaneous Tasks
+- **release**: Update CHANGELOG.md for v0.1.0-rc.2 ([`220cc06`](https://github.com/santosr2/luma/commit/220cc06a9edf7ecb0d652672b8db1bb6d3df7074)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- Bump version 0.1.0-rc.2 → 0.1.0-rc.3 ([`6988661`](https://github.com/santosr2/luma/commit/6988661827b259e32d2b37b35f3d90ba70fc91b5)) by [@santosr2](https://github.com/santosr2)
+
+
 ## [0.1.0-rc.2] - 2025-12-29
 
 ### ✨ Features
