@@ -46,7 +46,7 @@ end
 
 local function print_version()
     local version = require("luma.version")
-    print("Luma version " .. version.VERSION)
+    print("Luma version " .. version.string)
     print("LuaJIT " .. jit.version)
 end
 
