@@ -143,10 +143,7 @@ spec:
 
 	// Check deployment template
 	if deployment, ok := rendered["templates/deployment.yaml"]; ok {
-		// Note: Known Luma bug - hyphen between ${} expressions is consumed
-		// Expecting: "my-releasetest-app" instead of "my-release-test-app"
-		// TODO: Fix this bug in Luma lexer/parser
-		if !strings.Contains(deployment, `name: "my-releasetest-app"`) {
+		if !strings.Contains(deployment, `name: my-release-test-app`) {
 			t.Errorf("Deployment template missing release name. Got:\n%s", deployment)
 		}
 		if !strings.Contains(deployment, "replicas: 3") {
