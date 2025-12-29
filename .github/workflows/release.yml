@@ -249,6 +249,7 @@ jobs:
     name: Publish to LuaRocks
     needs: build
     runs-on: ubuntu-latest
+    environment: release
 
     steps:
       - name: Checkout code
@@ -341,6 +342,10 @@ jobs:
     name: Publish to PyPI
     needs: build
     runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write  # Required for trusted publishing (OIDC)
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -350,33 +355,31 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install build dependencies
         working-directory: bindings/python
         run: |
           python -m pip install --upgrade pip
-          pip install build twine
+          pip install build
 
       - name: Build package
         working-directory: bindings/python
         run: python -m build
 
-      - name: Publish to PyPI
-        working-directory: bindings/python
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          if [ -z "$TWINE_PASSWORD" ]; then
-            echo "⚠️  PYPI_API_TOKEN not set, skipping PyPI upload"
-            exit 0
-          fi
-          twine upload dist/*
-          echo "✅ Published to PyPI"
+      - name: Publish to PyPI (Trusted Publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: bindings/python/dist/
+          print-hash: true
+          verbose: true
 
   npm:
     name: Publish to npm
     needs: build
     runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write  # Required for provenance (trusted publishing)
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -405,17 +408,16 @@ jobs:
             echo "tag=latest" >> $GITHUB_OUTPUT
           fi
 
-      - name: Publish to npm
+      - name: Publish to npm with Provenance
         working-directory: bindings/nodejs
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "⚠️  NPM_TOKEN not set, skipping npm upload"
-            exit 0
-          fi
-          npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
+          # npm provenance provides cryptographic proof of package origin
+          # This uses GitHub's OIDC token to sign the package
+          npm publish --access public --provenance --tag ${{ steps.npm-tag.outputs.tag }}
           echo "✅ Published to npm with tag: ${{ steps.npm-tag.outputs.tag }}"
+          echo "✅ Package signed with provenance attestation"
 
   go:
     name: Validate Go Module
@@ -511,6 +513,7 @@ jobs:
     name: Publish to Docker
     needs: build
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       contents: read
       packages: write
