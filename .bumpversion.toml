@@ -1,5 +1,5 @@
 [tool.bumpversion]
-current_version = "0.1.0-rc.2"
+current_version = "0.1.0-rc.3"
 parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(\\-(?P<pre>[a-z]+)\\.?(?P<pre_n>\\d+)?)?"
 serialize = [
     "{major}.{minor}.{patch}-{pre}.{pre_n}",
@@ -40,6 +40,12 @@ replace = "minor = {new_minor}"
 filename = "luma/version.lua"
 search = "patch = {current_patch}"
 replace = "patch = {new_patch}"
+
+[[tool.bumpversion.files]]
+filename = "luma/version.lua"
+search = "pre = \"{current_pre}\""
+replace = "pre = \"{new_pre}\""
+regex = false
 
 # Python bindings
 [[tool.bumpversion.files]]

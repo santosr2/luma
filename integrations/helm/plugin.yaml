@@ -1,5 +1,5 @@
 name: "luma"
-version: "0.1.0-rc.2"
+version: "0.1.0-rc.3"
 usage: "Use Luma templates in Helm charts"
 description: |-
   A Helm plugin that enables Luma template syntax as an alternative to Go templates.

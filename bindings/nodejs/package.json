@@ -1,6 +1,6 @@
 {
   "name": "luma",
-  "version": "0.1.0-rc.2",
+  "version": "0.1.0-rc.3",
   "description": "Luma template engine for Node.js - Fast, clean templating with Jinja2 compatibility",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
