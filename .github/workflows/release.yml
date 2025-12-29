@@ -61,12 +61,20 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          
+          # LuaRocks only accepts numeric revisions, so use scm-1 for pre-releases
+          if [[ "$VERSION" =~ (alpha|beta|rc) ]]; then
+            ROCKSPEC_VERSION="scm-1"
+          else
+            ROCKSPEC_VERSION="${VERSION}-1"
+          fi
+          echo "rockspec_version=$ROCKSPEC_VERSION" >> $GITHUB_OUTPUT
 
       - name: Create rockspec
         run: |
-          cat > luma-${{ steps.version.outputs.version }}-1.rockspec << 'EOF'
+          cat > luma-${{ steps.version.outputs.rockspec_version }}.rockspec << 'EOF'
           package = "luma"
-          version = "${{ steps.version.outputs.version }}-1"
+          version = "${{ steps.version.outputs.rockspec_version }}"
           source = {
             url = "git://github.com/${{ github.repository }}",
             tag = "${{ steps.version.outputs.tag }}"
@@ -231,7 +239,7 @@ jobs:
           body_path: release_notes.md
           files: |
             luma-${{ steps.version.outputs.version }}.tar.gz
-            luma-${{ steps.version.outputs.version }}-1.rockspec
+            luma-${{ steps.version.outputs.rockspec_version }}.rockspec
           draft: false
           prerelease: ${{ contains(steps.version.outputs.version, 'alpha') || contains(steps.version.outputs.version, 'beta') || contains(steps.version.outputs.version, 'rc') }}
         env:
@@ -259,12 +267,20 @@ jobs:
         run: |
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # LuaRocks only accepts numeric revisions, so use scm-1 for pre-releases
+          if [[ "$VERSION" =~ (alpha|beta|rc) ]]; then
+            ROCKSPEC_VERSION="scm-1"
+          else
+            ROCKSPEC_VERSION="${VERSION}-1"
+          fi
+          echo "rockspec_version=$ROCKSPEC_VERSION" >> $GITHUB_OUTPUT
 
       - name: Create rockspec
         run: |
-          cat > luma-${{ steps.version.outputs.version }}-1.rockspec << 'EOF'
+          cat > luma-${{ steps.version.outputs.rockspec_version }}.rockspec << 'EOF'
           package = "luma"
-          version = "${{ steps.version.outputs.version }}-1"
+          version = "${{ steps.version.outputs.rockspec_version }}"
           source = {
             url = "git://github.com/${{ github.repository }}",
             tag = "${GITHUB_REF_NAME}"
@@ -318,7 +334,7 @@ jobs:
             echo "⚠️  LUAROCKS_API_KEY not set, skipping LuaRocks upload"
             exit 0
           fi
-          luarocks upload luma-${{ steps.version.outputs.version }}-1.rockspec --api-key="$LUAROCKS_API_KEY"
+          luarocks upload luma-${{ steps.version.outputs.rockspec_version }}.rockspec --api-key="$LUAROCKS_API_KEY"
           echo "✅ Published to LuaRocks"
 
   python:
