@@ -94,6 +94,7 @@ build = {
    }
 }
 EOF
+RUN ROCKSPEC_VERSION=$(echo "${VERSION}" | grep -q -E '(alpha|beta|rc)' && echo "scm-1" || echo "${VERSION}-1") && \
     sed -i "s/ROCKSPEC_VERSION_PLACEHOLDER/${ROCKSPEC_VERSION}/g" /app/luma-${ROCKSPEC_VERSION}.rockspec && \
     sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" /app/luma-${ROCKSPEC_VERSION}.rockspec
 
