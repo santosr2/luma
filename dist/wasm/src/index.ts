@@ -7,13 +7,14 @@
  * ```html
  * <script src="https://unpkg.com/@luma/browser"></script>
  * <script>
- *   const result = Luma.render('Hello, $name!', { name: 'World' });
+ *   const result = await Luma.render('Hello, $name!', { name: 'World' });
  *   console.log(result); // Hello, World!
  * </script>
  * ```
  */
 
-import { LuaFactory } from 'wasmoon';
+import { LuaFactory, LuaEngine } from 'wasmoon';
+import lumaModules from './modules';
 
 /**
  * Context for template rendering
@@ -133,41 +134,22 @@ export function compile(template: string): Template {
 /**
  * Load Luma Lua modules into the Lua engine
  */
-async function loadLumaModules(lua: any): Promise<void> {
-  // In a real implementation, these would be embedded or fetched
-  // For now, we'll provide a minimal stub
-
-  const lumaStub = `
--- Minimal Luma implementation for browser
-local luma = {}
-
-function luma.render(template, context, options)
-  -- Basic variable interpolation
-  local result = template
-
-  -- Replace $var with context values
-  result = result:gsub("%$([%w_]+)", function(var)
-    return tostring(context[var] or "")
-  end)
-
-  -- Replace \${expr} with evaluated expressions
-  result = result:gsub("%${([^}]+)}", function(expr)
-    -- Simple evaluation (limited)
-    local value = context[expr]
-    return tostring(value or "")
-  end)
-
-  return result
-end
-
-return luma
-`;
-
-  await lua.doString(`
-    package.preload["luma"] = function()
-      ${lumaStub}
+async function loadLumaModules(lua: LuaEngine): Promise<void> {
+  // Preload all Luma modules from embedded sources
+  const preloadCode = `
+    -- Preload all Luma modules
+    ${Object.entries(lumaModules)
+      .map(
+        ([moduleName, moduleCode]) => `
+    package.preload["${moduleName}"] = function()
+      ${moduleCode}
     end
-  `);
+    `
+      )
+      .join('\n')}
+  `;
+
+  await lua.doString(preloadCode);
 }
 
 // Auto-initialize on import (can be disabled if needed)
