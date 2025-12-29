@@ -1,3 +1,46 @@
+## [0.1.0-rc.2] - 2025-12-29
+
+### ✨ Features
+- **wasm**: Complete WASM build with embedded Lua modules ([`fd85666`](https://github.com/santosr2/luma/commit/fd856668b918c8ee7b36126b708cb567ffc5a727)) by [@santosr2](https://github.com/santosr2)
+- **vscode**: Complete VSCode extension with lumalint integration ([`bfc36f9`](https://github.com/santosr2/luma/commit/bfc36f942c672d2237a2398e3ef0e6f4d6c44022)) by [@santosr2](https://github.com/santosr2)
+- **terraform**: Add Terraform provider implementation ([`270665d`](https://github.com/santosr2/luma/commit/270665d2ab2b52e35a9c4f7e94e8fad97afaf3c9)) by [@santosr2](https://github.com/santosr2)
+- **wasm**: Complete WASM implementation - all 25 tests passing ([`396eac7`](https://github.com/santosr2/luma/commit/396eac78ba2fe90366033cc51d2d6682b0ea1e18)) by [@santosr2](https://github.com/santosr2)
+
+
+### 🐛 Bug Fixes
+- **lexer**: Preserve hyphens between interpolations ([`dc095e0`](https://github.com/santosr2/luma/commit/dc095e0e9e6cf38bbe3ca0054de29f1c9543f0f2)) by [@santosr2](https://github.com/santosr2)
+- **lexer**: Properly distinguish dash-trim from literal hyphens ([`06ad5f1`](https://github.com/santosr2/luma/commit/06ad5f1e86b6e1a675709afb624f00c53c4e88b6)) by [@santosr2](https://github.com/santosr2)
+- **bindings**: Sync Lua modules and fix test issues across all bindings ([`169b6bd`](https://github.com/santosr2/luma/commit/169b6bd38c7184c58ac2c721bc29497674c02100)) by [@santosr2](https://github.com/santosr2)
+- **lexer**: Fix dash-trim with leading whitespace - all 589 tests passing! ([`b1c21fe`](https://github.com/santosr2/luma/commit/b1c21fee7a7c75ddb3b3fbab6a034c177966b06d)) by [@santosr2](https://github.com/santosr2)
+- **tests**: Skip break/continue tests on Lua 5.1 ([`3845581`](https://github.com/santosr2/luma/commit/38455814d8ab56e7e8b6e6e978ad3b95d10680fc)) by [@santosr2](https://github.com/santosr2)
+- **bumpversion**: Remove duplicate docker/build.sh entry ([`43c613e`](https://github.com/santosr2/luma/commit/43c613e1ba222da841c853016709f57efc6edfff)) by [@santosr2](https://github.com/santosr2)
+- **bumpversion**: Add missing files to version bump config ([`889d130`](https://github.com/santosr2/luma/commit/889d1305972d2860f8704462d93548b5779fa6a9)) by [@santosr2](https://github.com/santosr2)
+
+
+### 📚 Documentation
+- **ecosystem**: Update to reflect actual implementation status ([`7b87b7b`](https://github.com/santosr2/luma/commit/7b87b7b3bb765f9d492ff6764c07386adffafeb5)) by [@santosr2](https://github.com/santosr2)
+- **ecosystem**: Update with completed Terraform provider ([`7c25959`](https://github.com/santosr2/luma/commit/7c25959d093f2b70d7af7ced833717a9139b03c9)) by [@santosr2](https://github.com/santosr2)
+
+
+### 🎨 Styling
+- **lexer**: Fix luacheck warnings in native.lua ([`de23e69`](https://github.com/santosr2/luma/commit/de23e69574d3620128c601ff20a9c7c948e7455a)) by [@santosr2](https://github.com/santosr2)
+- **lexer**: Fix luacheck warning - remove trailing whitespace ([`09f8fd1`](https://github.com/santosr2/luma/commit/09f8fd191b9aac4b9dffabfa1906a2ed25733aab)) by [@santosr2](https://github.com/santosr2)
+
+
+### 🧪 Testing
+- **loops**: Enable break/continue directive tests ([`8599c48`](https://github.com/santosr2/luma/commit/8599c48eb05fe1f12029470f40f136fbd0a40ee9)) by [@santosr2](https://github.com/santosr2)
+
+
+### ⚙️  Miscellaneous Tasks
+- **release**: Update CHANGELOG.md for v0.1.0-rc.1 ([`9204ed9`](https://github.com/santosr2/luma/commit/9204ed91b3e6bc6ca91849b6b6d4d1c55e059eea)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- Remove duplicate extensions/ directory ([`c6fc8a6`](https://github.com/santosr2/luma/commit/c6fc8a6cdad526207a56d413f7b722802888701a)) by [@santosr2](https://github.com/santosr2)
+- **release**: Bump version to 0.1.0-rc.2 ([`12a3a5c`](https://github.com/santosr2/luma/commit/12a3a5cd96a049033d1760fa2d4009aaa79bbd30)) by [@santosr2](https://github.com/santosr2)
+
+
+### Sync
+- **bindings**: Sync dash-trim fix to all bindings ([`25256ce`](https://github.com/santosr2/luma/commit/25256ce95cac1038b516c365739eecae2684dee7)) by [@santosr2](https://github.com/santosr2)
+
+
 ## [0.1.0-rc.1] - 2025-12-23
 
 ### ✨ Features
