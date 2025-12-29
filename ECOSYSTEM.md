@@ -1,17 +1,17 @@
-# Luma Ecosystem Roadmap
+# Luma Ecosystem
 
-Complete roadmap for Luma's multi-language and tooling ecosystem.
+Complete overview of Luma's multi-language bindings, integrations, and tooling ecosystem.
 
-## Current Status (v0.1.0)
+## Current Status (v0.1.0-rc.1)
 
 ✅ **Production Ready**
 
 - Core template engine (100% Jinja2 parity)
 - 589/589 tests passing
-- Comprehensive documentation
+- Comprehensive documentation at [santosr2.github.io/luma](https://santosr2.github.io/luma)
 - LuaRocks, Homebrew, Docker distribution
 - Enhanced CLI with stdin/YAML support
-- Python bindings (ready for PyPI)
+- Complete ecosystem of bindings and tools
 
 ## Ecosystem Projects
 
@@ -20,230 +20,345 @@ Complete roadmap for Luma's multi-language and tooling ecosystem.
 #### ✅ Python (`luma-template`)
 
 **Status**: Complete, ready for PyPI  
-**Priority**: P1  
+**Priority**: P0  
 **Location**: `bindings/python/`
 
 ```bash
 pip install luma-template
 ```
 
-[PyPI Publishing Guide](bindings/python/PYPI.md)
+**Features**:
+- Environment class with file/string loaders
+- Template compilation and rendering
+- Jinja2-compatible API
+- Comprehensive test suite (6/6 passing)
+- Flask integration example
 
-#### 🚧 Go (`luma-go`)
+**Docs**: [PyPI Publishing Guide](bindings/python/PYPI.md)
 
-**Status**: Planned  
-**Priority**: P1 (High demand in DevOps)  
+#### ✅ Go (`github.com/santosr2/luma-go`)
+
+**Status**: Complete, ready for pkg.go.dev  
+**Priority**: P0  
 **Location**: `bindings/go/`
 
-**Key Use Cases**:
+```bash
+go get github.com/santosr2/luma-go
+```
 
-- Helm plugin (alternative to Go templates)
-- Kubernetes operators
-- DevOps tooling
+**Features**:
+- `Render()` function for simple rendering
+- `Template` type for compiled templates
+- Full Lua runtime integration via gopher-lua
+- Comprehensive test suite (15+ tests)
+- Basic and Kubernetes examples
 
-[Implementation Plan](bindings/go/README.md)
+**Docs**: [Go Bindings README](bindings/go/README.md)
 
-#### 🚧 Node.js (`@luma/templates`)
+#### ✅ Node.js (`@luma/templates`)
 
-**Status**: Planned  
-**Priority**: P2  
+**Status**: Complete, ready for npm  
+**Priority**: P0  
 **Location**: `bindings/nodejs/`
 
-**Key Use Cases**:
+```bash
+npm install @luma/templates
+```
 
-- Express/Koa middleware
-- Static site generators
-- Browser-based rendering
+**Features**:
+- `render()`, `compile()`, `renderFile()` functions
+- Lua runtime via Fengari (Lua in JS)
+- TypeScript support with full type definitions
+- Jest test suite with comprehensive coverage
+- ESLint + Prettier configured
 
-[Implementation Plan](bindings/nodejs/README.md)
+**Docs**: [NPM Publishing Guide](bindings/nodejs/NPM.md)
 
 ### Development Tools
 
-#### 🚧 VSCode Extension
+#### ✅ Lumalint
 
-**Status**: Planned  
-**Priority**: P2  
-**Location**: `extensions/vscode/`
-
-**Features**:
-
-- Syntax highlighting
-- IntelliSense
-- Diagnostics
-- Code actions
-- Navigation
-
-[Feature Spec](extensions/vscode/README.md)
-
-#### 🚧 Lumalint
-
-**Status**: Planned  
-**Priority**: P2  
+**Status**: Complete, functional  
+**Priority**: P1  
 **Location**: `tools/lumalint/`
 
+```bash
+# Via LuaRocks (coming soon)
+luarocks install lumalint
+
+# Manual
+./tools/lumalint/bin/lumalint template.luma
+```
+
 **Features**:
-
-- Template validation
+- Syntax validation
 - Undefined variable detection
-- Best practice enforcement
-- CI/CD integration
+- Undefined filter/macro detection
+- Custom rule configuration (`.lumalintrc.yaml`)
+- CI/CD integration ready
 
-[Specification](tools/lumalint/README.md)
+**Docs**: [Lumalint README](tools/lumalint/README.md)
+
+#### ⚠️ VSCode Extension (`vscode-luma`)
+
+**Status**: Basic features complete, needs integration work  
+**Priority**: P1  
+**Location**: `tools/vscode-luma/`
+
+**Implemented**:
+- ✅ Syntax highlighting (Luma + Jinja2)
+- ✅ Code snippets
+- ✅ Language configuration
+
+**TODO**:
+- [ ] Integrate with lumalint for real diagnostics
+- [ ] Implement formatting provider
+- [ ] Add IntelliSense/completion
+- [ ] Publish to VS Code Marketplace
+
+**Docs**: [Publishing Guide](tools/vscode-luma/PUBLISHING.md)
 
 ### Framework Integrations
 
-#### 🚧 Helm Plugin
+#### ✅ Helm Plugin (`helm-luma`)
 
-**Status**: Planned  
-**Priority**: P1 (Killer feature for K8s users)  
+**Status**: Complete, ready for Helm plugin registry  
+**Priority**: P0  
 **Location**: `integrations/helm/`
 
-**Impact**: High - Better DX than Go templates
-
 ```bash
-helm plugin install helm-luma
+# Coming soon
+helm plugin install https://github.com/santosr2/luma/integrations/helm
 helm luma template mychart -f values.yaml
 ```
 
-[Design Doc](integrations/helm/README.md)
+**Features**:
+- `helm luma template` - Render charts with Luma
+- `helm luma convert` - Convert Go templates to Luma
+- `helm luma version` - Show plugin version
+- Chart metadata parsing
+- Values file support
+- Comprehensive tests
 
-#### 🚧 Terraform Provider
+**Impact**: Better DX than Go templates for Kubernetes
 
-**Status**: Planned  
-**Priority**: P3  
+**Docs**: [Helm Integration README](integrations/helm/README.md)
+
+#### ❌ Terraform Provider
+
+**Status**: Not started  
+**Priority**: P3 (low demand)  
 **Location**: `integrations/terraform/`
 
-**Use Case**: Template rendering for Terraform
+**Use Case**: Template rendering for Terraform (if needed)
 
-#### 🚧 Ansible Plugin
+#### ❌ Ansible Plugin
 
-**Status**: Planned  
-**Priority**: P2  
+**Status**: Not started  
+**Priority**: P3 (low demand)  
 **Location**: `integrations/ansible/`
 
-**Use Case**: Alternative to Jinja2 in Ansible
+**Use Case**: Alternative to Jinja2 in Ansible (if needed)
 
 ### Runtime Platforms
 
-#### 🚧 WebAssembly
+#### ⚠️ WebAssembly
 
-**Status**: Planned  
-**Priority**: P2  
+**Status**: Scaffold complete, needs full implementation  
+**Priority**: P1  
 **Location**: `dist/wasm/`
 
-**Use Cases**:
+**Implemented**:
+- ✅ Project structure
+- ✅ TypeScript wrapper API
+- ✅ Rollup build configuration
 
+**TODO**:
+- [ ] Embed full Luma Lua modules (currently using stub)
+- [ ] Add comprehensive tests
+- [ ] Verify Wasmoon integration
+- [ ] Test in browser/Cloudflare Workers/Deno Deploy
+- [ ] Publish to npm as `@luma/wasm`
+
+**Use Cases**:
 - Browser-based templating
 - Cloudflare Workers
 - Deno Deploy
-- Vercel Edge
+- Vercel Edge Functions
 
-[Architecture](dist/wasm/README.md)
+**Docs**: [WASM README](dist/wasm/README.md)
+
+## Distribution Channels
+
+### Package Managers
+
+| Channel | Status | Package | Command |
+|---------|--------|---------|---------|
+| **LuaRocks** | ✅ Live | `luma` | `luarocks install luma` |
+| **Homebrew** | ✅ Formula ready | `luma` | `brew install luma` (tap pending) |
+| **Docker** | ✅ GHCR | `ghcr.io/santosr2/luma` | `docker pull ghcr.io/santosr2/luma:latest` |
+| **PyPI** | 🚀 Ready | `luma-template` | `pip install luma-template` |
+| **npm** | 🚀 Ready | `@luma/templates` | `npm install @luma/templates` |
+| **pkg.go.dev** | 🚀 Ready | `luma-go` | `go get github.com/santosr2/luma-go` |
+
+### Build Tools
+
+- ✅ Makefile with comprehensive targets
+- ✅ GitHub Actions CI/CD (8 workflows)
+- ✅ Pre-commit hooks configuration
+- ✅ `bump-my-version` for version management
+- ✅ `git-cliff` for changelog generation
+
+**Docs**: [Release Process](RELEASING.md)
+
+## Known Issues
+
+### 🐛 Lexer Bug: Hyphen Concatenation
+
+**Issue**: Hyphens between `${}` expressions are consumed by the lexer.
+
+```luma
+# Broken:
+${name}-${version}  # Produces: "name1.0" (hyphen lost)
+
+# Workaround:
+"${name}-${version}"  # Produces: "name-1.0" (quoted)
+```
+
+**Location**: `integrations/helm/internal/chart/chart_test.go:146-148`  
+**Priority**: P0 - Fix before v0.1.0 stable  
+**Tracking**: Issue needed
+
+### 🐛 Loop Control: break/continue
+
+**Issue**: `break` and `continue` directives have codegen issues.
+
+**Status**: 5 tests marked as `pending()` in `spec/loop_enhanced_spec.lua`
+
+**Priority**: P0 - Fix or document as unsupported before v0.1.0 stable  
+**Tracking**: Issue needed
 
 ## Priority Matrix
 
 | Project | Effort | Impact | Priority | Status |
 |---------|--------|--------|----------|---------|
-| Python Bindings | Low | High | P0 | ✅ Complete |
-| Go Bindings | Medium | High | P1 | 🚧 Planned |
-| Helm Plugin | Medium | High | P1 | 🚧 Planned |
-| Enhanced CLI | Low | High | P1 | ✅ Complete |
-| Node.js Bindings | Medium | Medium | P2 | 🚧 Planned |
-| VSCode Extension | Medium | Medium | P2 | 🚧 Planned |
-| Lumalint | Medium | Medium | P2 | 🚧 Planned |
-| WASM Build | Medium | Medium | P2 | 🚧 Planned |
-| Terraform Provider | High | Low | P3 | 🚧 Planned |
-| Ansible Plugin | Medium | Medium | P3 | 🚧 Planned |
+| **Core Engine** | - | High | P0 | ✅ Complete |
+| **Documentation** | - | High | P0 | ✅ Complete |
+| **Python Bindings** | Low | High | P0 | ✅ Complete |
+| **Go Bindings** | Medium | High | P0 | ✅ Complete |
+| **Node.js Bindings** | Medium | High | P0 | ✅ Complete |
+| **Helm Plugin** | Medium | High | P0 | ✅ Complete |
+| **Lumalint** | Medium | Medium | P1 | ✅ Complete |
+| **VSCode Extension** | Medium | Medium | P1 | ⚠️ Partial |
+| **WASM Build** | Medium | Medium | P1 | ⚠️ Partial |
+| **Terraform Provider** | High | Low | P3 | ❌ Not started |
+| **Ansible Plugin** | Medium | Low | P3 | ❌ Not started |
 
-## Implementation Phases
+## Roadmap
 
-### Phase 1 (Q1 2025) - Foundation ✅
+### ✅ Phase 1 - Foundation (COMPLETE)
 
 - [x] Core engine (v0.1.0)
 - [x] Documentation website
 - [x] Distribution (LuaRocks, Homebrew, Docker)
-- [x] Python bindings structure
+- [x] Python bindings
+- [x] Go bindings
+- [x] Node.js bindings
+- [x] Helm plugin
+- [x] Lumalint tool
 - [x] Enhanced CLI
 
-### Phase 2 (Q2 2025) - Go Ecosystem
+### 🚀 Phase 2 - Polish & Publish (Q1 2025)
 
-- [ ] Go bindings implementation
-- [ ] Helm plugin development
-- [ ] Kubernetes examples and docs
-- [ ] Performance benchmarks
+- [ ] Fix critical bugs (lexer hyphen, break/continue)
+- [ ] Complete WASM build
+- [ ] Complete VSCode extension
+- [ ] Publish to PyPI
+- [ ] Publish to npm
+- [ ] Publish Go bindings to pkg.go.dev
+- [ ] Publish Helm plugin
+- [ ] Publish VSCode extension to marketplace
+- [ ] Release v0.1.0 stable
 
-### Phase 3 (Q3 2025) - Developer Experience
+### 🎯 Phase 3 - Growth (Q2 2025)
 
-- [ ] VSCode extension
-- [ ] Lumalint implementation
-- [ ] Node.js bindings
-- [ ] Comprehensive examples
+- [ ] Community adoption
+- [ ] Blog posts and tutorials
+- [ ] Conference talks
+- [ ] Example projects
+- [ ] Performance optimizations
+- [ ] Enterprise features (if needed)
 
-### Phase 4 (Q4 2025) - Expansion
+### 🔮 Phase 4 - Expansion (Q3+ 2025)
 
-- [ ] WASM build
-- [ ] Additional integrations
-- [ ] Community growth
-- [ ] Enterprise features
+- [ ] Additional integrations (based on demand)
+- [ ] Terraform provider (if requested)
+- [ ] Ansible plugin (if requested)
+- [ ] Advanced tooling features
 
 ## Contributing
 
-Each project has its own README with:
+Each project has detailed documentation:
 
-- Architecture overview
-- Implementation steps
-- File structure
-- Dependencies
-- Testing requirements
+- **Architecture**: How it works
+- **Implementation**: Code structure
+- **Testing**: Test requirements
+- **Publishing**: Release process
 
 Pick a project and start contributing!
 
 ### Getting Started
 
-1. Choose a project from the list
+1. Choose a project from the list above
 2. Read its README in the respective directory
 3. Review the main [CONTRIBUTING.md](CONTRIBUTING.md)
 4. Open an issue to discuss your approach
 5. Submit a PR
 
-### Project Ownership
+### Areas Needing Help
 
-Looking for maintainers for:
-
-- Go bindings (requires Go expertise)
-- Helm plugin (requires Kubernetes knowledge)
-- VSCode extension (requires TypeScript/LSP knowledge)
-- Node.js bindings (requires JavaScript/Fengari knowledge)
+- 🐛 Fix lexer hyphen concatenation bug
+- 🐛 Fix or document break/continue directives
+- ⚠️ Complete WASM build (embed Lua modules, add tests)
+- ⚠️ Complete VSCode extension (lumalint integration, formatting)
+- 📚 Write more examples and tutorials
+- 🧪 Add more comprehensive tests
 
 ## Community
 
-- **Discussions**: <https://github.com/santosr2/luma/discussions>
-- **Issues**: <https://github.com/santosr2/luma/issues>
+- **GitHub**: [santosr2/luma](https://github.com/santosr2/luma)
+- **Documentation**: [santosr2.github.io/luma](https://santosr2.github.io/luma)
+- **Discussions**: [GitHub Discussions](https://github.com/santosr2/luma/discussions)
+- **Issues**: [GitHub Issues](https://github.com/santosr2/luma/issues)
 - **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Success Metrics
 
-### Phase 1 ✅
+### Phase 1 ✅ (ACHIEVED)
 
-- [x] 100% test pass rate
+- [x] 100% test pass rate (589/589)
 - [x] Documentation complete
 - [x] Multiple distribution channels
-- [x] v0.1.0 released
+- [x] Complete ecosystem of bindings
+- [x] v0.1.0-rc.1 released
 
-### Phase 2 (Target)
+### Phase 2 (TARGETS)
 
-- [ ] Go bindings published
-- [ ] Helm plugin in use by 10+ projects
+- [ ] All packages published (PyPI, npm, pkg.go.dev, VS Code Marketplace)
+- [ ] Critical bugs fixed
+- [ ] v0.1.0 stable released
 - [ ] 1000+ downloads/month
-- [ ] Active community (20+ contributors)
+- [ ] 10+ community contributors
 
-### Phase 3 (Target)
+### Phase 3 (TARGETS)
 
-- [ ] VSCode extension (1000+ installs)
 - [ ] 5000+ downloads/month
 - [ ] Used in production by major projects
 - [ ] Conference talks/blog posts
+- [ ] Active community (50+ contributors)
 
 ## License
 
 All ecosystem projects: MIT License
+
+See [LICENSE](LICENSE) for details.
