@@ -107,6 +107,11 @@
           "default": false,
           "description": "Lint templates while typing"
         },
+        "luma.lint.lumalintPath": {
+          "type": "string",
+          "default": "lumalint",
+          "description": "Path to lumalint executable"
+        },
         "luma.format.enabled": {
           "type": "boolean",
           "default": true,

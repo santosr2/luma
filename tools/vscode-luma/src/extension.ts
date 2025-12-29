@@ -1,7 +1,11 @@
 import * as vscode from 'vscode';
+import { lintDocument, checkLumalintAvailable, getLumalintVersion } from './lumalint';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Luma extension activated');
+
+    // Check if lumalint is available and show status
+    checkLumalintStatus();
 
     // Register commands
     const renderPreview = vscode.commands.registerCommand('luma.renderPreview', () => {
@@ -36,8 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         vscode.window.showInformationMessage('Linting Luma template...');
 
-        // TODO: Integrate with lumalint
-        // For now, just show a placeholder message
+        // Use real lumalint integration
         const diagnostics = await lintDocument(editor.document);
 
         // Show results
@@ -57,8 +60,8 @@ export function activate(context: vscode.ExtensionContext) {
 
         vscode.window.showInformationMessage('Formatting Luma template...');
 
-        // TODO: Implement formatting
-        // For now, just show a placeholder message
+        // Format using the registered formatter
+        vscode.commands.executeCommand('editor.action.formatDocument');
     });
 
     // Register document formatting provider
@@ -184,73 +187,22 @@ function escapeHtml(text: string): string {
         .replace(/'/g, '&#039;');
 }
 
-async function lintDocument(document: vscode.TextDocument): Promise<vscode.Diagnostic[]> {
-    const diagnostics: vscode.Diagnostic[] = [];
-
-    // Basic syntax validation
-    const text = document.getText();
-    const lines = text.split('\n');
-
-    // Check for unmatched directives
-    const directiveStack: Array<{ name: string; line: number }> = [];
-
-    lines.forEach((line, lineIndex) => {
-        // Check for opening directives
-        const openMatch = line.match(/@(if|for|macro|block|call|autoescape|filter|extends|raw|comment)\b/);
-        if (openMatch) {
-            directiveStack.push({ name: openMatch[1], line: lineIndex });
-        }
-
-        // Check for @end
-        if (line.match(/@end\b/)) {
-            if (directiveStack.length === 0) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(lineIndex, 0, lineIndex, line.length),
-                        'Unexpected @end without matching opening directive',
-                        vscode.DiagnosticSeverity.Error
-                    )
-                );
-            } else {
-                directiveStack.pop();
+async function checkLumalintStatus(): Promise<void> {
+    const available = await checkLumalintAvailable();
+    if (available) {
+        const version = await getLumalintVersion();
+        console.log(`Lumalint available: ${version}`);
+    } else {
+        console.log('Lumalint not found, using basic linting');
+        vscode.window.showInformationMessage(
+            'Lumalint not found. Install it for advanced linting features: luarocks install lumalint',
+            'Learn More'
+        ).then(selection => {
+            if (selection === 'Learn More') {
+                vscode.env.openExternal(vscode.Uri.parse('https://github.com/santosr2/luma/tree/main/tools/lumalint'));
             }
-        }
-
-        // Check for undefined variables (simple heuristic)
-        const varMatches = line.matchAll(/\$([a-zA-Z_][a-zA-Z0-9_]*)/g);
-        for (const match of varMatches) {
-            // This is a simplified check - in a real implementation,
-            // you'd track defined variables through @let, @for, etc.
-            // For now, we'll just warn about single-letter variables as they're often typos
-            if (match[1].length === 1 && match[1] !== match[1].toUpperCase()) {
-                diagnostics.push(
-                    new vscode.Diagnostic(
-                        new vscode.Range(
-                            lineIndex,
-                            match.index || 0,
-                            lineIndex,
-                            (match.index || 0) + match[0].length
-                        ),
-                        `Potential typo: single-letter variable '${match[1]}'`,
-                        vscode.DiagnosticSeverity.Information
-                    )
-                );
-            }
-        }
-    });
-
-    // Check for unclosed directives
-    directiveStack.forEach((directive) => {
-        diagnostics.push(
-            new vscode.Diagnostic(
-                new vscode.Range(directive.line, 0, directive.line, 100),
-                `Unclosed @${directive.name} directive`,
-                vscode.DiagnosticSeverity.Error
-            )
-        );
-    });
-
-    return diagnostics;
+        });
+    }
 }
 
 function formatLumaDocument(document: vscode.TextDocument): vscode.TextEdit[] {
