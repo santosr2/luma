@@ -34,6 +34,38 @@ let luaFactory: LuaFactory | null = null;
 let isInitialized = false;
 
 /**
+ * Convert JavaScript object to Lua table syntax string
+ */
+function convertToLuaTable(obj: any): string {
+  if (obj === null || obj === undefined) {
+    return 'nil';
+  }
+  if (typeof obj === 'string') {
+    return JSON.stringify(obj);
+  }
+  if (typeof obj === 'number' || typeof obj === 'boolean') {
+    return String(obj);
+  }
+  if (Array.isArray(obj)) {
+    const items = obj.map(item => convertToLuaTable(item)).join(', ');
+    return `{${items}}`;
+  }
+  if (typeof obj === 'object') {
+    const pairs = Object.entries(obj)
+      .map(([key, value]) => {
+        // Use bracket notation for keys that aren't valid Lua identifiers
+        const luaKey = /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(key) 
+          ? key 
+          : `[${JSON.stringify(key)}]`;
+        return `${luaKey} = ${convertToLuaTable(value)}`;
+      })
+      .join(', ');
+    return `{${pairs}}`;
+  }
+  return 'nil';
+}
+
+/**
  * Initialize the Luma engine
  * Must be called before rendering templates
  */
@@ -78,14 +110,17 @@ export async function render(
     // Load luma module
     await lua.doString('luma = require("luma")');
 
-    // Convert context to Lua table
+    // Convert context and options to Lua tables
     lua.global.set('ctx', context);
+    
+    // Convert options to Lua table syntax
+    const luaOptions = convertToLuaTable(options);
 
     // Render template
     const renderCode = `
       local template = ${JSON.stringify(template)}
       local ctx = ctx or {}
-      local options = ${JSON.stringify(options)}
+      local options = ${luaOptions}
       return luma.render(template, ctx, options)
     `;
 

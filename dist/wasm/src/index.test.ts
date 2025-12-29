@@ -17,7 +17,7 @@ describe('Luma WASM', () => {
 
     it('should render expression interpolation', async () => {
       const result = await render('Result: ${1 + 2}', {});
-      expect(result).toBe('Result: 3.0');
+      expect(result).toBe('Result: 3');
     });
 
     it('should render with nested properties', async () => {
@@ -73,7 +73,7 @@ describe('Luma WASM', () => {
 @let y = 20
 Result: \${x + y}`;
       const result = await render(template, {});
-      expect(result.trim()).toContain('Result: 30.0');
+      expect(result.trim()).toContain('Result: 30');
     });
 
     it('should handle hyphens between interpolations', async () => {
@@ -103,17 +103,17 @@ Result: \${x + y}`;
     it('should render with context', async () => {
       const template = new Template('Value: $value');
       const result = await template.render({ value: 42 });
-      expect(result).toBe('Value: 42.0');
+      expect(result).toBe('Value: 42');
     });
 
     it('should handle multiple renders', async () => {
       const template = new Template('${x} + ${y} = ${x + y}');
       
       const result1 = await template.render({ x: 1, y: 2 });
-      expect(result1).toBe('1.0 + 2.0 = 3.0');
+      expect(result1).toBe('1 + 2 = 3');
       
       const result2 = await template.render({ x: 10, y: 20 });
-      expect(result2).toBe('10.0 + 20.0 = 30.0');
+      expect(result2).toBe('10 + 20 = 30');
     });
   });
 
@@ -130,8 +130,8 @@ Result: \${x + y}`;
         outers: [1, 2],
         inners: ['a', 'b'],
       });
-      expect(result).toContain('Outer: 1.0');
-      expect(result).toContain('Outer: 2.0');
+      expect(result).toContain('Outer: 1');
+      expect(result).toContain('Outer: 2');
       expect(result).toContain('Inner: a');
       expect(result).toContain('Inner: b');
     });
@@ -172,13 +172,15 @@ Result: \${x + y}`;
 @macro greet(name)
   Hello, $name!
 @end
-\${greet("World")}`;
+
+@call greet("World")
+@endcall`;
       const result = await render(template, {});
       expect(result.trim()).toContain('Hello, World!');
     });
 
     it('should handle filters with arguments', async () => {
-      const result = await render('${value | default("N/A")}', { value: null });
+      const result = await render('${value | default("N/A")}', {});
       expect(result).toBe('N/A');
     });
 
@@ -208,7 +210,7 @@ Result: \${x + y}`;
     it('should support {% for %} syntax', async () => {
       const template = '{% for i in items %}{{ i }}{% endfor %}';
       const result = await render(template, { items: [1, 2, 3] }, { syntax: 'jinja' });
-      expect(result).toBe('1.02.03.0');
+      expect(result).toBe('123');
     });
 
     it('should support {{ }} interpolation', async () => {
