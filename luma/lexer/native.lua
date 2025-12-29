@@ -571,7 +571,7 @@ function native:scan_text()
 			local next_c = self:peek(1)
 			local next_next_c = self:peek(2)
 			local is_trim_directive = false
-			
+
 			-- Check for -$ (dash trim before interpolation)
 			if next_c == "$" and #parts > 0 then
 				-- Check if there's trailing whitespace that could be trimmed
@@ -587,14 +587,14 @@ function native:scan_text()
 					break
 				end
 			end
-			
+
 			-- Check for -@ (dash trim before directive)
 			if not is_trim_directive and next_c == "@" and next_next_c and is_alpha(next_next_c) then
 				if self.at_line_start or (#parts > 0 and (parts[#parts] == " " or parts[#parts] == "\t")) then
 					break
 				end
 			end
-			
+
 			-- Not a trim directive - add hyphen as literal text and continue
 			for _, ws in ipairs(line_whitespace) do
 				table.insert(parts, ws)
@@ -777,7 +777,7 @@ function native:next_token()
 	-- Check for dash trimming before interpolation: -$
 	-- Only treat as trim if this is truly a trim directive, not literal text
 	-- Trim directives should only appear after content, not right after another interpolation
-	if c == "-" and self:peek(1) == "$" then
+	if c == "-" and self:peek(1) == "$" then -- luacheck: ignore (empty branch intentional)
 		-- This is only a trim directive if we're NOT at the start of a new text segment
 		-- i.e., if scan_text would have accumulated some content already
 		-- For now, just let scan_text handle it as literal text
