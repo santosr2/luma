@@ -1,6 +1,6 @@
 {
   "name": "@luma/browser",
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0-rc.2",
   "description": "Luma template engine for browsers - WebAssembly build",
   "main": "dist/luma.js",
   "module": "dist/luma.esm.js",

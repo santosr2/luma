@@ -9,7 +9,7 @@ FROM alpine:3.19
 
 LABEL maintainer="Rubens Santos <rubens@example.com>"
 LABEL description="Luma Template Engine - Fast, clean templating with Jinja2 compatibility"
-LABEL version="0.1.0-rc.1"
+LABEL version="0.1.0-rc.2"
 
 # Install dependencies
 RUN apk add --no-cache \

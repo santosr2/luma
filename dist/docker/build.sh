@@ -13,7 +13,7 @@ echo -e "${GREEN}Building Luma Docker Image${NC}"
 echo "========================================"
 
 # Get version from rockspec or default to 0.1.0
-VERSION="${1:-0.1.0-rc.1}"
+VERSION="${1:-0.1.0-rc.2}"
 REGISTRY="${REGISTRY:-ghcr.io/santosr2}"
 
 # Change to repository root

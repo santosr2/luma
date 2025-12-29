@@ -5,7 +5,7 @@ A modern, fast templating engine that provides 100% Jinja2 feature parity
 while offering cleaner syntax and better performance.
 """
 
-__version__ = "0.1.0-rc.1"
+__version__ = "0.1.0-rc.2"
 __all__ = [
     "Template",
     "Environment",
