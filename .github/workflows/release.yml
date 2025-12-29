@@ -264,12 +264,12 @@ jobs:
         env:
           LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
         run: |
-          if [ -n "$LUAROCKS_API_KEY" ]; then
-            luarocks upload luma-${{ steps.version.outputs.version }}-1.rockspec --api-key="$LUAROCKS_API_KEY"
-          else
-            echo "LUAROCKS_API_KEY not set, skipping upload"
+          if [ -z "$LUAROCKS_API_KEY" ]; then
+            echo "⚠️  LUAROCKS_API_KEY not set, skipping LuaRocks upload"
+            exit 0
           fi
-        continue-on-error: true
+          luarocks upload luma-${{ steps.version.outputs.version }}-1.rockspec --api-key="$LUAROCKS_API_KEY"
+          echo "✅ Published to LuaRocks"
 
   python:
     name: Publish to PyPI
@@ -298,15 +298,14 @@ jobs:
         working-directory: bindings/python
         env:
           TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          if [ -n "$TWINE_PASSWORD" ]; then
-            twine upload dist/*
-            echo "✅ Published to PyPI"
-          else
-            echo "⚠️  PYPI_TOKEN not set, skipping PyPI upload"
+          if [ -z "$TWINE_PASSWORD" ]; then
+            echo "⚠️  PYPI_API_TOKEN not set, skipping PyPI upload"
+            exit 0
           fi
-        continue-on-error: true
+          twine upload dist/*
+          echo "✅ Published to PyPI"
 
   npm:
     name: Publish to npm
@@ -345,13 +344,52 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          if [ -n "$NODE_AUTH_TOKEN" ]; then
-            npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
-            echo "✅ Published to npm with tag: ${{ steps.npm-tag.outputs.tag }}"
-          else
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
             echo "⚠️  NPM_TOKEN not set, skipping npm upload"
+            exit 0
           fi
-        continue-on-error: true
+          npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
+          echo "✅ Published to npm with tag: ${{ steps.npm-tag.outputs.tag }}"
+
+  go:
+    name: Publish Go Module
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Verify module
+        working-directory: bindings/go
+        run: |
+          go mod verify
+          go mod tidy
+          git diff --exit-code go.mod go.sum || (echo "go.mod or go.sum is not tidy" && exit 1)
+
+      - name: Run tests
+        working-directory: bindings/go
+        run: go test -v ./...
+
+      - name: Create summary
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "## Go Module Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The Go module is now available at:" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "go get github.com/${{ github.repository }}/bindings/go@${GITHUB_REF_NAME}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Documentation" >> $GITHUB_STEP_SUMMARY
+          echo "- [pkg.go.dev](https://pkg.go.dev/github.com/${{ github.repository }}/bindings/go@${GITHUB_REF_NAME})" >> $GITHUB_STEP_SUMMARY
+          echo "- [README](https://github.com/${{ github.repository }}/blob/${GITHUB_REF_NAME}/bindings/go/README.md)" >> $GITHUB_STEP_SUMMARY
 
   docker:
     name: Publish to Docker
@@ -409,7 +447,7 @@ jobs:
 
   announce:
     name: Post-release Announcement
-    needs: [build, luarocks, python, npm, docker]
+    needs: [build, luarocks, python, npm, go, docker]
     runs-on: ubuntu-latest
     if: always()
 
