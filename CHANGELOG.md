@@ -1,5 +1,10 @@
 ## [0.1.0-rc.3] - 2025-12-29
 
+### ✨ Features
+- Implement trusted publishing for PyPI and npm ([`f6d0782`](https://github.com/santosr2/luma/commit/f6d0782020de47807d7662c42e75375f5e5a9325)) by [@santosr2](https://github.com/santosr2)
+- Rename npm package to luma-js and implement trusted publishing ([`7d3a779`](https://github.com/santosr2/luma/commit/7d3a779811a177496b4034cdf8bd03435302ba6c)) by [@santosr2](https://github.com/santosr2)
+
+
 ### 🐛 Bug Fixes
 - **ci**: Enable publishing for pre-releases ([`723b63a`](https://github.com/santosr2/luma/commit/723b63a2217d31980126eaa6fa4cb3f234ba35c5)) by [@santosr2](https://github.com/santosr2)
 - **publishing**: Resolve all publishing blockers for registries ([`1f5f7bd`](https://github.com/santosr2/luma/commit/1f5f7bd0f598f81e6a5a5a8ad550e42aa4d65d79)) by [@santosr2](https://github.com/santosr2)
@@ -12,6 +17,9 @@
 - **release**: Consolidate publishing into release workflow ([`5fe0c40`](https://github.com/santosr2/luma/commit/5fe0c40819969cbacfd38f5f6fbd0ce086e27cc9)) by [@santosr2](https://github.com/santosr2)
 - **release**: Remove false positives and consolidate all publishing ([`ae0d03f`](https://github.com/santosr2/luma/commit/ae0d03f352b0d73c6b35b45ef7d6da79d851c5eb)) by [@santosr2](https://github.com/santosr2)
 - **release**: Create rockspec in luarocks job ([`0e3a792`](https://github.com/santosr2/luma/commit/0e3a792fdd6d09347de25076aaf4952e3ee010bd)) by [@santosr2](https://github.com/santosr2)
+- **release**: Use scm-1 for pre-release rockspecs ([`bb84adf`](https://github.com/santosr2/luma/commit/bb84adff90e60f2ef0fcba436b86d67a8e04ce1e)) by [@santosr2](https://github.com/santosr2)
+- **release**: Clarify Go module availability (not publishing) ([`74610f0`](https://github.com/santosr2/luma/commit/74610f0507019a7c75a165b9fc251a05be461b8d)) by [@santosr2](https://github.com/santosr2)
+- **release**: Restore Go documentation generation ([`41d4e73`](https://github.com/santosr2/luma/commit/41d4e73133bda66533228582a69c3785e0c15614)) by [@santosr2](https://github.com/santosr2)
 
 
 ### ♻️  Refactor
@@ -23,6 +31,7 @@
 - Bump version 0.1.0-rc.2 → 0.1.0-rc.3 ([`6988661`](https://github.com/santosr2/luma/commit/6988661827b259e32d2b37b35f3d90ba70fc91b5)) by [@santosr2](https://github.com/santosr2)
 - **release**: Update CHANGELOG.md for v0.1.0-rc.3 ([`fcbf3ca`](https://github.com/santosr2/luma/commit/fcbf3cafb9d9f1dcdb774a010cda59c56c4e82cd)) by [@github-actions[bot]](https://github.com/github-actions[bot])
 - **release**: Update CHANGELOG.md for v0.1.0-rc.3 ([`94cf1c2`](https://github.com/santosr2/luma/commit/94cf1c2f853922073e529ba35874361237ff6533)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- **release**: Update CHANGELOG.md for v0.1.0-rc.3 ([`3e4b106`](https://github.com/santosr2/luma/commit/3e4b1060870da4478311d6056711a7f1fdc76cf9)) by [@github-actions[bot]](https://github.com/github-actions[bot])
 
 
 ## [0.1.0-rc.2] - 2025-12-29
