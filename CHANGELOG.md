@@ -1,7 +1,13 @@
 ## [0.1.0-rc.5] - 2026-01-02
 
+### ✨ Features
+- Rename npm package from luma-js to @santosr2/luma ([`e94d3d5`](https://github.com/santosr2/luma/commit/e94d3d52ae668d4a70fbb18f2f6ca77d64493150)) by [@santosr2](https://github.com/santosr2)
+
+
 ### 🐛 Bug Fixes
 - Simplify npm publishing to use token-only authentication ([`a718db9`](https://github.com/santosr2/luma/commit/a718db900df23bd3fcf7d3fb212ed55d7a51c074)) by [@santosr2](https://github.com/santosr2)
+- Use correct GitHub Actions variable for LuaRocks tag ([`45cc3c5`](https://github.com/santosr2/luma/commit/45cc3c511b48baa8c23449fa352307045f9960b2)) by [@santosr2](https://github.com/santosr2)
+- Update npm package name from luma-js to @santosr2/luma ([`b79f504`](https://github.com/santosr2/luma/commit/b79f5046b6b4bb9a1e625a4199691239f7524627)) by [@santosr2](https://github.com/santosr2)
 
 
 ### ⚙️  Miscellaneous Tasks
@@ -9,6 +15,7 @@
 - Remove PYPI.md documentation file ([`bf7c7fc`](https://github.com/santosr2/luma/commit/bf7c7fcac5f60f4d7a72404b1ff98c5778c761f8)) by [@santosr2](https://github.com/santosr2)
 - **release**: Update CHANGELOG.md for v0.1.0-rc.5 ([`7c3f3d3`](https://github.com/santosr2/luma/commit/7c3f3d30021b8564f0271ac04566805d33a89ce2)) by [@github-actions[bot]](https://github.com/github-actions[bot])
 - Bump version to 0.1.0-rc.5 ([`767feaf`](https://github.com/santosr2/luma/commit/767feaf564fde9c9c43c030f14c05747c003a5be)) by [@santosr2](https://github.com/santosr2)
+- **release**: Update CHANGELOG.md for v0.1.0-rc.5 ([`4bb8294`](https://github.com/santosr2/luma/commit/4bb8294389c80f99f289a294806b7c0fc65fece1)) by [@github-actions[bot]](https://github.com/github-actions[bot])
 
 
 ## [0.1.0-rc.4] - 2026-01-02
