@@ -1,3 +1,13 @@
+## [0.1.0-rc.4] - 2026-01-02
+
+### 🐛 Bug Fixes
+- Improve publishing reliability for npm and luarocks ([`a4ae4f9`](https://github.com/santosr2/luma/commit/a4ae4f953d3110409e7beae345e8915ccc9c922f)) by [@santosr2](https://github.com/santosr2)
+
+
+### ⚙️  Miscellaneous Tasks
+- **release**: Update CHANGELOG.md for v0.1.0-rc.3 ([`a166b10`](https://github.com/santosr2/luma/commit/a166b10bddddb94cce7fc7a25e497524ffb604f4)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+
+
 ## [0.1.0-rc.3] - 2025-12-29
 
 ### ✨ Features
