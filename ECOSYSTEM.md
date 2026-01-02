@@ -2,7 +2,7 @@
 
 Complete overview of Luma's multi-language bindings, integrations, and tooling ecosystem.
 
-## Current Status (v0.1.0-rc.3)
+## Current Status (v0.1.0-rc.4)
 
 ✅ **Production Ready**
 

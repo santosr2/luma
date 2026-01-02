@@ -327,6 +327,12 @@ jobs:
           }
           EOF
 
+      - name: Install JSON library for LuaRocks
+        run: |
+          echo "Installing JSON library for LuaRocks..."
+          luarocks install dkjson
+          lua -e "require('dkjson'); print('✅ dkjson installed successfully')"
+
       - name: Upload to LuaRocks
         env:
           LUAROCKS_API_KEY: ${{ secrets.LUAROCKS_API_KEY }}
@@ -413,6 +419,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
+          # Verify authentication
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "❌ NPM_TOKEN not set in environment secrets"
+            exit 1
+          fi
+          
           # npm provenance provides cryptographic proof of package origin
           # This uses GitHub's OIDC token to sign the package
           npm publish --access public --provenance --tag ${{ steps.npm-tag.outputs.tag }}
@@ -600,7 +612,7 @@ jobs:
           echo ""
           echo "### Node.js (npm)"
           echo "\`\`\`bash"
-          echo "npm install luma@${{ steps.version.outputs.version }}"
+          echo "npm install luma-js@${{ steps.version.outputs.version }}"
           echo "\`\`\`"
           echo ""
           echo "### Go"
