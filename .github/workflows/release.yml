@@ -269,13 +269,23 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           
-          # LuaRocks only accepts numeric revisions, so use scm-1 for pre-releases
-          if [[ "$VERSION" =~ (alpha|beta|rc) ]]; then
-            ROCKSPEC_VERSION="scm-1"
-          else
+          # Convert version to LuaRocks format
+          # LuaRocks pre-release format: 0.1.0rc5-1 (no dots/hyphens in pre-release part)
+          if [[ "$VERSION" =~ ^([0-9]+\.[0-9]+\.[0-9]+)-(alpha|beta|rc)\.([0-9]+)$ ]]; then
+            # Convert 0.1.0-rc.5 to 0.1.0rc5-1
+            BASE="${BASH_REMATCH[1]}"
+            PRERELEASE="${BASH_REMATCH[2]}"
+            PRENUMBER="${BASH_REMATCH[3]}"
+            ROCKSPEC_VERSION="${BASE}${PRERELEASE}${PRENUMBER}-1"
+          elif [[ "$VERSION" =~ ^([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            # Stable version: 0.1.0 to 0.1.0-1
             ROCKSPEC_VERSION="${VERSION}-1"
+          else
+            # Fallback to scm-1 for unknown formats
+            ROCKSPEC_VERSION="scm-1"
           fi
           echo "rockspec_version=$ROCKSPEC_VERSION" >> $GITHUB_OUTPUT
+          echo "📦 LuaRocks version: $ROCKSPEC_VERSION"
 
       - name: Create rockspec
         run: |

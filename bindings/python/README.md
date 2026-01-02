@@ -198,10 +198,6 @@ mypy luma
 flake8 luma
 ```
 
-## Publishing to PyPI
-
-See [PYPI.md](./PYPI.md) for publishing instructions.
-
 ## Version
 
 Current version: **0.1.0**
@@ -214,5 +210,4 @@ MIT License - See LICENSE file for details.
 
 - [Luma Project](https://github.com/santosr2/luma)
 - [Documentation](https://github.com/santosr2/luma/tree/main/docs)
-- [PyPI Package](https://pypi.org/project/luma-py/)
 - [Issue Tracker](https://github.com/santosr2/luma/issues)
