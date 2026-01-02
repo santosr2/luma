@@ -62,7 +62,7 @@ go get github.com/santosr2/luma-go
 **Location**: `bindings/nodejs/`
 
 ```bash
-npm install luma-js
+npm install @santosr2/luma
 ```
 
 **Features**:
@@ -222,7 +222,7 @@ terraform {
 | **Homebrew** | ✅ Formula ready | `luma` | `brew install luma` (tap pending) |
 | **Docker** | ✅ GHCR | `ghcr.io/santosr2/luma` | `docker pull ghcr.io/santosr2/luma:latest` |
 | **PyPI** | 🚀 Ready | `luma-py` | `pip install luma-py` |
-| **npm** | 🚀 Ready | `luma-js` | `npm install luma-js` |
+| **npm** | 🚀 Ready | `@santosr2/luma` | `npm install @santosr2/luma` |
 | **pkg.go.dev** | 🚀 Ready | `luma-go` | `go get github.com/santosr2/luma-go` |
 
 ### Build Tools

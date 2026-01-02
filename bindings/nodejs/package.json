@@ -1,5 +1,5 @@
 {
-  "name": "luma-js",
+  "name": "@santosr2/luma",
   "version": "0.1.0-rc.5",
   "description": "Luma template engine for Node.js - Fast, clean templating with Jinja2 compatibility",
   "main": "dist/index.js",
@@ -34,6 +34,9 @@
     "url": "https://github.com/santosr2/luma/issues"
   },
   "homepage": "https://github.com/santosr2/luma#readme",
+  "publishConfig": {
+    "access": "public"
+  },
   "files": [
     "dist",
     "lua",

@@ -5,7 +5,7 @@
  *
  * @example
  * ```typescript
- * import { render, compile } from 'luma-js';
+ * import { render, compile } from '@santosr2/luma';
  *
  * // Simple rendering
  * const result = render('Hello, $name!', { name: 'World' });
