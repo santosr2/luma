@@ -1,3 +1,14 @@
+## [0.1.0-rc.5] - 2026-01-02
+
+### 🐛 Bug Fixes
+- Simplify npm publishing to use token-only authentication ([`a718db9`](https://github.com/santosr2/luma/commit/a718db900df23bd3fcf7d3fb212ed55d7a51c074)) by [@santosr2](https://github.com/santosr2)
+
+
+### ⚙️  Miscellaneous Tasks
+- **release**: Update CHANGELOG.md for v0.1.0-rc.4 ([`744e0ff`](https://github.com/santosr2/luma/commit/744e0ffc29e8c0476d3682ae057c40bea2159106)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- Remove PYPI.md documentation file ([`bf7c7fc`](https://github.com/santosr2/luma/commit/bf7c7fcac5f60f4d7a72404b1ff98c5778c761f8)) by [@santosr2](https://github.com/santosr2)
+
+
 ## [0.1.0-rc.4] - 2026-01-02
 
 ### 🐛 Bug Fixes
