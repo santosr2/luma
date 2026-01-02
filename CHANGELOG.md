@@ -7,6 +7,8 @@
 ### ⚙️  Miscellaneous Tasks
 - **release**: Update CHANGELOG.md for v0.1.0-rc.4 ([`744e0ff`](https://github.com/santosr2/luma/commit/744e0ffc29e8c0476d3682ae057c40bea2159106)) by [@github-actions[bot]](https://github.com/github-actions[bot])
 - Remove PYPI.md documentation file ([`bf7c7fc`](https://github.com/santosr2/luma/commit/bf7c7fcac5f60f4d7a72404b1ff98c5778c761f8)) by [@santosr2](https://github.com/santosr2)
+- **release**: Update CHANGELOG.md for v0.1.0-rc.5 ([`7c3f3d3`](https://github.com/santosr2/luma/commit/7c3f3d30021b8564f0271ac04566805d33a89ce2)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- Bump version to 0.1.0-rc.5 ([`767feaf`](https://github.com/santosr2/luma/commit/767feaf564fde9c9c43c030f14c05747c003a5be)) by [@santosr2](https://github.com/santosr2)
 
 
 ## [0.1.0-rc.4] - 2026-01-02
