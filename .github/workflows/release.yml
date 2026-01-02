@@ -622,7 +622,7 @@ jobs:
           echo ""
           echo "### Node.js (npm)"
           echo "\`\`\`bash"
-          echo "npm install luma-js@${{ steps.version.outputs.version }}"
+          echo "npm install @santosr2/luma@${{ steps.version.outputs.version }}"
           echo "\`\`\`"
           echo ""
           echo "### Go"
