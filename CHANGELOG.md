@@ -1,3 +1,14 @@
+## [0.1.0-rc.7] - 2026-01-06
+
+### 🐛 Bug Fixes
+- Remove registry-url from setup-node for npm Trusted Publishing ([`8c0ffc0`](https://github.com/santosr2/luma/commit/8c0ffc014d2d6efbeaa2f513ed3f6de7b521d1a8)) by [@santosr2](https://github.com/santosr2)
+
+
+### ⚙️  Miscellaneous Tasks
+- **release**: Update CHANGELOG.md for v0.1.0-rc.6 ([`1fb6234`](https://github.com/santosr2/luma/commit/1fb623449d200687aa7665c6110f5312bc4a2a97)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- Bump version 0.1.0-rc.6 → 0.1.0-rc.7 ([`a4ea1a2`](https://github.com/santosr2/luma/commit/a4ea1a2145b0862e1b53ddadd77f1abbe7f7318d)) by [@santosr2](https://github.com/santosr2)
+
+
 ## [0.1.0-rc.6] - 2026-01-06
 
 ### ✨ Features
