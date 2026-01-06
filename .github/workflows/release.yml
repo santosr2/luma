@@ -394,6 +394,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     permissions:
+      id-token: write  # Required for OIDC trusted publishing
       contents: read
 
     steps:
@@ -423,23 +424,17 @@ jobs:
             echo "tag=latest" >> $GITHUB_OUTPUT
           fi
 
-      - name: Publish to npm with Token
+      - name: Publish to npm with Trusted Publishing
         working-directory: bindings/nodejs
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # Using token-based authentication
-          # For first publish, use token without provenance
-          # After package exists, can set up trusted publishing
+          # Trusted Publishing (OIDC) - No token needed!
+          # Uses GitHub's OIDC token to authenticate
+          # Package signed with cryptographic provenance
           
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "❌ NPM_TOKEN not set"
-            exit 1
-          fi
-          
-          echo "🔐 Publishing with token authentication..."
-          npm publish --access public --tag ${{ steps.npm-tag.outputs.tag }}
+          echo "🔐 Publishing with OIDC Trusted Publishing..."
+          npm publish --access public --provenance --tag ${{ steps.npm-tag.outputs.tag }}
           echo "✅ Published to npm with tag: ${{ steps.npm-tag.outputs.tag }}"
+          echo "✅ Package signed with provenance attestation"
 
   go:
     name: Validate Go Module
