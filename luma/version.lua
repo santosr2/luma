@@ -5,7 +5,7 @@ local version = {
 	major = 0,
 	minor = 1,
 	patch = 0,
-	pre = "rc.8",
+	pre = "rc.9",
 }
 
 --- Version string
