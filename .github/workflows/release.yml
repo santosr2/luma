@@ -404,6 +404,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org/'
 
       - name: Install dependencies
         working-directory: bindings/nodejs
@@ -425,12 +426,20 @@ jobs:
 
       - name: Publish to npm with Trusted Publishing
         working-directory: bindings/nodejs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # Trusted Publishing (OIDC) - No token needed!
-          # Uses GitHub's OIDC token to authenticate
-          # Package signed with cryptographic provenance
+          # npm Trusted Publishing combines:
+          # 1. Token authentication (configured as trusted publisher on npmjs.com)
+          # 2. Provenance signing (cryptographic proof via Sigstore)
+          # The trusted publisher config allows tokens from this workflow
           
-          echo "🔐 Publishing with OIDC Trusted Publishing..."
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "❌ NPM_TOKEN not set"
+            exit 1
+          fi
+          
+          echo "🔐 Publishing with token + provenance..."
           npm publish --access public --provenance --tag ${{ steps.npm-tag.outputs.tag }}
           echo "✅ Published to npm with tag: ${{ steps.npm-tag.outputs.tag }}"
           echo "✅ Package signed with provenance attestation"
