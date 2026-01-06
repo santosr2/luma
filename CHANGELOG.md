@@ -1,3 +1,14 @@
+## [0.1.0-rc.8] - 2026-01-06
+
+### 🐛 Bug Fixes
+- Restore token-based auth for npm with provenance signing ([`a62acc8`](https://github.com/santosr2/luma/commit/a62acc8f9bc840c1b9ebbfd725772e048c5d4dbe)) by [@santosr2](https://github.com/santosr2)
+
+
+### ⚙️  Miscellaneous Tasks
+- **release**: Update CHANGELOG.md for v0.1.0-rc.7 ([`7300412`](https://github.com/santosr2/luma/commit/73004128ab08c3c1e68b73b772017472ed58f1ff)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- Bump version 0.1.0-rc.7 → 0.1.0-rc.8 ([`4a64abf`](https://github.com/santosr2/luma/commit/4a64abfe9e476fb50cf67dd662cfc8b3a3db56c6)) by [@santosr2](https://github.com/santosr2)
+
+
 ## [0.1.0-rc.7] - 2026-01-06
 
 ### 🐛 Bug Fixes
