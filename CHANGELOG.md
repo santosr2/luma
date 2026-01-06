@@ -1,3 +1,21 @@
+## [0.1.0-rc.6] - 2026-01-06
+
+### ✨ Features
+- Migrate npm publishing to Trusted Publishing (OIDC) ([`67bf5ac`](https://github.com/santosr2/luma/commit/67bf5ac53a1c1ffb5ca4e65c133aef02159e1528)) by [@santosr2](https://github.com/santosr2)
+
+
+### 🐛 Bug Fixes
+- Add missing pre field for embedded Lua versions in bumpversion config ([`6552a49`](https://github.com/santosr2/luma/commit/6552a4923835507d7d5cd91a7f0c2b9eafd634e2)) by [@santosr2](https://github.com/santosr2)
+- Correct pre field pattern in bumpversion config ([`2b6e91c`](https://github.com/santosr2/luma/commit/2b6e91cb26976669182ecbe47171b31ee672604e)) by [@santosr2](https://github.com/santosr2)
+- Remove package-lock.json files from bumpversion config ([`b51dd0a`](https://github.com/santosr2/luma/commit/b51dd0a38b4dcf161a6f3acc1c121df6c8d7b829)) by [@santosr2](https://github.com/santosr2)
+- Remove ECOSYSTEM.md from bumpversion config ([`c982947`](https://github.com/santosr2/luma/commit/c982947b8b193021aaed1f75303b914b3aacd25c)) by [@santosr2](https://github.com/santosr2)
+
+
+### ⚙️  Miscellaneous Tasks
+- **release**: Update CHANGELOG.md for v0.1.0-rc.5 ([`f426b5d`](https://github.com/santosr2/luma/commit/f426b5d613e3b3a5ef40df1160424edea159292f)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- Bump version 0.1.0-rc.5 → 0.1.0-rc.6 ([`d5b8a7d`](https://github.com/santosr2/luma/commit/d5b8a7d12feb0cb84a1f4f3ffbb4330ac2658818)) by [@santosr2](https://github.com/santosr2)
+
+
 ## [0.1.0-rc.5] - 2026-01-02
 
 ### ✨ Features
