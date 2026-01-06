@@ -2,7 +2,7 @@
   "name": "luma",
   "displayName": "Luma Templates",
   "description": "Language support for Luma template engine with Jinja2 compatibility",
-  "version": "0.1.0-rc.5",
+  "version": "0.1.0-rc.6",
   "publisher": "luma",
   "engines": {
     "vscode": "^1.70.0"
