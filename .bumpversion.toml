@@ -43,8 +43,8 @@ replace = "patch = {new_patch}"
 
 [[tool.bumpversion.files]]
 filename = "luma/version.lua"
-search = "pre = \"{current_pre}\""
-replace = "pre = \"{new_pre}\""
+search = "pre = \"{current_pre}.{current_pre_n}\""
+replace = "pre = \"{new_pre}.{new_pre_n}\""
 regex = false
 
 # Python bindings
@@ -87,8 +87,8 @@ replace = "patch = {new_patch}"
 
 [[tool.bumpversion.files]]
 filename = "bindings/go/lua/luma/version.lua"
-search = "pre = \"{current_pre}\""
-replace = "pre = \"{new_pre}\""
+search = "pre = \"{current_pre}.{current_pre_n}\""
+replace = "pre = \"{new_pre}.{new_pre_n}\""
 regex = false
 
 # Node.js bindings - embedded Lua version
@@ -109,8 +109,8 @@ replace = "patch = {new_patch}"
 
 [[tool.bumpversion.files]]
 filename = "bindings/nodejs/lua/luma/version.lua"
-search = "pre = \"{current_pre}\""
-replace = "pre = \"{new_pre}\""
+search = "pre = \"{current_pre}.{current_pre_n}\""
+replace = "pre = \"{new_pre}.{new_pre_n}\""
 regex = false
 
 # Helm plugin
