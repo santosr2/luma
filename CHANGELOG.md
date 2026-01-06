@@ -1,3 +1,14 @@
+## [0.1.0-rc.9] - 2026-01-06
+
+### ✨ Features
+- Implement true OIDC trusted publishing for npm ([`5de3efe`](https://github.com/santosr2/luma/commit/5de3efe3a8da0ae02488d6a6ac33b9a615ab6d47)) by [@santosr2](https://github.com/santosr2)
+
+
+### ⚙️  Miscellaneous Tasks
+- **release**: Update CHANGELOG.md for v0.1.0-rc.8 ([`897ee04`](https://github.com/santosr2/luma/commit/897ee040aae6b46faba4849dd8afc73f3b275e31)) by [@github-actions[bot]](https://github.com/github-actions[bot])
+- Bump version 0.1.0-rc.8 → 0.1.0-rc.9 ([`8355b48`](https://github.com/santosr2/luma/commit/8355b48e4734a8e8f6e55bb9ecb840be2887e302)) by [@santosr2](https://github.com/santosr2)
+
+
 ## [0.1.0-rc.8] - 2026-01-06
 
 ### 🐛 Bug Fixes
