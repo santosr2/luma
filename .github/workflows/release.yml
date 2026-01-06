@@ -424,13 +424,25 @@ jobs:
             echo "tag=latest" >> $GITHUB_OUTPUT
           fi
 
-      - name: Publish to npm with Trusted Publishing
+      - name: Publish to npm
         working-directory: bindings/nodejs
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          echo "🔐 Publishing (provenance is generated automatically)"
+          # Using Granular Access Token with Bypass 2FA enabled
+          # Token must be configured with:
+          # - Package: @santosr2/luma
+          # - Permissions: Read and Write
+          # - Bypass two-factor authentication: YES
+          
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "❌ NPM_TOKEN not set"
+            exit 1
+          fi
+          
+          echo "🔐 Publishing with bypass-2FA token..."
           npm publish --tag ${{ steps.npm-tag.outputs.tag }}
           echo "✅ Published to npm with tag: ${{ steps.npm-tag.outputs.tag }}"
-          echo "✅ Package signed with provenance attestation"
 
   go:
     name: Validate Go Module
